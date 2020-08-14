@@ -170,6 +170,12 @@ public void OnConfigsExecuted()
 {
 	Database.Connect(SQL_Connection, "ze_premium_sql");
 	
+	if(kvZombies)	{
+		delete kvZombies;
+		delete kvHumans;
+		delete kvWeapons;
+	}
+
 	kvZombies = new KeyValues("zombies_classes");
 	kvHumans = new KeyValues("humans_classes");
 	kvWeapons = new KeyValues("Weapons");
@@ -195,27 +201,11 @@ public void SQL_Connection(Database hDatabase, const char[] szError, int iData)
 	else
 	{
 		g_hDatabase = hDatabase;
+		//I like different language but I can't read this.
 		//Tady si většinou vytváříš tabulku, pokud ji ještě nemáš, toto doporučuji vždy dělat - taková kontrola, jestli ti to funguje, když se tabulka vytvoří, tak si cajk
 		g_hDatabase.Query(SQL_Error, "CREATE TABLE IF NOT EXISTS ze_premium_sql ( `id` INT NOT NULL AUTO_INCREMENT , `lastname` VARCHAR(128) NOT NULL DEFAULT 'N/A' , `steamid` VARCHAR(64) NOT NULL , `humanwins` INT(128) NOT NULL , `infected` INT(128) NOT NULL , `killedzm` INT(128) NOT NULL , `infectionban` INT(128) NOT NULL , PRIMARY KEY (`id`)) ENGINE = InnoDB;");
 		g_hDatabase.SetCharset("utf8mb4");
 		PrintToServer("[MySQL] Ze Premium-SQL connected.");
-	}
-}
-
-public void OnClientCookiesCached(int client)
-{
-	char buffer[12];
-	
-	GetClientCookie(client, g_hZombieClass, buffer, sizeof(buffer));
-	if (StrEqual(buffer, ""))
-	{
-		SetClientCookie(client, g_hZombieClass, "0");
-	}
-	
-	GetClientCookie(client, g_hHumanClass, buffer, sizeof(buffer));
-	if (StrEqual(buffer, ""))
-	{
-		SetClientCookie(client, g_hHumanClass, "0");
 	}
 }
 
@@ -242,19 +232,19 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public Action Command_CheckJoin(int client, const char[] command, int args)
 {
-    char teamString[3];
-    GetCmdArg(1, teamString, sizeof(teamString));
-    
-    int newTeam = StringToInt(teamString);
-    int oldTeam = GetClientTeam(client);
-    
-    if (newTeam == 3 && oldTeam == 2)
-    {
+	char teamString[3];
+	GetCmdArg(1, teamString, sizeof(teamString));
+	
+	int newTeam = StringToInt(teamString);
+	int oldTeam = GetClientTeam(client);
+	
+	if (newTeam == 3 && oldTeam == 2)
+	{
 		PrintToChat(client, " \x04[Zombie Escape]\x01 You can't change your team!");
 		return Plugin_Handled;	
 	}
 	else if (newTeam == 2 && oldTeam == 3)
-    {
+	{
 		PrintToChat(client, " \x04[Zombie Escape]\x01 You can't change your team!");
 		return Plugin_Handled;	
 	}
@@ -263,14 +253,14 @@ public Action Command_CheckJoin(int client, const char[] command, int args)
 
 public void OnMapStart()
 {
-	for (int i = 1; i <= MaxClients; i++)
+	for (int i = MaxClients; i ; i--)
 	{
 		if (IsValidClient(i))
 		{
 			i_Maximum_Choose[i] = 0;
 			g_bSamegun[i] = false;
-			Format(Primary_Gun[i], sizeof(Primary_Gun), "1");
-			Format(Secondary_Gun[i], sizeof(Secondary_Gun), "1");
+			FormatEx(Primary_Gun[i], sizeof(Primary_Gun[]), "1");
+			FormatEx(Secondary_Gun[i], sizeof(Secondary_Gun[]), "1");
 		}
 	}
 	
@@ -475,12 +465,12 @@ public void Event_RoundStart(Event event, const char[] name, bool bDontBroadcast
 {
 	if (H_FirstInfection != INVALID_HANDLE)
 	{
-		delete H_FirstInfection;
+		KillTimer(H_FirstInfection);
 	}
 	g_bRoundEnd = false;
 	i_Infection = g_cZEFirstInfection.IntValue;
 	H_FirstInfection = CreateTimer(1.0, FirstInfection, _, TIMER_REPEAT);
-	for (int i = 1; i <= MaxClients; i++)
+	for (int i = MaxClients; i ; i--)
 	{
 		if (IsValidClient(i))
 		{
@@ -498,7 +488,7 @@ public void Event_RoundStart(Event event, const char[] name, bool bDontBroadcast
 					if (Primary_Gun[i][0] == 'w')
 					{
 						int primweapon = GetPlayerWeaponSlot(i, CS_SLOT_PRIMARY);
-						if (IsValidEdict(primweapon) && primweapon != -1)
+						if (primweapon != -1)
 						{
 							RemoveEdict(primweapon);
 						}
@@ -507,7 +497,7 @@ public void Event_RoundStart(Event event, const char[] name, bool bDontBroadcast
 					if (Secondary_Gun[i][0] == 'w')
 					{
 						int secweapon = GetPlayerWeaponSlot(i, CS_SLOT_SECONDARY);
-						if (IsValidEdict(secweapon) && secweapon != -1)
+						if (secweapon != -1)
 						{
 							RemoveEdict(secweapon);
 						}
@@ -552,7 +542,7 @@ public void OnRoundEnd(Handle event, char[] name, bool dontBroadcast)
 		}
 	}
 	
-	for (int i = 1; i <= MaxClients; i++)
+	for (int i = MaxClients; i; i--)
 	{
 		if (IsValidClient(i))
 		{

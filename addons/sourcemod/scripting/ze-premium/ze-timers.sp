@@ -239,9 +239,10 @@ public Action FirstInfection(Handle timer)
 			}
 		}
 		CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected", firstinfected);
-		KillTimer(H_FirstInfection);
-		H_FirstInfection = null;	
+		H_FirstInfection = null;
+		return Plugin_Stop;
 	}
+	return Plugin_Continue;
 }
 
 public Action Timer_Beacon(Handle timer, int client)

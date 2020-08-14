@@ -21,7 +21,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 				else
 				{
 					char soundPath[PLATFORM_MAX_PATH];
-					Format(soundPath, sizeof(soundPath), "ze_premium/ze-ctdie%i.mp3", die);
+					FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-ctdie%i.mp3", die);
 					EmitSoundToAll(soundPath, client);
 				}
 				g_bInfected[client] = true;
@@ -59,7 +59,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 					else
 					{
 						char soundPath[PLATFORM_MAX_PATH];
-						Format(soundPath, sizeof(soundPath), "ze_premium/ze-die%i.mp3", die);
+						FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-die%i.mp3", die);
 						EmitSoundToAll(soundPath, client);
 					}
 					g_bIsNemesis[client] = false;
@@ -210,6 +210,8 @@ public Action Event_PlayerHurt(Event event, const char[] name, bool dontBroadcas
 			ZombiePain(victim);
 		}
 	}
+
+	if(!attacker)	return;
 	
 	int zombie, human;
 	char atkweapon[128];

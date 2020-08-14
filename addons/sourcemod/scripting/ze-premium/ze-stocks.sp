@@ -117,12 +117,11 @@ public Action OnWeaponCanUse(int client, int weapon)
 		return Plugin_Continue;
 	
 	char sWeapon[32];
-	GetEdictClassname(weapon, sWeapon, sizeof(sWeapon));
-	
-	if ((StrContains(sWeapon, "knife", false) != -1) || (StrContains(sWeapon, "bayonet", false) != -1) || (StrContains(sWeapon, "shield", false) != -1) || (StrContains(sWeapon, "smoke", false) != -1))
-	{
+	GetEntityNetClass(weapon, sWeapon, sizeof sWeapon); // GetEntityNetClass faster Get*Classname
+	if(!strncmp(sWeapon, "CKnife", 6) ||
+		!strcmp(sWeapon, "CSmokeGrenade") ||
+		!strcmp(sWeapon, "CWeaponShield"))
 		return Plugin_Continue;
-	}
 	
 	return Plugin_Handled;
 }
@@ -434,17 +433,8 @@ public Action SoundHook(int clients[64], int &numClients, char sound[PLATFORM_MA
 
 int GetPlayerHoldingKnife(int weapon)
 {
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if (IsValidClient(i))
-		{
-			int knife = GetPlayerWeaponSlot(i, CS_SLOT_KNIFE);
-			if (weapon == knife)
-				return i;
-		}
-	}
-	
-	return -1;
+	// wwttff
+	return GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
 }
 
 public void StopMapMusic()
@@ -529,7 +519,7 @@ public void Grenade_SpawnPost(int entity)
 	if (client == -1)return;
 	
 	char classname[64];
-	GetEdictClassname(entity, classname, 64);
+	GetEdictClassname(entity, classname, sizeof classname);
 	
 	if (!strcmp(classname, "hegrenade_projectile"))
 	{
@@ -785,7 +775,7 @@ stock Action DeleteOverlay(Handle timer, any userid)
 
 public Action CS_OnBuyCommand(int iClient, const char[] chWeapon)
 {
-    if(StrEqual(chWeapon, "smokegrenade") || StrEqual(chWeapon, "incgrenade") || StrEqual(chWeapon, "molotov") || StrEqual(chWeapon, "flashbang") || StrEqual(chWeapon, "hegrenade") || StrEqual(chWeapon, "decoy") || StrEqual(chWeapon, "g3sg1") || StrEqual(chWeapon, "scar20")) 
+    if(!strcmp(chWeapon, "smokegrenade") || !strcmp(chWeapon, "incgrenade") || !strcmp(chWeapon, "molotov") || !strcmp(chWeapon, "flashbang") || !strcmp(chWeapon, "hegrenade") || !strcmp(chWeapon, "decoy") || !strcmp(chWeapon, "g3sg1") || !strcmp(chWeapon, "scar20")) 
     {
         return Plugin_Handled; // Block the buy.
     }
@@ -801,22 +791,16 @@ public Action Command_PowerH(int client, const char[] command, int args)
     	{
 			if (Human_Power[client][0] != '-')
 			{
-				char NameOfPower1[25];
-				char NameOfPower2[25];
-				char NameOfPower3[25];
-				Format(NameOfPower1, sizeof(NameOfPower1), "SuperKnockback");
-				Format(NameOfPower2, sizeof(NameOfPower2), "Healing");
-				Format(NameOfPower3, sizeof(NameOfPower3), "Unlimited");
-				if (StrEqual(Human_Power[client], NameOfPower1, false))
+				if (!strcmp(Human_Power[client], "SuperKnockback", false))
 				{
 					i_Power[client] = 1;
 				}
-				else if (StrEqual(Human_Power[client], NameOfPower2, false))
+				else if (!strcmp(Human_Power[client], "Healing", false))
 				{
 					i_Power[client] = 2;	
 					H_AmmoTimer[client] = CreateTimer(1.0, PowerOfTimer, client, TIMER_REPEAT);
 				}
-				else if (StrEqual(Human_Power[client], NameOfPower3, false))
+				else if (!strcmp(Human_Power[client], "Unlimited", false))
 				{
 					i_Power[client] = 3;	
 					H_AmmoTimer[client] = CreateTimer(1.0, PowerOfTimer, client, TIMER_REPEAT);

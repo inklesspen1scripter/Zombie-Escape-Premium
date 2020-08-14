@@ -61,11 +61,14 @@ public void OnClientPostAdminCheck(int client)
 	{
 		CreateTimer(1.0, SwitchTeam, client);
 	}
-	
-	char szClass[32];
+}
+
+public void OnClientCookiesCached(int client)
+{
+	char szClass[12];
 	GetClientCookie(client, g_hZombieClass, szClass, sizeof(szClass));
-	i_zclass[client] = StringToInt(szClass);
+	i_zclass[client] = szClass[0] ? StringToInt(szClass) : 0;
 	
 	GetClientCookie(client, g_hHumanClass, szClass, sizeof(szClass));
-	i_hclass[client] = StringToInt(szClass);
+	i_hclass[client] = szClass[0] ? StringToInt(szClass) : 0;
 }

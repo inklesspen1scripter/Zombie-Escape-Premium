@@ -13,7 +13,7 @@ void openMenu(int client)
 	}
 	else
 	{
-		menu.AddItem("menu4", "Admin menu [NO ACCES]", ITEMDRAW_DISABLED);
+		menu.AddItem("menu4", "Admin menu [NO ACCESS]", ITEMDRAW_DISABLED);
 	}
 	menu.AddItem("menu5", ">Your stats<");
 	
@@ -31,7 +31,7 @@ public int mZeHandler(Menu menu, MenuAction action, int client, int index)
 				char szItem[32];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
-				if (StrEqual(szItem, "menu1"))
+				if (!strcmp(szItem, "menu1"))
 				{
 					if(g_bInfected[client] == false)
 					{
@@ -43,22 +43,22 @@ public int mZeHandler(Menu menu, MenuAction action, int client, int index)
 						openMenu(client);
 					}
 				}
-				else if (StrEqual(szItem, "menu2"))
+				else if (!strcmp(szItem, "menu2"))
 				{
 					openClasses(client);
 				}
-				else if (StrEqual(szItem, "menu3"))
+				else if (!strcmp(szItem, "menu3"))
 				{
 					openShop(client);
 				}
-				else if (StrEqual(szItem, "menu4"))
+				else if (!strcmp(szItem, "menu4"))
 				{
 					if(IsClientAdmin(client) || IsClientLeader(client))
 					{
 						openAdmin(client);
 					}
 				}
-				else if (StrEqual(szItem, "menu5"))
+				else if (!strcmp(szItem, "menu5"))
 				{
 					char szSteamId[32], szQuery[512];
 					GetClientAuthId(client, AuthId_Engine, szSteamId, sizeof(szSteamId));
@@ -86,7 +86,7 @@ void openWeapons(int client)
 	
 	menu.SetTitle("[Weapons] Choose a gun:");
 	
-	if (Primary_Gun[client][0] == '\0' || Primary_Gun[client][0] == '1')
+	if (!Primary_Gun[client][0] || Primary_Gun[client][0] == '1')
 	{
 		menu.AddItem("menu1", "Rifle guns");
 		menu.AddItem("menu2", "Heavy guns");
@@ -102,7 +102,7 @@ void openWeapons(int client)
 		menu.AddItem("menu3", text);
 	}
 	
-	if (Secondary_Gun[client][0] == '\0' || Secondary_Gun[client][0] == '1')
+	if (!Secondary_Gun[client][0] || Secondary_Gun[client][0] == '1')
 	{
 		menu.AddItem("menu4", "Pistol guns");
 	}
@@ -137,23 +137,23 @@ public int mZeGunsHandler(Menu menu, MenuAction action, int client, int index)
 				char szItem[32];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
-				if (StrEqual(szItem, "menu1"))
+				if (!strcmp(szItem, "menu1"))
 				{
 					FakeClientCommand(client, "sm_rifle");
 				}
-				else if (StrEqual(szItem, "menu2"))
+				else if (!strcmp(szItem, "menu2"))
 				{
 					FakeClientCommand(client, "sm_heavygun");
 				}
-				else if (StrEqual(szItem, "menu3"))
+				else if (!strcmp(szItem, "menu3"))
 				{
 					FakeClientCommand(client, "sm_smg");
 				}
-				else if (StrEqual(szItem, "menu4"))
+				else if (!strcmp(szItem, "menu4"))
 				{
 					FakeClientCommand(client, "sm_pistols");
 				}
-				else if (StrEqual(szItem, "menu5"))
+				else if (!strcmp(szItem, "menu5"))
 				{
 					if(g_bSamegun[client] == true)
 					{
@@ -168,7 +168,7 @@ public int mZeGunsHandler(Menu menu, MenuAction action, int client, int index)
 						openWeapons(client);
 					}
 				}
-				else if (StrEqual(szItem, "menu6"))
+				else if (!strcmp(szItem, "menu6"))
 				{
 					FakeClientCommand(client, "sm_get");
 				}
@@ -231,11 +231,11 @@ void openShop(int client)
 	
 	menu.SetTitle("[Shop] Main Menu:");
 	
-	Format(text, sizeof(text), "Health-Shot [%i $] [HUMAN]", g_cZEHealthShot.IntValue);
+	FormatEx(text, sizeof(text), "Health-Shot [%i $] [HUMAN]", g_cZEHealthShot.IntValue);
 	menu.AddItem("menu1", text);
-	Format(text, sizeof(text), "Fire Grenade [%i $] [HUMAN]", g_cZEHeNade.IntValue);
+	FormatEx(text, sizeof(text), "Fire Grenade [%i $] [HUMAN]", g_cZEHeNade.IntValue);
 	menu.AddItem("menu2", text);
-	Format(text, sizeof(text), "[VIP] Freeze Grenade [%i $] [HUMAN]", g_cZEFlashNade.IntValue);
+	FormatEx(text, sizeof(text), "[VIP] Freeze Grenade [%i $] [HUMAN]", g_cZEFlashNade.IntValue);
 	if(IsClientVIP(client))
 	{
 		menu.AddItem("menu3", text);
@@ -244,9 +244,9 @@ void openShop(int client)
 	{
 		menu.AddItem("menu3", text, ITEMDRAW_DISABLED);
 	}
-	Format(text, sizeof(text), "Molotov [%i $] [HUMAN]", g_cZEMolotov.IntValue);
+	FormatEx(text, sizeof(text), "Molotov [%i $] [HUMAN]", g_cZEMolotov.IntValue);
 	menu.AddItem("menu4", text);
-	Format(text, sizeof(text), "[VIP] Infection Grenade [%i $] [ZOMBIE]", g_cZEInfnade.IntValue);
+	FormatEx(text, sizeof(text), "[VIP] Infection Grenade [%i $] [ZOMBIE]", g_cZEInfnade.IntValue);
 	if(IsClientVIP(client))
 	{
 		menu.AddItem("menu5", text);
@@ -275,14 +275,14 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 				
 				if(g_bInfected[client] == false)
 				{	
-					if (StrEqual(szItem, "menu1"))
+					if (!strcmp(szItem, "menu1"))
 					{
 						if(money >= g_cZEHealthShot.IntValue)
 						{
 							GivePlayerItem(client, "weapon_healthshot");
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEHealthShot.IntValue);
 							spended[client] += g_cZEHealthShot.IntValue;
-							Format(szBoughtItem, sizeof(szBoughtItem), "HealthShot");	
+							strcopy(szBoughtItem, sizeof(szBoughtItem), "HealthShot");	
 							CPrintToChat(client, " \x04[ZE-Shop]\x01 %t", "bought_item", szBoughtItem);
 						}
 						else
@@ -291,7 +291,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							openShop(client);
 						}
 					}
-					else if (StrEqual(szItem, "menu2"))
+					else if (!strcmp(szItem, "menu2"))
 					{
 						if(money >= g_cZEHeNade.IntValue)
 						{
@@ -299,7 +299,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							g_bFireHE[client] = true;
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEHeNade.IntValue);
 							spended[client] += g_cZEHeNade.IntValue;
-							Format(szBoughtItem, sizeof(szBoughtItem), "Fire Grenade");	
+							strcopy(szBoughtItem, sizeof(szBoughtItem), "Fire Grenade");	
 							CPrintToChat(client, " \x04[ZE-Shop]\x01 %t", "bought_item", szBoughtItem);
 						}
 						else
@@ -308,7 +308,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							openShop(client);
 						}
 					}
-					else if (StrEqual(szItem, "menu3"))
+					else if (!strcmp(szItem, "menu3"))
 					{
 						if(money >= g_cZEFlashNade.IntValue)
 						{
@@ -316,7 +316,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							g_bFreezeFlash[client] = true;
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEFlashNade.IntValue);
 							spended[client] += g_cZEFlashNade.IntValue;
-							Format(szBoughtItem, sizeof(szBoughtItem), "Freeze Grenade");	
+							strcopy(szBoughtItem, sizeof(szBoughtItem), "Freeze Grenade");	
 							CPrintToChat(client, " \x04[ZE-Shop]\x01 %t", "bought_item", szBoughtItem);
 						}
 						else
@@ -325,14 +325,14 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							openShop(client);
 						}
 					}
-					else if (StrEqual(szItem, "menu4"))
+					else if (!strcmp(szItem, "menu4"))
 					{
 						if(money >= g_cZEMolotov.IntValue)
 						{
 							GivePlayerItem(client, "weapon_molotov");
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEMolotov.IntValue);
 							spended[client] += g_cZEMolotov.IntValue;
-							Format(szBoughtItem, sizeof(szBoughtItem), "Molotov");	
+							strcopy(szBoughtItem, sizeof(szBoughtItem), "Molotov");	
 							CPrintToChat(client, " \x04[ZE-Shop]\x01 %t", "bought_item", szBoughtItem);
 						}
 						else
@@ -341,7 +341,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							openShop(client);
 						}
 					}
-					else if (StrEqual(szItem, "menu5"))
+					else if (!strcmp(szItem, "menu5"))
 					{
 						CReplyToCommand(client, " \x04[ZE-Shop]\x01 %t", "no_zombie");
 						openShop(client);
@@ -349,7 +349,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 				}
 				else if(g_bInfected[client] == true)
 				{
-					if (StrEqual(szItem, "menu5"))
+					if (!strcmp(szItem, "menu5"))
 					{
 						if(money >= g_cZEInfnade.IntValue)
 						{
@@ -359,7 +359,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 								g_bInfectNade[client] = true;
 								SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEInfnade.IntValue);
 								spended[client] += g_cZEHealthShot.IntValue;
-								Format(szBoughtItem, sizeof(szBoughtItem), "Infection Grenade");	
+								strcopy(szBoughtItem, sizeof(szBoughtItem), "Infection Grenade");	
 								CPrintToChat(client, " \x04[ZE-Shop]\x01 %t", "bought_item", szBoughtItem);
 								i_binfnade++;
 							}
@@ -427,11 +427,11 @@ public int mZeAdminHandler(Menu menu, MenuAction action, int client, int index)
 				char szItem[32];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
-				if (StrEqual(szItem, "menu1"))
+				if (!strcmp(szItem, "menu1"))
 				{
 					openSwapTeam(client);
 				}
-				else if (StrEqual(szItem, "menu2"))
+				else if (!strcmp(szItem, "menu2"))
 				{
 					if(i_Infection > 0)
 					{
@@ -454,11 +454,11 @@ public int mZeAdminHandler(Menu menu, MenuAction action, int client, int index)
 						openAdmin(client);
 					}
 				}
-				else if (StrEqual(szItem, "menu3"))
+				else if (!strcmp(szItem, "menu3"))
 				{
 					openInfectionBan(client);
 				}
-				else if (StrEqual(szItem, "menu4"))
+				else if (!strcmp(szItem, "menu4"))
 				{
 					openLeader(client);
 				}
@@ -505,15 +505,15 @@ public int mZeLeaderHandler(Menu menu, MenuAction action, int client, int index)
 				char szItem[32];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
-				if (StrEqual(szItem, "menu1"))
+				if (!strcmp(szItem, "menu1"))
 				{
 					openChooseLeader(client);
 				}
-				else if (StrEqual(szItem, "menu2"))
+				else if (!strcmp(szItem, "menu2"))
 				{
 					openSpritesMarkers(client);
 				}
-				else if (StrEqual(szItem, "menu3"))
+				else if (!strcmp(szItem, "menu3"))
 				{
 					if(g_bBeacon[client] == true)
 					{
@@ -594,7 +594,7 @@ public int mZeLeaderSpritesHandler(Menu menu, MenuAction action, int client, int
 				
 				if(g_bInfected[client] == false && g_bIsLeader[client] == true)
 				{
-					if (StrEqual(szItem, "menu1"))
+					if (!strcmp(szItem, "menu1"))
 					{
 						RemoveMarker(client);
 						i_markerEntities[client] = SpawnMarker(client, DEFEND);
@@ -602,14 +602,14 @@ public int mZeLeaderSpritesHandler(Menu menu, MenuAction action, int client, int
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "defend_marker_spawned");
 						openSpritesMarkers(client);
 					}
-					else if (StrEqual(szItem, "menu2"))
+					else if (!strcmp(szItem, "menu2"))
 					{
 						g_bMarker = false;
 						RemoveMarker(client);
 						openSpritesMarkers(client);
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "defend_marker_removed");
 					}
-					else if (StrEqual(szItem, "menu3"))
+					else if (!strcmp(szItem, "menu3"))
 					{
 						RemoveSprite(client);
 						i_spriteEntities[client] = AttachSprite(client, DEFEND);
@@ -618,7 +618,7 @@ public int mZeLeaderSpritesHandler(Menu menu, MenuAction action, int client, int
 						openSpritesMarkers(client);
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "chosen_defend_sprite");
 					}
-					else if (StrEqual(szItem, "menu4"))
+					else if (!strcmp(szItem, "menu4"))
 					{
 						RemoveSprite(client);
 						i_spriteEntities[client] = AttachSprite(client, FOLLOWME);
@@ -627,7 +627,7 @@ public int mZeLeaderSpritesHandler(Menu menu, MenuAction action, int client, int
 						openSpritesMarkers(client);
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "chosen_follow_sprite");
 					}
-					else if (StrEqual(szItem, "menu5"))
+					else if (!strcmp(szItem, "menu5"))
 					{
 						RemoveSprite(client);
 						i_typeofsprite[client] = 0;
@@ -650,9 +650,7 @@ public int mZeLeaderSpritesHandler(Menu menu, MenuAction action, int client, int
 }
 
 void openSwapTeam(int client)
-{
-	char info1[255];
-	
+{	
 	Menu menu = new Menu(mRoundBanHandler);
 	
 	menu.SetTitle("[Change Team] Choose player:");
@@ -664,7 +662,7 @@ void openSwapTeam(int client)
 		{
 			char userid[11];
 			char username[MAX_NAME_LENGTH];
-			IntToString(GetClientUserId(i), userid, sizeof(userid));
+			FormatEx(userid, sizeof userid, "%i", GetClientUserId(i)); // FormatEx faster IntToString
 			if(g_bInfected[i] == false)
 			{
 				Format(username, sizeof(username), "%N [CT]", i);
@@ -680,8 +678,7 @@ void openSwapTeam(int client)
 
 	if (iValidCount == 0)
 	{
-		Format(info1, sizeof(info1), "NO PLAYERS", client);
-		menu.AddItem("", info1, ITEMDRAW_DISABLED);
+		menu.AddItem("", "NO PLAYERS", ITEMDRAW_DISABLED);
 	}
 
 	menu.Display(client, MENU_TIME_FOREVER);
@@ -738,9 +735,7 @@ public int mRoundBanHandler(Menu menu, MenuAction action, int client, int index)
 }
 
 void openChooseLeader(int client)
-{
-	char info1[255];
-	
+{	
 	Menu menu = new Menu(mLeaderChooseHandler);
 	
 	menu.SetTitle("[Leader] Choose player:");
@@ -752,16 +747,16 @@ void openChooseLeader(int client)
 		{
 			char userid[11];
 			char username[MAX_NAME_LENGTH];
-			IntToString(GetClientUserId(i), userid, sizeof(userid));
+			FormatEx(userid, sizeof userid, "%i", GetClientUserId(i));
 			if(g_bInfected[i] == false)
 			{
 				if(g_bIsLeader[i] == true)
 				{
-					Format(username, sizeof(username), "%N [L]", i);
+					FormatEx(username, sizeof(username), "%N [L]", i); // FormatEx faster Format
 				}
 				else
 				{
-					Format(username, sizeof(username), "%N", i);
+					FormatEx(username, sizeof(username), "%N", i); // Format replacable if formatting string it's argument
 				}
 				menu.AddItem(userid, username);
 				iValidCount++;
@@ -771,8 +766,7 @@ void openChooseLeader(int client)
 
 	if (iValidCount == 0)
 	{
-		Format(info1, sizeof(info1), "NO PLAYERS", client);
-		menu.AddItem("", info1, ITEMDRAW_DISABLED);
+		menu.AddItem("", "NO PLAYERS", ITEMDRAW_DISABLED);
 	}
 
 	menu.Display(client, MENU_TIME_FOREVER);
@@ -833,8 +827,6 @@ public int mLeaderChooseHandler(Menu menu, MenuAction action, int client, int in
 
 void openInfectionBan(int client)
 {
-	char info1[255];
-	
 	Menu menu = new Menu(mInfectionChooseHandler);
 	
 	menu.SetTitle("[Infection Ban] Choose player:");
@@ -846,8 +838,8 @@ void openInfectionBan(int client)
 		{
 			char userid[11];
 			char username[MAX_NAME_LENGTH];
-			IntToString(GetClientUserId(i), userid, sizeof(userid));
-			Format(username, sizeof(username), "%N [%i]", i, i_infectionban[i]);
+			FormatEx(userid, sizeof userid, "%i", GetClientUserId(i));
+			FormatEx(username, sizeof(username), "%N [%i]", i, i_infectionban[i]);
 			menu.AddItem(userid, username);
 			iValidCount++;
 		}
@@ -855,8 +847,7 @@ void openInfectionBan(int client)
 
 	if (iValidCount == 0)
 	{
-		Format(info1, sizeof(info1), "NO PLAYERS", client);
-		menu.AddItem("", info1, ITEMDRAW_DISABLED);
+		menu.AddItem("", "NO PLAYERS", ITEMDRAW_DISABLED);
 	}
 
 	menu.Display(client, MENU_TIME_FOREVER);
@@ -895,10 +886,10 @@ void openInfectionLong(int client)
 	
 	menu.SetTitle("[Infection Ban] How long?");
 	
-	menu.AddItem("menu1", "2 rounds");
-	menu.AddItem("menu2", "5 rounds");
-	menu.AddItem("menu3", "10 rounds");
-	menu.AddItem("menu4", "[Remove ban]");
+	menu.AddItem("2", "2 rounds");
+	menu.AddItem("5", "5 rounds");
+	menu.AddItem("10", "10 rounds");
+	menu.AddItem("0", "[Remove ban]");
 	
 	menu.Display(client, MENU_TIME_FOREVER);
 }
@@ -920,42 +911,16 @@ public int mZeInfectionLongHandler(Menu menu, MenuAction action, int client, int
 				char szSteamId[32], szQuery[512];
 				GetClientAuthId(user, AuthId_Engine, szSteamId, sizeof(szSteamId));
 				
-				if (StrEqual(szItem, "menu1"))
-				{
-					newiban = i_infectionban[user] + 2;
-					i_infectionban[user] = newiban;
-					g_hDatabase.Format(szQuery, sizeof(szQuery), "UPDATE ze_premium_sql SET infectionban = '%i' WHERE steamid='%s'", newiban, szSteamId);
-					g_hDatabase.Query(SQL_Error, szQuery);
+				int addtoban = StringToInt(szItem);
+				newiban = addtoban ? (i_infectionban[user] + 2) : 0;
+				i_infectionban[user] = newiban;
+				g_hDatabase.Format(szQuery, sizeof(szQuery), "UPDATE ze_premium_sql SET infectionban = '%i' WHERE steamid='%s'", newiban, szSteamId);
+				g_hDatabase.Query(SQL_Error, szQuery);
+				if(addtoban)
 					CPrintToChatAll(" \x04[ZE-Admin]\x01 %t", "infection_ban", user, newiban);
-					openInfectionBan(client);
-				}
-				else if (StrEqual(szItem, "menu2"))
-				{
-					newiban = i_infectionban[user] + 5;
-					i_infectionban[user] = newiban;
-					g_hDatabase.Format(szQuery, sizeof(szQuery), "UPDATE ze_premium_sql SET infectionban = '%i' WHERE steamid='%s'", newiban, szSteamId);
-					g_hDatabase.Query(SQL_Error, szQuery);
-					CPrintToChatAll(" \x04[ZE-Admin]\x01 %t", "infection_ban", user, newiban);
-					openInfectionBan(client);
-				}
-				else if (StrEqual(szItem, "menu3"))
-				{
-					newiban = i_infectionban[user] + 10;
-					i_infectionban[user] = newiban;
-					g_hDatabase.Format(szQuery, sizeof(szQuery), "UPDATE ze_premium_sql SET infectionban = '%i' WHERE steamid='%s'", newiban, szSteamId);
-					g_hDatabase.Query(SQL_Error, szQuery);
-					CPrintToChatAll(" \x04[ZE-Admin]\x01 %t", "infection_ban", user, newiban);
-					openInfectionBan(client);
-				}
-				else if (StrEqual(szItem, "menu4"))
-				{
-					newiban = 0;
-					i_infectionban[user] = newiban;
-					g_hDatabase.Format(szQuery, sizeof(szQuery), "UPDATE ze_premium_sql SET infectionban = '%i' WHERE steamid='%s'", newiban, szSteamId);
-					g_hDatabase.Query(SQL_Error, szQuery);
+				else
 					CPrintToChatAll(" \x04[ZE-Admin]\x01 %t", "infection_unban", user);
-					openInfectionBan(client);
-				}
+				openInfectionBan(client);
 			}
 		}
 		case MenuAction_End:

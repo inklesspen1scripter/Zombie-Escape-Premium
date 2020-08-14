@@ -23,11 +23,11 @@ public ReadFileFolder(char[] path)
 
 			TrimString(buffer);
 
-			if (!StrEqual(buffer,"",false) && !StrEqual(buffer,".",false) && !StrEqual(buffer,"..",false))
+			if (buffer[0] && strcmp(buffer,".",false) && strcmp(buffer,"..",false))
 			{
-				strcopy(tmp_path,255,path);
-				StrCat(tmp_path,255,"/");
-				StrCat(tmp_path,255,buffer);
+				strcopy(tmp_path,sizeof tmp_path,path);
+				StrCat(tmp_path,sizeof tmp_path,"/");
+				StrCat(tmp_path,sizeof tmp_path,buffer);
 				if(type == FileType_File)
 				{
 					StartToDownload(tmp_path);
@@ -51,7 +51,7 @@ public ReadFileFolder(char[] path)
 
 public DownloadFiles(){
 	char file[256];
-	BuildPath(Path_SM, file, 255, "configs/ze_premium-download.ini");
+	BuildPath(Path_SM, file, sizeof file, "configs/ze_premium-download.ini");
 	Handle fileh = OpenFile(file, "r");
 	char buffer[256];
 	int len;
@@ -140,28 +140,16 @@ public int MenuHandler_ZombieClass(Menu menu, MenuAction action, int client, int
 			char flags[40] = "";
 			kvZombies.GetString("flags", flags, sizeof(flags));
 			
-			if(StrEqual(flags, ""))
+			if(flags[0] && !HasPlayerFlags(client, flags))
 			{
+				PrintToChat(client, " \x04[ZE-Class]\x01 You don't have a \x04VIP");
+			}
+			else	{
 				i_zclass[client] = SelectedZMClass;
 				char szClass[16];
-				Format(szClass, sizeof(szClass), "%i", i_zclass[client]);
+				FormatEx(szClass, sizeof(szClass), "%i", i_zclass[client]);
 				SetClientCookie(client, g_hZombieClass, szClass);
 				CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", s_SelectedClass);
-			} 
-			else
-			{
-				if(HasPlayerFlags(client, flags))
-				{
-					i_zclass[client] = SelectedZMClass;
-					char szClass[16];
-					Format(szClass, sizeof(szClass), "%i", i_zclass[client]);
-					SetClientCookie(client, g_hZombieClass, szClass);
-					CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", s_SelectedClass);					
-				} 
-				else
-				{
-					PrintToChat(client, " \x04[ZE-Class]\x01 You don't have a \x04VIP");
-				}
 			}
 		}
 		case MenuAction_End:
@@ -216,28 +204,17 @@ public int MenuHandler_HumanClass(Menu menu, MenuAction action, int client, int 
 			char flags[40] = "";
 			kvHumans.GetString("flags", flags, sizeof(flags));
 			
-			if(StrEqual(flags, ""))
+			if(flags[0] && !HasPlayerFlags(client, flags))
+			{
+				PrintToChat(client, " \x04[ZE-Class]\x01 You don't have a \x04VIP");
+			}
+			else
 			{
 				i_hclass[client] = SelectedHumanClass;
 				char szClass[16];
 				Format(szClass, sizeof(szClass), "%i", i_hclass[client]);
 				SetClientCookie(client, g_hHumanClass, szClass);
 				CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", s_SelectedClass);
-			} 
-			else
-			{
-				if(HasPlayerFlags(client, flags))
-				{
-					i_hclass[client] = SelectedHumanClass;
-					char szClass[16];
-					Format(szClass, sizeof(szClass), "%i", i_hclass[client]);
-					SetClientCookie(client, g_hHumanClass, szClass);
-					CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", s_SelectedClass);					
-				} 
-				else
-				{
-					PrintToChat(client, " \x04[ZE-Class]\x01 You don't have a \x04VIP");
-				}
 			}
 		}
 		case MenuAction_End:
@@ -267,8 +244,6 @@ void SetPlayerAsZombie(int client)
 	char zmHeath[10];
 	char zmModel[PLATFORM_MAX_PATH + 1];
 	char zmArms[PLATFORM_MAX_PATH + 1];
-	char flags[40] = "";
-	flags = "";
 	kvZombies.GetString("name", 		zmName, 	sizeof(zmName));
 	kvZombies.GetString("gravity", 		zmGravity, 	sizeof(zmGravity));
 	kvZombies.GetString("speed", 		zmSpeed, 	sizeof(zmSpeed));
@@ -323,8 +298,6 @@ void SetPlayerAsHuman(int client)
 	char humanSpeed[10];
 	char humanHeath[10];
 	char humanModel[PLATFORM_MAX_PATH + 1];
-	char flags[40] = "";
-	flags = "";
 	kvHumans.GetString("name", 			humanName, 		sizeof(humanName));
 	kvHumans.GetString("item", 			humanItem, 		sizeof(humanItem));
 	kvHumans.GetString("power", 		humanPower, 	sizeof(humanPower));
@@ -341,21 +314,17 @@ void SetPlayerAsHuman(int client)
 	int ihumanHealth = StringToInt(humanHeath);
 	int ihumanProtect = StringToInt(humanProtect);
 	Selected_Class_Human[client] = humanName;
-	char NameOfFirenade[18];
-	char NameOfFreezenade[18];
-	Format(NameOfFirenade, sizeof(NameOfFirenade), "FireNade");
-	Format(NameOfFreezenade, sizeof(NameOfFreezenade), "FreezeNade");
-	Format(Human_Power[client], sizeof(Human_Power), "%s", humanPower);
+	FormatEx(Human_Power[client], sizeof(Human_Power), "%s", humanPower);
 	
 	CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
 	SetEntityHealth(client, ihumanHealth);
 	if(humanItem[0] != '-')
 	{
-		if (StrEqual(humanItem, NameOfFirenade, false))
+		if (StrEqual(humanItem, "FireNade", false))
 		{
 			FireNade(client);
 		}
-		else if (StrEqual(humanItem, NameOfFreezenade, false))
+		else if (StrEqual(humanItem, "FreezeNade", false))
 		{
 			FreezeNade(client);
 		}
@@ -573,156 +542,11 @@ public int MenuHandler_WeaponsPistols(Menu menu, MenuAction action, int client, 
 
 public bool HasPlayerFlags(int client, char flags[40])
 {
-	
-	if(StrContains(flags, "a") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_RESERVATION))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "b") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_GENERIC))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "c") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_KICK))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "d") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_BAN))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "e") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_UNBAN))
-		{
-			return true;
-		}
-	}	
-	else if(StrContains(flags, "f") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_SLAY))
-		{
-			return true;
-		}
-	}	
-	else if(StrContains(flags, "g") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CHANGEMAP))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "h") != -1)
-	{
-		if(Client_HasAdminFlags(client, 128))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "i") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CONFIG))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "j") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CHAT))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "k") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_VOTE))
-		{
-			return true;
-		}
-	}	
-	else if(StrContains(flags, "l") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_PASSWORD))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "m") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_RCON))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "n") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CHEATS))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "z") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_ROOT))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "o") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM1))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "p") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM2))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "q") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM3))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "r") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM4))
-		{
-			return true;
-		}
-	}			
-	else if(StrContains(flags, "s") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM5))
-		{
-			return true;
-		}
-	}			
-	else if(StrContains(flags, "t") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM6))
-		{
-			return true;
-		}
-	}
-	
-	return false;
+	// wtf man
+	if(GetUserFlagBits(client) & ADMFLAG_ROOT)
+		return true;
+	int flagbits = ReadFlagString(flags);
+	return (GetUserFlagBits(client) & flagbits) == flagbits;
 }
 
 public Action SetArms(Handle timer, int client)
