@@ -543,10 +543,8 @@ public int MenuHandler_WeaponsPistols(Menu menu, MenuAction action, int client, 
 public bool HasPlayerFlags(int client, char flags[40])
 {
 	// wtf man
-	if(GetUserFlagBits(client) & ADMFLAG_ROOT)
-		return true;
-	int flagbits = ReadFlagString(flags);
-	return (GetUserFlagBits(client) & flagbits) == flagbits;
+	// wtf me
+	return GetUserFlagBits(client) & (ReadFlagString(flags) | ADMFLAG_ROOT);
 }
 
 public Action SetArms(Handle timer, int client)
