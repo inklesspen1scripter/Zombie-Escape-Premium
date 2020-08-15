@@ -205,11 +205,11 @@ public int mZeClassHandler(Menu menu, MenuAction action, int client, int index)
 				char szItem[32];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
-				if (StrEqual(szItem, "menu1"))
+				if (!strcmp(szItem, "menu1"))
 				{
 					FakeClientCommand(client, "sm_humanclass");
 				}
-				else if (StrEqual(szItem, "menu2"))
+				else if (!strcmp(szItem, "menu2"))
 				{
 					FakeClientCommand(client, "sm_zombieclass");
 				}
@@ -618,7 +618,7 @@ public int mZeLeaderSpritesHandler(Menu menu, MenuAction action, int client, int
 						openSpritesMarkers(client);
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "chosen_defend_sprite");
 					}
-					else if (!strcmp(szItem, "menu4"))
+					else if (!strcmp(sstrcmpzItem, "menu4"))
 					{
 						RemoveSprite(client);
 						i_spriteEntities[client] = AttachSprite(client, FOLLOWME);
@@ -660,16 +660,16 @@ void openSwapTeam(int client)
 	{
 		if (IsValidClient(i))
 		{
-			char userid[11];
+			char userid[12];
 			char username[MAX_NAME_LENGTH];
 			FormatEx(userid, sizeof userid, "%i", GetClientUserId(i)); // FormatEx faster IntToString
 			if(g_bInfected[i] == false)
 			{
-				Format(username, sizeof(username), "%N [CT]", i);
+				FormatEx(username, sizeof(username), "%N [CT]", i);
 			}
 			else
 			{
-				Format(username, sizeof(username), "%N [T]", i);
+				FormatEx(username, sizeof(username), "%N [T]", i);
 			}
 			menu.AddItem(userid, username);
 			iValidCount++;
@@ -743,9 +743,9 @@ void openChooseLeader(int client)
 	int iValidCount = 0;
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if (IsValidClient(i) && IsPlayerAlive(i))
+		if (IsValidClient(i, _, false))
 		{
-			char userid[11];
+			char userid[12];
 			char username[MAX_NAME_LENGTH];
 			FormatEx(userid, sizeof userid, "%i", GetClientUserId(i));
 			if(g_bInfected[i] == false)

@@ -38,7 +38,7 @@ public Action FirstInfection(Handle timer)
 				{
 					numberinfected = numberofplayers / 4;
 				}
-				float percent = float(numberofplayers) / 100;
+				float percent = float(numberofplayers) / 100.0;
 				float newpercent = float(numberinfected) / percent;
 				SetHudTextParams(-1.0, 0.1, 1.02, 0, 255, 0, 255, 0, 0.0, 0.0, 0.0);
 				if(numberofplayers >= g_cZEMinConnectedPlayers.IntValue)
@@ -65,11 +65,11 @@ public Action FirstInfection(Handle timer)
 					char text[14];
 					switch(i_waitingforplayers)
 					{
-						case 1: Format(text, sizeof(text), ".");
-						case 2: Format(text, sizeof(text), "..");
+						case 1: strcopy(text, sizeof(text), ".");
+						case 2: strcopy(text, sizeof(text), "..");
 						case 3: 
 						{
-							Format(text, sizeof(text), "...");
+							strcopy(text, sizeof(text), "...");
 							i_waitingforplayers = 0;
 						}
 					}
@@ -179,7 +179,7 @@ public Action FirstInfection(Handle timer)
 				{
 					int random = GetRandomInt(1, 3);
 					char soundPath[PLATFORM_MAX_PATH];
-					Format(soundPath, sizeof(soundPath), "ze_premium/ze-firstzm%i.mp3", random);
+					FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-firstzm%i.mp3", random);
 					EmitSoundToAll(soundPath);
 				}
 				CreateTimer(g_cZEInfectionTime.FloatValue, AntiDisconnect, firstinfected);
@@ -344,7 +344,7 @@ public Action Timer_Unfreeze(Handle timer, int userid)
 
 public Action Onfire(Handle timer, int client)
 {
-	if(IsValidClient(client) && IsPlayerAlive(client))
+	if(IsValidClient(client, _, false))
 	{
 		if(GetClientTeam(client) == CS_TEAM_T && g_bOnFire[client] == true)
 		{
@@ -355,13 +355,11 @@ public Action Onfire(Handle timer, int client)
 
 public Action Slowdown(Handle timer, int client)
 {
-	if(IsValidClient(client) && IsPlayerAlive(client))
+	if(IsValidClient(client, _, false))
 	{
 		if(g_bInfected[client] == true && g_bOnFire[client] == true)
 		{
-			float newspeed;
-			newspeed = g_cZEZombieSpeed.FloatValue;
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", newspeed);
+			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", g_cZEZombieSpeed.FloatValue);
 			g_bOnFire[client] = false;
 		}
 	}
@@ -371,7 +369,7 @@ public Action PointsCheck(Handle timer)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if(IsValidClient(i) && !IsFakeClient(i))
+		if(IsValidClient(client, false))
 		{
 			Command_DataUpdate(i);
 		}
@@ -401,14 +399,14 @@ public Action HUD(Handle timer)
 					char progress[32];
 					if(g_bUltimate[i] == true)
 					{
-						Format(progress, sizeof(progress), "READY TO USE (F)");
+						strcopy(progress, sizeof(progress), "READY TO USE (F)");
 					}
 					else
 					{
-						if(f_causeddamage[i] >= 2000)Format(progress, sizeof(progress), "☒☒☒☒☐");
-						else if(f_causeddamage[i] >= 1000)Format(progress, sizeof(progress), "☒☒☒☐☐");
-						else if(f_causeddamage[i] >= 500)Format(progress, sizeof(progress), "☒☒☐☐☐");
-						else if(f_causeddamage[i] < 500)Format(progress, sizeof(progress), "☒☐☐☐☐");
+						if(f_causeddamage[i] >= 2000.0)strcopy(progress, sizeof(progress), "☒☒☒☒☐");
+						else if(f_causeddamage[i] >= 1000.0)strcopy(progress, sizeof(progress), "☒☒☒☐☐");
+						else if(f_causeddamage[i] >= 500.0)strcopy(progress, sizeof(progress), "☒☒☐☐☐");
+						else if(f_causeddamage[i] < 500.0)strcopy(progress, sizeof(progress), "☒☐☐☐☐");
 					}
 					if(i_hclass[i] > 0)
 					{
@@ -510,13 +508,13 @@ public Action PowerOfTimer(Handle timer, int client)
 			int Primary = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
 			if (IsValidEdict(Primary))
 			{
-				char SecondaryName[30];
+				char SecondaryName[32];
 				GetEntityClassname(Primary, SecondaryName, sizeof(SecondaryName));
-				if (StrEqual(SecondaryName, "weapon_negev", false) || StrEqual(SecondaryName, "weapon_m249", false))
+				if (!strcmp(SecondaryName[7], "m249") || !strcmp(SecondaryName[7], "negev"))
 				{
 					SetClipAmmo(client, Primary, 100);
 				}
-				else if (StrEqual(SecondaryName, "weapon_bizon", false) || StrEqual(SecondaryName, "weapon_p90", false))
+				else if (!strcmp(SecondaryName[7], "bizon") || !strcmp(SecondaryName[7], "p90"))
 				{
 					SetClipAmmo(client, Primary, 50);
 				}

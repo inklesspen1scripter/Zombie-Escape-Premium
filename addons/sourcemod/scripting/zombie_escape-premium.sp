@@ -259,8 +259,8 @@ public void OnMapStart()
 		{
 			i_Maximum_Choose[i] = 0;
 			g_bSamegun[i] = false;
-			FormatEx(Primary_Gun[i], sizeof(Primary_Gun[]), "1");
-			FormatEx(Secondary_Gun[i], sizeof(Secondary_Gun[]), "1");
+			strcopy(Primary_Gun[i], sizeof(Primary_Gun[]), "1");
+			strcopy(Secondary_Gun[i], sizeof(Secondary_Gun[]), "1");
 		}
 	}
 	
@@ -684,26 +684,32 @@ public Action CMD_Leader(int client, int args)
 	return Plugin_Handled;
 }
 
+bool SetAndGiveDefaultWeapon(int client, const char[] weapon)	{
+	if (i_Maximum_Choose[client] < g_cZEMaximumUsage.IntValue)
+	{
+		int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
+		if (IsValidEdict(primweapon) && primweapon != -1)
+		{
+			RemoveEdict(primweapon);
+		}
+		strcopy(Primary_Gun[client], sizeof(Primary_Gun[]), weapon);
+		CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", weapon);
+		GivePlayerItem(client, weapon);
+		i_Maximum_Choose[client]++;
+		int usages = g_cZEMaximumUsage.IntValue - i_Maximum_Choose[client];
+		CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "gun_uses_left", usages);
+		return true;
+	}
+	return false;
+}
+
 public Action CMD_P90(int client, int args)
 {
 	if (IsValidClient(client))
 	{
 		if (g_bInfected[client] == false)
 		{
-			if (i_Maximum_Choose[client] < g_cZEMaximumUsage.IntValue)
-			{
-				int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-				if (IsValidEdict(primweapon) && primweapon != -1)
-				{
-					RemoveEdict(primweapon);
-				}
-				Format(Primary_Gun[client], sizeof(Primary_Gun), "weapon_p90");
-				CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", Primary_Gun[client]);
-				GivePlayerItem(client, Primary_Gun[client]);
-				i_Maximum_Choose[client]++;
-				int usages = g_cZEMaximumUsage.IntValue - i_Maximum_Choose[client];
-				CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "gun_uses_left", usages);
-			}
+			SetAndGiveDefaultWeapon(client, "weapon_p90");
 		}
 	}
 	return Plugin_Handled;
@@ -715,20 +721,7 @@ public Action CMD_Bizon(int client, int args)
 	{
 		if (g_bInfected[client] == false)
 		{
-			if (i_Maximum_Choose[client] < g_cZEMaximumUsage.IntValue)
-			{
-				int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-				if (IsValidEdict(primweapon) && primweapon != -1)
-				{
-					RemoveEdict(primweapon);
-				}
-				Format(Primary_Gun[client], sizeof(Primary_Gun), "weapon_bizon");
-				CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", Primary_Gun[client]);
-				GivePlayerItem(client, Primary_Gun[client]);
-				i_Maximum_Choose[client]++;
-				int usages = g_cZEMaximumUsage.IntValue - i_Maximum_Choose[client];
-				CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "gun_uses_left", usages);
-			}
+			SetAndGiveDefaultWeapon(client, "weapon_bizon");
 		}
 	}
 	return Plugin_Handled;
@@ -740,20 +733,7 @@ public Action CMD_Negev(int client, int args)
 	{
 		if (g_bInfected[client] == false)
 		{
-			if (i_Maximum_Choose[client] < g_cZEMaximumUsage.IntValue)
-			{
-				int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-				if (IsValidEdict(primweapon) && primweapon != -1)
-				{
-					RemoveEdict(primweapon);
-				}
-				Format(Primary_Gun[client], sizeof(Primary_Gun), "weapon_negev");
-				CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", Primary_Gun[client]);
-				GivePlayerItem(client, Primary_Gun[client]);
-				i_Maximum_Choose[client]++;
-				int usages = g_cZEMaximumUsage.IntValue - i_Maximum_Choose[client];
-				CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "gun_uses_left", usages);
-			}
+			SetAndGiveDefaultWeapon(client, "weapon_negev");
 		}
 	}
 	return Plugin_Handled;

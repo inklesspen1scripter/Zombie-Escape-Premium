@@ -48,7 +48,7 @@ public void szQueryUpdateData(Database hDatabase, DBResultSet hResults, const ch
 	}
 	
 	int client = GetClientOfUserId(data);
-	char szQuery[515];
+	char szQuery[516];
 	
 	hResults.FetchRow();
 	if (hResults.RowCount > 0)
@@ -96,7 +96,7 @@ public void SQL_QueryToplist(Database hDatabase, DBResultSet hResults, const cha
 		int hwin = hResults.FetchInt(3);
 		if(hwin > 0)
 		{
-			Format(text, sizeof(text), "➸ Players: %s | Human wins: %i", szName, hwin);
+			FormatEx(text, sizeof(text), "➸ Players: %s | Human wins: %i", szName, hwin);
 			AddMenuItem(ClenList, szSteamId, text, ITEMDRAW_DISABLED);
 		}
 	}
@@ -105,8 +105,9 @@ public void SQL_QueryToplist(Database hDatabase, DBResultSet hResults, const cha
 
 public int ClenListHandler(Handle menu, MenuAction action, int client, int item)
 {
-	if (action == MenuAction_Select)
+	if (action == MenuAction_End)
 	{
+		menu.Close();
 	}
 }
 
@@ -128,11 +129,11 @@ public void szQueryCallback(Database hDatabase, DBResultSet hResults, const char
 		
 		Menu VipSystem = CreateMenu(VipSystemHandler);
 		char wins[64];
-		Format(wins, sizeof(wins), "Human Wins: %i", hwin, infected, zombiekilled);
+		FormatEx(wins, sizeof(wins), "Human Wins: %i", hwin, infected, zombiekilled);
 		char infectedzm[64];
-		Format(infectedzm, sizeof(infectedzm), "Infected Humans: %i", infected);
+		FormatEx(infectedzm, sizeof(infectedzm), "Infected Humans: %i", infected);
 		char killedzm[64];
-		Format(killedzm, sizeof(killedzm), "Killed Zombies: %i", zombiekilled);
+		FormatEx(killedzm, sizeof(killedzm), "Killed Zombies: %i", zombiekilled);
 		SetMenuTitle(VipSystem, "[Zombie Escape] Your statistic:");
 		AddMenuItem(VipSystem, "x", wins, ITEMDRAW_DISABLED);
 		AddMenuItem(VipSystem, "x", infectedzm, ITEMDRAW_DISABLED);
@@ -143,9 +144,8 @@ public void szQueryCallback(Database hDatabase, DBResultSet hResults, const char
 
 public int VipSystemHandler(Handle menu, MenuAction action, int client, int item)
 {
-	char cValue[32];
-	GetMenuItem(menu, item, cValue, sizeof(cValue));
-	if (action == MenuAction_Select)
+	if (action == MenuAction_End)
 	{
+		menu.Close();
 	}
 }
