@@ -239,7 +239,6 @@ void SetPlayerAsZombie(int client)
 	}
 		
 	char zmName[100];
-	char zmHeath[12];
 	char zmModel[PLATFORM_MAX_PATH + 1];
 	char zmArms[PLATFORM_MAX_PATH + 1];
 	kvZombies.GetString("name", 		zmName, 	sizeof(zmName));
@@ -296,7 +295,7 @@ void SetPlayerAsHuman(int client)
 	Selected_Class_Human[client] = humanName;
 	
 	CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
-	SetEntityHealth(client, kvHumans,GetNum("health", 100));
+	SetEntityHealth(client, kvHumans.GetNum("health", 100));
 	if(humanItem[0] != '-')
 	{
 		if (!strcmp(humanItem, "FireNade", false))
@@ -326,10 +325,10 @@ void ShowPrimaryWeapons(int client, const char[] key, const char[] title, bool p
 
  	kvWeapons.Rewind();
  	if (!kvWeapons.JumpToKey(key))
- 		return Plugin_Handled;
+ 		return;
  	
 	if (!kvWeapons.GotoFirstSubKey())
-		return Plugin_Handled;
+		return;
  
 	char ClassID[32];
 	char name[152];
@@ -422,7 +421,7 @@ public bool HasPlayerFlags(int client, char flags[40])
 {
 	// wtf man
 	// wtf me
-	return GetUserFlagBits(client) & (ReadFlagString(flags) | ADMFLAG_ROOT);
+	return (GetUserFlagBits(client) & (ReadFlagString(flags) | ADMFLAG_ROOT)) != 0;
 }
 
 public Action SetArms(Handle timer, int client)

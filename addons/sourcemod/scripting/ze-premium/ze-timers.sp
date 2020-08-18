@@ -369,7 +369,7 @@ public Action PointsCheck(Handle timer)
 {
 	for (int i = 1; i <= MaxClients; i++)
 	{
-		if(IsValidClient(client, false))
+		if(IsValidClient(i, false))
 		{
 			Command_DataUpdate(i);
 		}

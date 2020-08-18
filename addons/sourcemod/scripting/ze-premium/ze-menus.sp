@@ -618,7 +618,7 @@ public int mZeLeaderSpritesHandler(Menu menu, MenuAction action, int client, int
 						openSpritesMarkers(client);
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "chosen_defend_sprite");
 					}
-					else if (!strcmp(sstrcmpzItem, "menu4"))
+					else if (!strcmp(szItem, "menu4"))
 					{
 						RemoveSprite(client);
 						i_spriteEntities[client] = AttachSprite(client, FOLLOWME);
