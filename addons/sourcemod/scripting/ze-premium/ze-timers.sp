@@ -358,9 +358,7 @@ public Action Slowdown(Handle timer, int client)
 	{
 		if(g_bInfected[client] == true && g_bOnFire[client] == true)
 		{
-			float newspeed;
-			newspeed = g_cZEZombieSpeed.FloatValue;
-			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", newspeed);
+			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", gPlayerZombieClass[client].speed);
 			g_bOnFire[client] = false;
 		}
 	}

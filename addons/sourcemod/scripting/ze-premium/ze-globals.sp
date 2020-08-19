@@ -25,17 +25,12 @@ int g_iBeamSprite;
 int g_iHaloSprite;
 
 ConVar g_cZEFirstInfection;
-ConVar g_cZEZombieHP;
-ConVar g_cZEZombieSpeed;
-ConVar g_cZEHumanHP;
 ConVar g_cZEHealthShot;
 ConVar g_cZEHeNade;
 ConVar g_cZEFlashNade;
 ConVar g_cZEMolotov;
 ConVar g_cZEMaximumUsage;
 ConVar g_cZEMotherZombieHP;
-ConVar g_cZEZombieModel;
-ConVar g_cZEHumanModel;
 ConVar g_cZEDefendModelVmt;
 ConVar g_cZEDefendModelVtf;
 ConVar g_cZEFollowmeModelVmt;
@@ -114,9 +109,6 @@ Database g_hDatabase;
 Handle g_hDataPackUser;
 
 //MODELS
-char HUMANMODEL[128];
-char ZOMBIEMODEL[128];
-char NEMESISMODEL[128];
 char DEFEND[128], DEFENDVTF[128];
 char FOLLOWME[128], FOLLOWMEVTF[128];
 char ZMWINS[128], HUMANWINS[128];

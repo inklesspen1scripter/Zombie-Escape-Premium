@@ -196,7 +196,7 @@ public int MenuHandler_HumanClass(Menu menu, MenuAction action, int client, int 
 void SetPlayerAsZombie(int client)
 {
 	ZombieClass zc;
-	GetZombieClass(gPlayerSelectedClass[client][1], zc)
+	GetZombieClass(gPlayerSelectedClass[client][1], zc);
 	if(zc.access && !(zc.access & GetUserFlagBits(client)))	{
 		gPlayerSelectedClass[client][1] = 0;
 		GetZombieClass(0, zc);
@@ -205,7 +205,7 @@ void SetPlayerAsZombie(int client)
 	
 	if(zc.arms[0])
 	{
-		strcopy(Zombie_Arms[client], sizeof Zombie_Arms[], zc.arms)
+		strcopy(Zombie_Arms[client], sizeof Zombie_Arms[], zc.arms);
 		CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
@@ -218,7 +218,7 @@ void SetPlayerAsZombie(int client)
 void SetPlayerAsHuman(int client)
 {
 	HumanClass hc;
-	GetHumanClass(gPlayerSelectedClass[client][0], hc)
+	GetHumanClass(gPlayerSelectedClass[client][0], hc);
 	if(hc.access && !(hc.access & GetUserFlagBits(client)))	{
 		gPlayerSelectedClass[client][0] = 0;
 		GetHumanClass(0, hc);
@@ -239,8 +239,8 @@ void SetPlayerAsHuman(int client)
 
 	i_protection[client] = hc.protection;
 	SetEntityHealth(client, hc.health);
-	SetEntityGravity(client, hv.gravity);
-	SetEntityModel(client, hv.model);
+	SetEntityGravity(client, hc.gravity);
+	SetEntityModel(client, hc.model);
 	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", hc.speed);
 }
 
@@ -438,160 +438,6 @@ public int MenuHandler_WeaponsPistols(Menu menu, MenuAction action, int client, 
 			delete menu;
 		}
 	}
-}
-
-public bool HasPlayerFlags(int client, char flags[40])
-{
-	
-	if(StrContains(flags, "a") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_RESERVATION))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "b") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_GENERIC))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "c") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_KICK))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "d") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_BAN))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "e") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_UNBAN))
-		{
-			return true;
-		}
-	}	
-	else if(StrContains(flags, "f") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_SLAY))
-		{
-			return true;
-		}
-	}	
-	else if(StrContains(flags, "g") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CHANGEMAP))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "h") != -1)
-	{
-		if(Client_HasAdminFlags(client, 128))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "i") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CONFIG))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "j") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CHAT))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "k") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_VOTE))
-		{
-			return true;
-		}
-	}	
-	else if(StrContains(flags, "l") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_PASSWORD))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "m") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_RCON))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "n") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CHEATS))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "z") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_ROOT))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "o") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM1))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "p") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM2))
-		{
-			return true;
-		}
-	}
-	else if(StrContains(flags, "q") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM3))
-		{
-			return true;
-		}
-	}		
-	else if(StrContains(flags, "r") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM4))
-		{
-			return true;
-		}
-	}			
-	else if(StrContains(flags, "s") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM5))
-		{
-			return true;
-		}
-	}			
-	else if(StrContains(flags, "t") != -1)
-	{
-		if(Client_HasAdminFlags(client, ADMFLAG_CUSTOM6))
-		{
-			return true;
-		}
-	}
-	
-	return false;
 }
 
 public Action SetArms(Handle timer, int client)

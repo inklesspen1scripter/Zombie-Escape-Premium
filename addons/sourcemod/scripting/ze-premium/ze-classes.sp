@@ -42,7 +42,7 @@ void LoadClasses()	{
 		hc.gravity = kv.GetFloat("gravity", 1.0);
 		kv.GetString("item", hc.item, sizeof hc.item, "");
 		kv.GetString("name", hc.name, sizeof hc.name, "Default");
-		kv.GetString("model_path", hc.model, sizeof hc.model, "");
+		kv.GetString("model_path", hc.model, sizeof hc.model, "models/player/custom_player/pikajew/hlvr/hazmat_worker/hazmat_worker.mdl");
 		if(!FileExists(hc.model, true))	hc.model[0] = 0;
 		kv.GetSectionName(hc.ident, sizeof hc.ident);
 

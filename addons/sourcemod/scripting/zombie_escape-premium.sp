@@ -43,7 +43,7 @@ public void OnPluginStart()
 	ZombieClass zc;
 	HumanClass hc;
 	gZombieClasses = new ArrayList(sizeof zc);
-	gHumandClasses = new ArrayList(sizeof hc);
+	gHumanClasses = new ArrayList(sizeof hc);
 
 	LoadTranslations("ZE-Premium");
 	
@@ -100,7 +100,6 @@ public void OnPluginStart()
 	HookEvent("player_hurt", Event_PlayerHurt, EventHookMode_Pre);
 	HookEvent("hegrenade_detonate", OnHeGrenadeDetonate);
 	
-	g_cZEHumanModel = CreateConVar("sm_ze_human_model", "models/player/custom_player/pikajew/hlvr/hazmat_worker/hazmat_worker.mdl", "Model for humans");
 	g_cZEDefendModelVmt = CreateConVar("sm_ze_defend_leader_material_vmt", "materials/ze_premium/defendhere.vmt", "Model for defend material sprite/marker (VMT)");
 	g_cZEDefendModelVtf = CreateConVar("sm_ze_defend_leader_material_vtf", "materials/ze_premium/defendhere.vtf", "Model for defend material sprite/marker (VTF)");
 	g_cZEFollowmeModelVmt = CreateConVar("sm_ze_followme_leader_material_vmt", "materials/ze_premium/followme.vmt", "Model for followme material sprite (VMT)");
@@ -123,7 +122,6 @@ public void OnPluginStart()
 	
 	g_cZEFirstInfection = CreateConVar("sm_ze_infection", "30", "Time to first infection");
 	g_cZEMotherZombieHP = CreateConVar("sm_ze_motherzombiehp", "20000", "Amout of mother zombie HP");
-	g_cZEHumanHP = CreateConVar("sm_ze_humanhp", "100", "Amout of human HP");
 	g_cZEHealthShot = CreateConVar("sm_ze_healthshot", "2000", "Price of healthshot");
 	g_cZEHeNade = CreateConVar("sm_ze_henade", "1000", "Price of he nade");
 	g_cZEFlashNade = CreateConVar("sm_ze_flashnade", "1000", "Price of flash nade");
@@ -172,7 +170,7 @@ public void OnConfigsExecuted()	{
 	gClassNemesis.gravity = g_cZENemesisGravity.FloatValue;
 	g_cZENemesisModel.GetString(gClassNemesis.model, sizeof gClassNemesis.model);
 	if(!FileExists(gClassNemesis.model, true))	gClassNemesis.model[0] = 0;
-	if(gClassNemesis.model[0])	PrecacheModel(gClassNemesis.model, true)
+	if(gClassNemesis.model[0])	PrecacheModel(gClassNemesis.model, true);
 
 	gClassNemesis.arms[0] = 0;
 	strcopy(gClassNemesis.ident, sizeof gClassNemesis.ident, "nemesis\n");
@@ -203,23 +201,6 @@ public void SQL_Connection(Database hDatabase, const char[] szError, int iData)
 	}
 }
 
-public void OnClientCookiesCached(int client)
-{
-	char buffer[12];
-	
-	GetClientCookie(client, g_hZombieClass, buffer, sizeof(buffer));
-	if (StrEqual(buffer, ""))
-	{
-		SetClientCookie(client, g_hZombieClass, "0");
-	}
-	
-	GetClientCookie(client, g_hHumanClass, buffer, sizeof(buffer));
-	if (StrEqual(buffer, ""))
-	{
-		SetClientCookie(client, g_hHumanClass, "0");
-	}
-}
-
 // Natives
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
@@ -243,19 +224,19 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 
 public Action Command_CheckJoin(int client, const char[] command, int args)
 {
-    char teamString[3];
-    GetCmdArg(1, teamString, sizeof(teamString));
-    
-    int newTeam = StringToInt(teamString);
-    int oldTeam = GetClientTeam(client);
-    
-    if (newTeam == 3 && oldTeam == 2)
-    {
+	char teamString[3];
+	GetCmdArg(1, teamString, sizeof(teamString));
+	
+	int newTeam = StringToInt(teamString);
+	int oldTeam = GetClientTeam(client);
+	
+	if (newTeam == 3 && oldTeam == 2)
+	{
 		PrintToChat(client, " \x04[Zombie Escape]\x01 You can't change your team!");
 		return Plugin_Handled;	
 	}
 	else if (newTeam == 2 && oldTeam == 3)
-    {
+	{
 		PrintToChat(client, " \x04[Zombie Escape]\x01 You can't change your team!");
 		return Plugin_Handled;	
 	}
@@ -265,7 +246,6 @@ public Action Command_CheckJoin(int client, const char[] command, int args)
 public void OnMapStart()
 {
 	char g_sZEConfig[PLATFORM_MAX_PATH];
-	BuildPath(Path_SM, g_sZEConfig2, sizeof(g_sZEConfig2), "configs/ze_premium/humans_classes.cfg");
 
 	if(kvWeapons)	delete kvWeapons;
 	kvWeapons = new KeyValues("Weapons");
@@ -289,9 +269,6 @@ public void OnMapStart()
 	DownloadFiles();
 	
 	//MODELS
-	g_cZEHumanModel.GetString(HUMANMODEL, sizeof(HUMANMODEL));
-	g_cZEZombieModel.GetString(ZOMBIEMODEL, sizeof(ZOMBIEMODEL));
-	g_cZENemesisModel.GetString(NEMESISMODEL, sizeof(NEMESISMODEL));
 	g_cZEDefendModelVmt.GetString(DEFEND, sizeof(DEFEND));
 	g_cZEDefendModelVtf.GetString(DEFENDVTF, sizeof(DEFENDVTF));
 	g_cZEFollowmeModelVmt.GetString(FOLLOWME, sizeof(FOLLOWME));
@@ -303,9 +280,6 @@ public void OnMapStart()
 	g_cZEHUMANwinmodel.GetString(HUMANWINSMAT, sizeof(HUMANWINSMAT));
 	g_cZEZMwinmodel.GetString(ZMWINSMAT, sizeof(ZMWINSMAT));
 	
-	PrecacheModel(HUMANMODEL);
-	PrecacheModel(NEMESISMODEL);
-	PrecacheModel(ZOMBIEMODEL);
 	
 	//DECALS
 	AddFileToDownloadsTable(DEFENDVTF);
