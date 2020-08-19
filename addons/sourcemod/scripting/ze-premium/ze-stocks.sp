@@ -795,35 +795,19 @@ public Action CS_OnBuyCommand(int iClient, const char[] chWeapon)
 
 public Action Command_PowerH(int client, const char[] command, int args)
 {
-    if(IsValidClient(client) && g_bInfected[client] == false && i_hclass[client] > 0)
+    if(IsValidClient(client, _, false) && g_bInfected[client] == false)
 	{
     	if(g_bUltimate[client] == true)
     	{
-			if (Human_Power[client][0] != '-')
+			i_Power[client] = gPlayerHumanClass[client].power;
+			if (i_Power[client])
 			{
-				char NameOfPower1[25];
-				char NameOfPower2[25];
-				char NameOfPower3[25];
-				Format(NameOfPower1, sizeof(NameOfPower1), "SuperKnockback");
-				Format(NameOfPower2, sizeof(NameOfPower2), "Healing");
-				Format(NameOfPower3, sizeof(NameOfPower3), "Unlimited");
-				if (StrEqual(Human_Power[client], NameOfPower1, false))
-				{
-					i_Power[client] = 1;
-				}
-				else if (StrEqual(Human_Power[client], NameOfPower2, false))
-				{
-					i_Power[client] = 2;	
-					H_AmmoTimer[client] = CreateTimer(1.0, PowerOfTimer, client, TIMER_REPEAT);
-				}
-				else if (StrEqual(Human_Power[client], NameOfPower3, false))
-				{
-					i_Power[client] = 3;	
+				if(1 < i_Power[client] && i_Power[client] <= 3)	{
 					H_AmmoTimer[client] = CreateTimer(1.0, PowerOfTimer, client, TIMER_REPEAT);
 				}
 				CreateTimer(6.0, EndPower, client);
 				PrintToChatAll(" \x04[ZE-Class]\x01 Player \x06%N\x01 activated his ultimate power!", client);
-				PrintHintText(client, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FFFFFF'>You activated:</font> <font color='#FF8C00'>%s", Human_Power[client]);
+				PrintHintText(client, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FFFFFF'>You activated:</font> <font color='#FF8C00'>%s", GetPowerName(i_Power[client]));
 				EmitSoundToAll("ze_premium/ze-powereffect.mp3", client);
 				g_bUltimate[client] = false;
 			}
@@ -862,4 +846,38 @@ stock int CheckPlayerRange(int client)
 		}
 	}
 	return false;
+}
+
+stock int GetPowerIDByName(const char[] name)	{
+	if(!strcmp(name, "SuperKnockback")) return 1;
+	if(!strcmp(name, "Healing")) return 2;
+	if(!strcmp(name, "Unlimited")) return 3;
+	return 0;
+}
+
+stock char[] GetPowerName(int power)	{
+	char sBuffer[16];
+	switch(power)	{
+		case 0: strcopy(sBuffer, sizeof sBuffer, "SuperKnockback");
+		case 1: strcopy(sBuffer, sizeof sBuffer, "Healing");
+		case 2: strcopy(sBuffer, sizeof sBuffer, "Unlimited");
+		default: sBuffer[0] = 0;
+	}
+	return sBuffer;
+}
+
+stock StripPlayer(int client)	{
+	static int offset = -1;
+	static int size;
+
+	if(offset != -1)	{
+		offset = FindDataMapInfo(client, "m_hMyWeapons");
+		size = GetEntPropArraySize(client, Prop_Data, "m_hMyWeapons");
+	}
+
+	int weapon;
+	for(int i = 0;i!=size;i++)	{
+		weapon = GetEntDataEnt2(client, offset + i * 4);
+		if(weapon != -1)	RemoveEdict(weapon);
+	}
 }

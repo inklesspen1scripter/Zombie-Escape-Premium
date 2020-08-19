@@ -2,8 +2,8 @@
 
 #define DEBUG
 
-#define PLUGIN_AUTHOR "Sniper007"
-#define PLUGIN_VERSION "8.0"
+#define PLUGIN_AUTHOR "Sniper007 & inklesspen"
+#define PLUGIN_VERSION "8.0DV1"
 
 #include <sourcemod>
 #include <sdktools>
@@ -17,6 +17,7 @@
 #include <emitsoundany>
 
 #include "ze-premium/ze-globals.sp"
+#include "ze-premium/ze-classes.sp"
 #include "ze-premium/ze-stocks.sp"
 #include "ze-premium/ze-client.sp"
 #include "ze-premium/ze-timers.sp"
@@ -30,7 +31,7 @@
 
 public Plugin myinfo = 
 {
-	name = "Zombie Escape Premium", 
+	name = "Zombie Escape Premium-Dev", 
 	author = PLUGIN_AUTHOR, 
 	description = "Zombie escape plugin with new features", 
 	version = PLUGIN_VERSION, 
@@ -99,7 +100,6 @@ public void OnPluginStart()
 	HookEvent("player_hurt", Event_PlayerHurt, EventHookMode_Pre);
 	HookEvent("hegrenade_detonate", OnHeGrenadeDetonate);
 	
-	g_cZEZombieModel = CreateConVar("sm_ze_zombie_model", "models/player/custom_player/kodua/frozen_nazi/frozen_nazi.mdl", "Model for zombies");
 	g_cZEHumanModel = CreateConVar("sm_ze_human_model", "models/player/custom_player/pikajew/hlvr/hazmat_worker/hazmat_worker.mdl", "Model for humans");
 	g_cZEDefendModelVmt = CreateConVar("sm_ze_defend_leader_material_vmt", "materials/ze_premium/defendhere.vmt", "Model for defend material sprite/marker (VMT)");
 	g_cZEDefendModelVtf = CreateConVar("sm_ze_defend_leader_material_vtf", "materials/ze_premium/defendhere.vtf", "Model for defend material sprite/marker (VTF)");
@@ -152,10 +152,6 @@ public void OnPluginStart()
 	
 	g_cZEMinConnectedPlayers = CreateConVar("sm_ze_minimum_players", "2", "Minimum of connected players on server for start the game", _, true, 2.0, true, 6.0);
 	
-	BuildPath(Path_SM, g_sZEConfig, sizeof(g_sZEConfig), "configs/ze_premium/zombies_classes.cfg");
-	BuildPath(Path_SM, g_sZEConfig2, sizeof(g_sZEConfig2), "configs/ze_premium/humans_classes.cfg");
-	BuildPath(Path_SM, g_sZEConfig3, sizeof(g_sZEConfig3), "configs/ze_premium/weapons.cfg");
-	
 	g_hZombieClass = RegClientCookie("zombie_class_chosen", "", CookieAccess_Private);
 	g_hHumanClass = RegClientCookie("human_class_chosen", "", CookieAccess_Private);
 	
@@ -167,39 +163,20 @@ public void OnPluginStart()
 	AddCommandListener(Command_CheckJoin, "jointeam");
 	
 	AutoExecConfig(true, "ze_premium");
+	Database.Connect(SQL_Connection, "ze_premium_sql");
 }
 
-public void OnConfigsExecuted()
-{
-	Database.Connect(SQL_Connection, "ze_premium_sql");
-	
-<<<<<<< Updated upstream
-	kvZombies = new KeyValues("zombies_classes");
-	kvHumans = new KeyValues("humans_classes");
-=======
-	if(kvWeapons)	{
-		delete kvWeapons;
-	}
+public void OnConfigsExecuted()	{
+	gClassNemesis.health = g_cZENemesisHP.IntValue;
+	gClassNemesis.speed = g_cZENemesisSpeed.FloatValue;
+	gClassNemesis.gravity = g_cZENemesisGravity.FloatValue;
+	g_cZENemesisModel.GetString(gClassNemesis.model, sizeof gClassNemesis.model);
+	if(!FileExists(gClassNemesis.model, true))	gClassNemesis.model[0] = 0;
+	if(gClassNemesis.model[0])	PrecacheModel(gClassNemesis.model, true)
 
->>>>>>> Stashed changes
-	kvWeapons = new KeyValues("Weapons");
-	kvWeapons.ImportFromFile(g_sZEConfig3);
-
-	//KeyValues kvZombies = new KeyValues("zombies_classes");
-	//KeyValues kvHumans = new KeyValues("humans_classes");
-	//kvHumans.ImportFromFile(g_sZEConfig2);
-	ZombieClass zc;
-	KeyValues kv = new KeyValues("zombies_classes");
-	kv.ImportFromFile(g_sZEConfig);
-	if(kv.GotoFirstSubKey(true))	{
-
-	}
-	else	{
-		zc.health = 10000;
-		zc.speed = 1.2;
-		strcopy(zc.ident, sizeof zc.ident, "123");
-	}
-	kv.Close()
+	gClassNemesis.arms[0] = 0;
+	strcopy(gClassNemesis.ident, sizeof gClassNemesis.ident, "nemesis\n");
+	strcopy(gClassNemesis.name, sizeof gClassNemesis.name, "Nemesis");
 }
 
 public void SQL_Error(Database hDatabase, DBResultSet hResults, const char[] szError, int iData)
@@ -287,14 +264,24 @@ public Action Command_CheckJoin(int client, const char[] command, int args)
 
 public void OnMapStart()
 {
+	char g_sZEConfig[PLATFORM_MAX_PATH];
+	BuildPath(Path_SM, g_sZEConfig2, sizeof(g_sZEConfig2), "configs/ze_premium/humans_classes.cfg");
+
+	if(kvWeapons)	delete kvWeapons;
+	kvWeapons = new KeyValues("Weapons");
+	BuildPath(Path_SM, g_sZEConfig, sizeof(g_sZEConfig), "configs/ze_premium/weapons.cfg");
+	kvWeapons.ImportFromFile(g_sZEConfig);
+
+	LoadClasses();
+
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsValidClient(i))
 		{
 			i_Maximum_Choose[i] = 0;
 			g_bSamegun[i] = false;
-			Format(Primary_Gun[i], sizeof(Primary_Gun), "1");
-			Format(Secondary_Gun[i], sizeof(Secondary_Gun), "1");
+			strcopy(Primary_Gun[i], sizeof(Primary_Gun[]), "1");
+			strcopy(Secondary_Gun[i], sizeof(Secondary_Gun[]), "1");
 		}
 	}
 	

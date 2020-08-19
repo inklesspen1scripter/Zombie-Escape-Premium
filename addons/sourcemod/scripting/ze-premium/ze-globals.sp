@@ -70,8 +70,6 @@ ConVar g_cZEReloadingSoundType;
 ConVar g_cZEMinConnectedPlayers;
 ConVar g_cZEInfectionNadeEffect;
 
-char g_sZEConfig[PLATFORM_MAX_PATH], g_sZEConfig2[PLATFORM_MAX_PATH], g_sZEConfig3[PLATFORM_MAX_PATH];
-
 KeyValues kvWeapons;
 
 enum struct ZombieClass	{
@@ -84,6 +82,8 @@ enum struct ZombieClass	{
 	int health;
 	float gravity;
 	float speed;
+
+	int access;
 }
 ArrayList gZombieClasses;
 
@@ -91,17 +91,23 @@ enum struct HumanClass	{
 	char ident[32];
 	char name[96];
 
+	char model[96];
+
 	int health;
 	float gravity;
 	float speed;
 	int power;
-
-	// Changable variables
 	int protection;
+	char item[32];
+
+	int access;
 }
 ArrayList gHumanClasses;
-
 int gPlayerSelectedClass[MAXPLAYERS + 1][2];
+ZombieClass gPlayerZombieClass[MAXPLAYERS + 1];
+HumanClass gPlayerHumanClass[MAXPLAYERS + 1];
+
+ZombieClass gClassNemesis;
 
 Database g_hDatabase;
 
@@ -146,6 +152,7 @@ int i_Riotround;
 int i_SpecialRound;
 
 //CLASSES
+int i_Power[MAXPLAYERS + 1];
 int i_protection[MAXPLAYERS + 1];
 float f_causeddamage[MAXPLAYERS + 1];
 Handle H_Respawntimer[MAXPLAYERS + 1];

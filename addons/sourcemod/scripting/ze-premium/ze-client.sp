@@ -11,9 +11,7 @@ public void OnClientDisconnect(int client)
 	}
 	i_Maximum_Choose[client] = 0;
 	g_bSamegun[client] = false;
-	i_zclass[client] = 0;
 	i_typeofsprite[client] = 0;
-	i_hclass[client] = 0;
 	i_respawn[client] = 0;
 	g_bBeacon[client] = false;
 	g_bIsLeader[client] = false;
@@ -30,6 +28,11 @@ public void OnClientDisconnect(int client)
 
 public void OnClientPutInServer(int client)
 {
+	GetHumanClass(0, gPlayerHumanClass[client]);
+	GetZombieClass(0, gPlayerZombieClass[client]);
+	gPlayerSelectedClass[client][0] = 0;
+	gPlayerSelectedClass[client][1] = 0;
+
 	i_Maximum_Choose[client] = 0;
 	g_bSamegun[client] = false;
 	g_bIsLeader[client] = false;
@@ -61,11 +64,20 @@ public void OnClientPostAdminCheck(int client)
 	{
 		CreateTimer(1.0, SwitchTeam, client);
 	}
-	
+}
+
+public void OnClientCookiesCached(int client)	{
 	char szClass[32];
+	int id;
 	GetClientCookie(client, g_hZombieClass, szClass, sizeof(szClass));
-	i_zclass[client] = StringToInt(szClass);
-	
+	id = FindZombieClassID(szClass);
+	if(id == -1)
+		id = 0;
+	gPlayerSelectedClass[client][1] = id;
+
 	GetClientCookie(client, g_hHumanClass, szClass, sizeof(szClass));
-	i_hclass[client] = StringToInt(szClass);
+	id = FindHumanClassID(szClass);
+	if(id == -1)
+		id = 0;
+	gPlayerSelectedClass[client][0] = id;
 }

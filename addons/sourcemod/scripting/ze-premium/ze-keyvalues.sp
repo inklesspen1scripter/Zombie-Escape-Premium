@@ -97,27 +97,18 @@ public void StartToDownload(char[] buffer)
 
 public Action CMD_ZMClass(int client, int args)
 {
-	if(GetClientTeam(client) == CS_TEAM_T || GetClientTeam(client) == CS_TEAM_CT)
+	ZombieClass zc;
+	GetZombieClass(gPlayerSelectedClass[client][1], zc);
+	Menu zmmenu = new Menu(MenuHandler_ZombieClass);
+	SetMenuTitle(zmmenu, "Zombie class\nSelected: %s", zc.name);
+	int size = gZombieClasses.Length;
+	for(int i = 0;i != size;i++)
 	{
-		Menu zmmenu = new Menu(MenuHandler_ZombieClass);
-		SetMenuTitle(zmmenu, "Zombie class (%s)", Selected_Class_Zombie[client]);
-	 	
-	 	kvZombies.Rewind();
-		if (!kvZombies.GotoFirstSubKey())
-			return Plugin_Handled;
-	 
-		char ClassID[10];
-		char name[150];
-		do
-		{
-			kvZombies.GetSectionName(ClassID, sizeof(ClassID));
-			kvZombies.GetString("name", name, sizeof(name));
-			zmmenu.AddItem(ClassID, name);
-		} while (kvZombies.GotoNextKey());
-	 
-		zmmenu.Display(client, 0);
+		GetZombieClass(i, zc);
+		zmmenu.AddItem(zc.ident, zc.name);
 	}
-	return Plugin_Continue;
+	zmmenu.Display(client, 0);
+	return Plugin_Handled;
 }
 
 public int MenuHandler_ZombieClass(Menu menu, MenuAction action, int client, int item) 
@@ -128,41 +119,23 @@ public int MenuHandler_ZombieClass(Menu menu, MenuAction action, int client, int
 		{
 			char info[32];
 			GetMenuItem(menu, item, info, sizeof(info));
-			
-			int SelectedZMClass = StringToInt(info);
-			
-			//Check for VIP class
-			kvZombies.Rewind();
-			char s_SelectedClass[10];
-			IntToString(SelectedZMClass, s_SelectedClass, sizeof(s_SelectedClass));
-			if (!kvZombies.JumpToKey(s_SelectedClass)) return;
-
-			char flags[40] = "";
-			kvZombies.GetString("flags", flags, sizeof(flags));
-			
-			if(StrEqual(flags, ""))
-			{
-				i_zclass[client] = SelectedZMClass;
-				char szClass[16];
-				Format(szClass, sizeof(szClass), "%i", i_zclass[client]);
-				SetClientCookie(client, g_hZombieClass, szClass);
-				CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", s_SelectedClass);
-			} 
-			else
-			{
-				if(HasPlayerFlags(client, flags))
-				{
-					i_zclass[client] = SelectedZMClass;
-					char szClass[16];
-					Format(szClass, sizeof(szClass), "%i", i_zclass[client]);
-					SetClientCookie(client, g_hZombieClass, szClass);
-					CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", s_SelectedClass);					
-				} 
-				else
-				{
+			int id = FindZombieClassID(info);
+			if(id == -1)	{
+				PrintToChat(client, " \x04[ZE-Class]\x01 Error");
+				return;
+			}
+			ZombieClass zc;
+			GetZombieClass(id, zc);
+			if(zc.access)	{
+				if(!(GetUserFlagBits(client) & zc.access))	{
 					PrintToChat(client, " \x04[ZE-Class]\x01 You don't have a \x04VIP");
+					return;
 				}
 			}
+
+			SetClientCookie(client, g_hZombieClass, zc.ident);
+			gPlayerSelectedClass[client][1] = id;
+			CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", zc.name);
 		}
 		case MenuAction_End:
 		{
@@ -173,27 +146,18 @@ public int MenuHandler_ZombieClass(Menu menu, MenuAction action, int client, int
 
 public Action CMD_HumanClass(int client, int args)
 {
-	if(GetClientTeam(client) == CS_TEAM_T || GetClientTeam(client) == CS_TEAM_CT)
+	HumanClass hc;
+	GetHumanClass(gPlayerSelectedClass[client][0], hc);
+	Menu zmmenu = new Menu(MenuHandler_HumanClass);
+	SetMenuTitle(zmmenu, "Human class\nSelected: %s", hc.name);
+	int size = gHumanClasses.Length;
+	for(int i = 0;i != size;i++)
 	{
-		Menu zmmenu = new Menu(MenuHandler_HumanClass);
-		SetMenuTitle(zmmenu, "Human class (%s)", Selected_Class_Human[client]);
-	 	
-	 	kvHumans.Rewind();
-		if (!kvHumans.GotoFirstSubKey())
-			return Plugin_Handled;
-	 
-		char ClassID[10];
-		char name[150];
-		do
-		{
-			kvHumans.GetSectionName(ClassID, sizeof(ClassID));
-			kvHumans.GetString("name", name, sizeof(name));
-			zmmenu.AddItem(ClassID, name);
-		} while (kvHumans.GotoNextKey());
-	 
-		zmmenu.Display(client, 0);
+		GetHumanClass(i, hc);
+		zmmenu.AddItem(hc.ident, hc.name);
 	}
-	return Plugin_Continue;
+	zmmenu.Display(client, 0);
+	return Plugin_Handled;
 }
 
 public int MenuHandler_HumanClass(Menu menu, MenuAction action, int client, int item) 
@@ -204,41 +168,23 @@ public int MenuHandler_HumanClass(Menu menu, MenuAction action, int client, int 
 		{
 			char info[32];
 			GetMenuItem(menu, item, info, sizeof(info));
-			
-			int SelectedHumanClass = StringToInt(info);
-			
-			//Check for VIP class
-			kvHumans.Rewind();
-			char s_SelectedClass[10];
-			IntToString(SelectedHumanClass, s_SelectedClass, sizeof(s_SelectedClass));
-			if (!kvHumans.JumpToKey(s_SelectedClass)) return;
-
-			char flags[40] = "";
-			kvHumans.GetString("flags", flags, sizeof(flags));
-			
-			if(StrEqual(flags, ""))
-			{
-				i_hclass[client] = SelectedHumanClass;
-				char szClass[16];
-				Format(szClass, sizeof(szClass), "%i", i_hclass[client]);
-				SetClientCookie(client, g_hHumanClass, szClass);
-				CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", s_SelectedClass);
-			} 
-			else
-			{
-				if(HasPlayerFlags(client, flags))
-				{
-					i_hclass[client] = SelectedHumanClass;
-					char szClass[16];
-					Format(szClass, sizeof(szClass), "%i", i_hclass[client]);
-					SetClientCookie(client, g_hHumanClass, szClass);
-					CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", s_SelectedClass);					
-				} 
-				else
-				{
+			int id = FindHumanClassID(info);
+			if(id == -1)	{
+				PrintToChat(client, " \x04[ZE-Class]\x01 Error");
+				return;
+			}
+			HumanClass hc;
+			GetHumanClass(id, hc);
+			if(hc.access)	{
+				if(!(GetUserFlagBits(client) & hc.access))	{
 					PrintToChat(client, " \x04[ZE-Class]\x01 You don't have a \x04VIP");
+					return;
 				}
 			}
+
+			SetClientCookie(client, g_hHumanClass, hc.ident);
+			gPlayerSelectedClass[client][0] = id;
+			CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", hc.name);
 		}
 		case MenuAction_End:
 		{
@@ -249,130 +195,53 @@ public int MenuHandler_HumanClass(Menu menu, MenuAction action, int client, int 
 
 void SetPlayerAsZombie(int client)
 {
-	kvZombies.Rewind();
-	char clientclass[10];
-	IntToString(i_zclass[client], clientclass, sizeof(clientclass));
-	if (!kvZombies.JumpToKey(clientclass)) 
-	{
-		SetEntityHealth(client, g_cZEZombieHP.IntValue);
-		SetEntityModel(client, ZOMBIEMODEL);
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", g_cZEZombieSpeed.FloatValue);
-		Format(Selected_Class_Zombie[client], sizeof(Selected_Class_Zombie), "Default");
-		return;		
+	ZombieClass zc;
+	GetZombieClass(gPlayerSelectedClass[client][1], zc)
+	if(zc.access && !(zc.access & GetUserFlagBits(client)))	{
+		gPlayerSelectedClass[client][1] = 0;
+		GetZombieClass(0, zc);
 	}
-		
-	char zmName[100];
-	char zmGravity[10];
-	char zmSpeed[10];
-	char zmHeath[10];
-	char zmModel[PLATFORM_MAX_PATH + 1];
-	char zmArms[PLATFORM_MAX_PATH + 1];
-	char flags[40] = "";
-	flags = "";
-	kvZombies.GetString("name", 		zmName, 	sizeof(zmName));
-	kvZombies.GetString("gravity", 		zmGravity, 	sizeof(zmGravity));
-	kvZombies.GetString("speed", 		zmSpeed, 	sizeof(zmSpeed));
-	kvZombies.GetString("health", 		zmHeath, 	sizeof(zmHeath));
-	kvZombies.GetString("model_path", 	zmModel, 	sizeof(zmModel));
-	kvZombies.GetString("arms_path", 	zmArms, 	sizeof(zmArms));
+	gPlayerZombieClass[client] = zc;
 	
-	float fZmGravity; 
-	float fZmSpeed;
-	fZmGravity = StringToFloat(zmGravity);
-	fZmSpeed = StringToFloat(zmSpeed);
-	int iZmHealth = StringToInt(zmHeath);
-	Selected_Class_Zombie[client] = zmName;
-	
-	if(zmArms[0] != '-')
+	if(zc.arms[0])
 	{
-		Zombie_Arms[client] = zmArms;
-		if(!IsModelPrecached(zmArms))
-			PrecacheModel(zmArms, true);
+		strcopy(Zombie_Arms[client], sizeof Zombie_Arms[], zc.arms)
 		CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
-	SetEntityHealth(client, iZmHealth);
-	SetEntityGravity(client, fZmGravity);
-	if(!IsModelPrecached(zmModel))
-		PrecacheModel(zmModel, true);
-	SetEntityModel(client, zmModel);
-	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", fZmSpeed);
+	SetEntityHealth(client, zc.health);
+	SetEntityGravity(client, zc.gravity);
+	SetEntityModel(client, zc.model);
+	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", zc.speed);
 }
 
 void SetPlayerAsHuman(int client)
 {
-	kvHumans.Rewind();
-	char clientclass[10];
-	IntToString(i_hclass[client], clientclass, sizeof(clientclass));
-	if (!kvHumans.JumpToKey(clientclass)) 
-	{
-		SetEntityHealth(client, g_cZEHumanHP.IntValue);
-		SetEntityModel(client, HUMANMODEL);
-		SetEntityGravity(client, 1.0);
-		SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", 1.0);	
-		CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
-		Format(Selected_Class_Human[client], sizeof(Selected_Class_Human), "Default");
-		return;		
+	HumanClass hc;
+	GetHumanClass(gPlayerSelectedClass[client][0], hc)
+	if(hc.access && !(hc.access & GetUserFlagBits(client)))	{
+		gPlayerSelectedClass[client][0] = 0;
+		GetHumanClass(0, hc);
 	}
-		
-	char humanName[100];
-	char humanItem[32];
-	char humanPower[45];
-	char humanProtect[10];
-	char humanGravity[10];
-	char humanSpeed[10];
-	char humanHeath[10];
-	char humanModel[PLATFORM_MAX_PATH + 1];
-	char flags[40] = "";
-	flags = "";
-	kvHumans.GetString("name", 			humanName, 		sizeof(humanName));
-	kvHumans.GetString("item", 			humanItem, 		sizeof(humanItem));
-	kvHumans.GetString("power", 		humanPower, 	sizeof(humanPower));
-	kvHumans.GetString("protection", 	humanProtect, 	sizeof(humanProtect));
-	kvHumans.GetString("gravity", 		humanGravity, 	sizeof(humanGravity));
-	kvHumans.GetString("speed", 		humanSpeed, 	sizeof(humanSpeed));
-	kvHumans.GetString("health", 		humanHeath, 	sizeof(humanHeath));
-	kvHumans.GetString("model_path", 	humanModel, 	sizeof(humanModel));
-	
-	float fhumanGravity; 
-	float fhumanSpeed;
-	fhumanGravity = StringToFloat(humanGravity);
-	fhumanSpeed = StringToFloat(humanSpeed);
-	int ihumanHealth = StringToInt(humanHeath);
-	int ihumanProtect = StringToInt(humanProtect);
-	Selected_Class_Human[client] = humanName;
-	char NameOfFirenade[18];
-	char NameOfFreezenade[18];
-	Format(NameOfFirenade, sizeof(NameOfFirenade), "FireNade");
-	Format(NameOfFreezenade, sizeof(NameOfFreezenade), "FreezeNade");
-	Format(Human_Power[client], sizeof(Human_Power), "%s", humanPower);
+	gPlayerHumanClass[client] = hc;
 	
 	CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
-	SetEntityHealth(client, ihumanHealth);
-	if(humanItem[0] != '-')
+
+	if(hc.item[0])
 	{
-		if (StrEqual(humanItem, NameOfFirenade, false))
-		{
+		if (!strcmp(hc.item, "FireNade", false))
 			FireNade(client);
-		}
-		else if (StrEqual(humanItem, NameOfFreezenade, false))
-		{
+		else if (!strcmp(hc.item, "FreezeNade", false))
 			FreezeNade(client);
-		}
 		else
-		{
-			GivePlayerItem(client, humanItem);
-		}
+			GivePlayerItem(client, hc.item);
 	}
-	if(ihumanProtect > 0)
-	{
-		i_protection[client] = ihumanProtect;
-	}
-	SetEntityGravity(client, fhumanGravity);
-	if(!IsModelPrecached(humanModel))
-		PrecacheModel(humanModel, true);
-	SetEntityModel(client, humanModel);
-	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", fhumanSpeed);
+
+	i_protection[client] = hc.protection;
+	SetEntityHealth(client, hc.health);
+	SetEntityGravity(client, hv.gravity);
+	SetEntityModel(client, hv.model);
+	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", hc.speed);
 }
 
 public Action CMD_WeaponsRifle(int client, int args)

@@ -118,7 +118,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			{	
 				if(g_bInfected[attacker] == false)
 				{
-					if(g_bUltimate[attacker] == false && i_hclass[attacker] > 0)
+					if(g_bUltimate[attacker] == false && gPlayerHumanClass[attacker].power)
 					{
 						f_causeddamage[attacker] += damage;
 					}

@@ -166,12 +166,12 @@ public Action FirstInfection(Handle timer)
 						EmitSoundToAll("ze_premium/ze-nemesis.mp3");
 						nemesis = 1;
 						i_SpecialRound = 1;
-						Format(Selected_Class_Zombie[firstinfected], sizeof(Selected_Class_Zombie), "Nemesis");
+						gPlayerZombieClass[firstinfected] = gClassNemesis;
 						g_bIsNemesis[firstinfected] = true;
-						SetEntityHealth(firstinfected, g_cZENemesisHP.IntValue);
-						SetEntityModel(firstinfected, NEMESISMODEL);
-						SetEntPropFloat(firstinfected, Prop_Data, "m_flLaggedMovementValue", g_cZENemesisSpeed.FloatValue);
-						SetEntityGravity(firstinfected, g_cZENemesisGravity.FloatValue);
+						SetEntityHealth(firstinfected, gClassNemesis.health);
+						SetEntityModel(firstinfected, gClassNemesis.model);
+						SetEntPropFloat(firstinfected, Prop_Data, "m_flLaggedMovementValue", gClassNemesis.speed);
+						SetEntityGravity(firstinfected, gClassNemesis.gravity);
 					}
 				}
 				
@@ -393,31 +393,31 @@ public Action HUD(Handle timer)
 				if(g_bInfected[i] == true)
 				{
 					SetHudTextParams(-1.0, -0.05, 1.02, 255, 0, 0, 255, 0, 0.0, 0.0, 0.0);
-					ShowHudText(i, -1, "Type: Zombie | Class: %s | Infected players: %i", Selected_Class_Zombie[i], i_infectedh[i]);
+					ShowHudText(i, -1, "Type: Zombie | Class: %s | Infected players: %i", gPlayerZombieClass[i].name, i_infectedh[i]);
 				}
 				else
 				{
-					char progress[32];
-					if(g_bUltimate[i] == true)
+					if(gPlayerHumanClass[i].power)
 					{
-						Format(progress, sizeof(progress), "READY TO USE (F)");
+						char progress[32];
+						if(g_bUltimate[i] == true)
+						{
+							strcopy(progress, sizeof(progress), "READY TO USE (F)");
+						}
+						else
+						{
+							if(f_causeddamage[i] >= 2000)strcopy(progress, sizeof(progress), "☒☒☒☒☐");
+							else if(f_causeddamage[i] >= 1000)strcopy(progress, sizeof(progress), "☒☒☒☐☐");
+							else if(f_causeddamage[i] >= 500)strcopy(progress, sizeof(progress), "☒☒☐☐☐");
+							else if(f_causeddamage[i] < 500)strcopy(progress, sizeof(progress), "☒☐☐☐☐");
+						}
+						SetHudTextParams(-1.0, -0.05, 1.02, 65, 105, 225, 255, 0, 0.0, 0.0, 0.0);
+						ShowHudText(i, -1, "Type: Human | Class: %s | Won rounds: %i\nUltimate Power: %s", gPlayerHumanClass[i].name, i_hwins[i], progress);
 					}
 					else
 					{
-						if(f_causeddamage[i] >= 2000)Format(progress, sizeof(progress), "☒☒☒☒☐");
-						else if(f_causeddamage[i] >= 1000)Format(progress, sizeof(progress), "☒☒☒☐☐");
-						else if(f_causeddamage[i] >= 500)Format(progress, sizeof(progress), "☒☒☐☐☐");
-						else if(f_causeddamage[i] < 500)Format(progress, sizeof(progress), "☒☐☐☐☐");
-					}
-					if(i_hclass[i] > 0)
-					{
 						SetHudTextParams(-1.0, -0.05, 1.02, 65, 105, 225, 255, 0, 0.0, 0.0, 0.0);
-						ShowHudText(i, -1, "Type: Human | Class: %s | Won rounds: %i\nUltimate Power: %s", Selected_Class_Human[i], i_hwins[i], progress);
-					}
-					else
-					{
-						SetHudTextParams(-1.0, -0.05, 1.02, 65, 105, 225, 255, 0, 0.0, 0.0, 0.0);
-						ShowHudText(i, -1, "Type: Human | Class: %s | Won rounds: %i", Selected_Class_Human[i], i_hwins[i]);
+						ShowHudText(i, -1, "Type: Human | Class: %s | Won rounds: %i", gPlayerHumanClass[i].name, i_hwins[i]);
 					}
 				}
 			}
