@@ -93,7 +93,5 @@ public int Native_GetPower(Handle plugin, int argc)
 
 int Forward_GetPower(int client)
 {
-	int power = 0;
-	power = i_Power[client];
-	return power;
+	return i_Power[client];
 }
