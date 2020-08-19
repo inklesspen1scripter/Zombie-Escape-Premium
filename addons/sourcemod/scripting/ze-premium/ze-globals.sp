@@ -72,7 +72,36 @@ ConVar g_cZEInfectionNadeEffect;
 
 char g_sZEConfig[PLATFORM_MAX_PATH], g_sZEConfig2[PLATFORM_MAX_PATH], g_sZEConfig3[PLATFORM_MAX_PATH];
 
-KeyValues kvZombies, kvHumans, kvWeapons;
+KeyValues kvWeapons;
+
+enum struct ZombieClass	{
+	char ident[32];
+	char name[96];
+
+	char model[96];
+	char arms[96];
+
+	int health;
+	float gravity;
+	float speed;
+}
+ArrayList gZombieClasses;
+
+enum struct HumanClass	{
+	char ident[32];
+	char name[96];
+
+	int health;
+	float gravity;
+	float speed;
+	int power;
+
+	// Changable variables
+	int protection;
+}
+ArrayList gHumanClasses;
+
+int gPlayerSelectedClass[MAXPLAYERS + 1][2];
 
 Database g_hDatabase;
 
@@ -117,16 +146,10 @@ int i_Riotround;
 int i_SpecialRound;
 
 //CLASSES
-int i_zclass[MAXPLAYERS + 1];
-int i_hclass[MAXPLAYERS + 1];
 int i_protection[MAXPLAYERS + 1];
 float f_causeddamage[MAXPLAYERS + 1];
-char Selected_Class_Human[MAXPLAYERS + 1][100];
-char Selected_Class_Zombie[MAXPLAYERS + 1][100];
-char Human_Power[MAXPLAYERS + 1][100];
 Handle H_Respawntimer[MAXPLAYERS + 1];
 bool g_bUltimate[MAXPLAYERS + 1] = false;
-int i_Power[MAXPLAYERS + 1];
 bool g_bRoundEnd = false;
 
 //GAME

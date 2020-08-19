@@ -39,6 +39,11 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	ZombieClass zc;
+	HumanClass hc;
+	gZombieClasses = new ArrayList(sizeof zc);
+	gHumandClasses = new ArrayList(sizeof hc);
+
 	LoadTranslations("ZE-Premium");
 	
 	RegConsoleCmd("sm_menu", CMD_MainMenu);
@@ -117,10 +122,8 @@ public void OnPluginStart()
 	g_cZEZombieShieldType = CreateConVar("sm_ze_zombie_riot_shield", "1", "When will player get shield (1 = after infected, respawn, 0 = only after respawn)");
 	
 	g_cZEFirstInfection = CreateConVar("sm_ze_infection", "30", "Time to first infection");
-	g_cZEZombieHP = CreateConVar("sm_ze_zombiehp", "10000", "Amout of zombie HP");
 	g_cZEMotherZombieHP = CreateConVar("sm_ze_motherzombiehp", "20000", "Amout of mother zombie HP");
 	g_cZEHumanHP = CreateConVar("sm_ze_humanhp", "100", "Amout of human HP");
-	g_cZEZombieSpeed = CreateConVar("sm_ze_zombiespeed", "1.2", "Amout of zombie speed");
 	g_cZEHealthShot = CreateConVar("sm_ze_healthshot", "2000", "Price of healthshot");
 	g_cZEHeNade = CreateConVar("sm_ze_henade", "1000", "Price of he nade");
 	g_cZEFlashNade = CreateConVar("sm_ze_flashnade", "1000", "Price of flash nade");
@@ -170,12 +173,33 @@ public void OnConfigsExecuted()
 {
 	Database.Connect(SQL_Connection, "ze_premium_sql");
 	
+<<<<<<< Updated upstream
 	kvZombies = new KeyValues("zombies_classes");
 	kvHumans = new KeyValues("humans_classes");
+=======
+	if(kvWeapons)	{
+		delete kvWeapons;
+	}
+
+>>>>>>> Stashed changes
 	kvWeapons = new KeyValues("Weapons");
-	kvZombies.ImportFromFile(g_sZEConfig);
-	kvHumans.ImportFromFile(g_sZEConfig2);
 	kvWeapons.ImportFromFile(g_sZEConfig3);
+
+	//KeyValues kvZombies = new KeyValues("zombies_classes");
+	//KeyValues kvHumans = new KeyValues("humans_classes");
+	//kvHumans.ImportFromFile(g_sZEConfig2);
+	ZombieClass zc;
+	KeyValues kv = new KeyValues("zombies_classes");
+	kv.ImportFromFile(g_sZEConfig);
+	if(kv.GotoFirstSubKey(true))	{
+
+	}
+	else	{
+		zc.health = 10000;
+		zc.speed = 1.2;
+		strcopy(zc.ident, sizeof zc.ident, "123");
+	}
+	kv.Close()
 }
 
 public void SQL_Error(Database hDatabase, DBResultSet hResults, const char[] szError, int iData)
@@ -846,3 +870,8 @@ public Action CMD_Statistic(int client, int args)
 	return Plugin_Handled;
 }
 
+/*
+	TODO:
+	Cvar for random class without choice
+	Cvar to respawn first zombies
+*/
