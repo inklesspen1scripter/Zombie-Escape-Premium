@@ -97,6 +97,8 @@ public void StartToDownload(char[] buffer)
 
 public Action CMD_ZMClass(int client, int args)
 {
+	if(!(g_cZECanChoiceClass.IntValue & 2))	return Plugin_Handled;
+
 	ZombieClass zc;
 	GetZombieClass(gPlayerSelectedClass[client][1], zc);
 	Menu zmmenu = new Menu(MenuHandler_ZombieClass);
@@ -146,6 +148,8 @@ public int MenuHandler_ZombieClass(Menu menu, MenuAction action, int client, int
 
 public Action CMD_HumanClass(int client, int args)
 {
+	if(!(g_cZECanChoiceClass.IntValue & 1))	return Plugin_Handled;
+
 	HumanClass hc;
 	GetHumanClass(gPlayerSelectedClass[client][0], hc);
 	Menu zmmenu = new Menu(MenuHandler_HumanClass);
@@ -196,55 +200,35 @@ public int MenuHandler_HumanClass(Menu menu, MenuAction action, int client, int 
 void SetPlayerAsZombie(int client)
 {
 	ZombieClass zc;
-	GetZombieClass(gPlayerSelectedClass[client][1], zc);
-	if(zc.access && !(zc.access & GetUserFlagBits(client)))	{
-		gPlayerSelectedClass[client][1] = 0;
-		GetZombieClass(0, zc);
+	if(g_cZECanChoiceClass.IntValue & 2)	{
+		GetZombieClass(gPlayerSelectedClass[client][1], zc);
+		if(zc.access && !(zc.access & GetUserFlagBits(client)))	{
+			gPlayerSelectedClass[client][1] = 0;
+			GetZombieClass(0, zc);
+		}
 	}
-	gPlayerZombieClass[client] = zc;
-	
-	if(zc.arms[0])
-	{
-		strcopy(Zombie_Arms[client], sizeof Zombie_Arms[], zc.arms);
-		CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
+	else	{
+		GetZombieClass(GetRandomInt(0, gZombieClasses.Length-1), zc);
 	}
-	
-	SetEntityHealth(client, zc.health);
-	SetEntityGravity(client, zc.gravity);
-	SetEntityModel(client, zc.model);
-	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", zc.speed);
 
-	StripPlayer(client);
-	GivePlayerItem(client, "weapon_knife");
+	ApplyPlayerZombieClass(client, zc);
 }
 
 void SetPlayerAsHuman(int client)
 {
 	HumanClass hc;
-	GetHumanClass(gPlayerSelectedClass[client][0], hc);
-	if(hc.access && !(hc.access & GetUserFlagBits(client)))	{
-		gPlayerSelectedClass[client][0] = 0;
-		GetHumanClass(0, hc);
+	if(g_cZECanChoiceClass.IntValue & 1)	{
+		GetHumanClass(gPlayerSelectedClass[client][0], hc);
+		if(hc.access && !(hc.access & GetUserFlagBits(client)))	{
+			gPlayerSelectedClass[client][0] = 0;
+			GetHumanClass(0, hc);
+		}
 	}
-	gPlayerHumanClass[client] = hc;
-	
-	CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
-
-	if(hc.item[0])
-	{
-		if (!strcmp(hc.item, "FireNade", false))
-			FireNade(client);
-		else if (!strcmp(hc.item, "FreezeNade", false))
-			FreezeNade(client);
-		else
-			GivePlayerItem(client, hc.item);
+	else	{
+		GetHumanClass(GetRandomInt(0, gHumanClasses.Length-1), hc);
 	}
 
-	i_protection[client] = hc.protection;
-	SetEntityHealth(client, hc.health);
-	SetEntityGravity(client, hc.gravity);
-	SetEntityModel(client, hc.model);
-	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", hc.speed);
+	ApplyPlayerHumanClass(client, hc);
 }
 
 public Action CMD_WeaponsRifle(int client, int args)
@@ -519,4 +503,50 @@ public Action ResetGlovesTimer2(Handle timer, DataPack pack)
 		
 		if(IsValidEntity(activeWeapon)) SetEntPropEnt(clientIndex, Prop_Send, "m_hActiveWeapon", activeWeapon);
 	}
+}
+
+void ApplyPlayerZombieClass(int client, ZombieClass zc)	{
+	gPlayerZombieClass[client] = zc;
+
+	CS_SwitchTeam(client, CS_TEAM_T);
+	CS_UpdateClientModel(client);
+
+	if(zc.arms[0])
+	{
+		strcopy(Zombie_Arms[client], sizeof Zombie_Arms[], zc.arms);
+		CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
+	}
+	
+	SetEntityHealth(client, zc.health);
+	SetEntityGravity(client, zc.gravity);
+	SetEntityModel(client, zc.model);
+	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", zc.speed);
+
+	StripPlayer(client);
+	GivePlayerItem(client, "weapon_knife");
+}
+
+void ApplyPlayerHumanClass(int client, HumanClass hc)	{
+	gPlayerHumanClass[client] = hc;
+	
+	CS_SwitchTeam(client, CS_TEAM_CT);
+	CS_UpdateClientModel(client);
+
+	CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
+
+	if(hc.item[0])
+	{
+		if (!strcmp(hc.item, "FireNade", false))
+			FireNade(client);
+		else if (!strcmp(hc.item, "FreezeNade", false))
+			FreezeNade(client);
+		else
+			GivePlayerItem(client, hc.item);
+	}
+
+	i_protection[client] = hc.protection;
+	SetEntityHealth(client, hc.health);
+	SetEntityGravity(client, hc.gravity);
+	SetEntityModel(client, hc.model);
+	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", hc.speed);
 }

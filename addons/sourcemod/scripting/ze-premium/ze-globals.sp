@@ -24,6 +24,7 @@ Handle H_AmmoTimer[MAXPLAYERS + 1];
 int g_iBeamSprite;
 int g_iHaloSprite;
 
+ConVar g_cZECanChoiceClass;
 ConVar g_cZEFirstInfection;
 ConVar g_cZEHealthShot;
 ConVar g_cZEHeNade;
@@ -153,7 +154,6 @@ bool g_bRoundEnd = false;
 
 //GAME
 int i_Infection;
-int i_waitingforplayers;
 bool g_bWaitingForPlayer = false;
 bool g_bRoundStarted = false;
 bool g_bPause = false;

@@ -4,18 +4,18 @@ void openMenu(int client)
 	
 	menu.SetTitle("[Zombie Escape] Main menu:");
 	
-	menu.AddItem("menu1", "Weapons");
-	menu.AddItem("menu2", "Zombie/Human classes");
-	menu.AddItem("menu3", "Human/Zombie Shop");
+	menu.AddItem("1", "Weapons");
+	if(g_cZECanChoiceClass.IntValue & 3)	menu.AddItem("2", "Zombie/Human classes");
+	menu.AddItem("3", "Human/Zombie Shop");
 	if(IsClientAdmin(client) || IsClientLeader(client))
 	{
-		menu.AddItem("menu4", "Admin menu");
+		menu.AddItem("4", "Admin menu");
 	}
 	else
 	{
-		menu.AddItem("menu4", "Admin menu [NO ACCESS]", ITEMDRAW_DISABLED);
+		menu.AddItem("4", "Admin menu [NO ACCESS]", ITEMDRAW_DISABLED);
 	}
-	menu.AddItem("menu5", ">Your stats<");
+	menu.AddItem("5", ">Your stats<");
 	
 	menu.Display(client, MENU_TIME_FOREVER);
 }
@@ -28,10 +28,10 @@ public int mZeHandler(Menu menu, MenuAction action, int client, int index)
 		{
 			if (IsValidClient(client))
 			{
-				char szItem[32];
+				char szItem[4];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
-				if (!strcmp(szItem, "menu1"))
+				if (szItem[0] == '1')
 				{
 					if(g_bInfected[client] == false)
 					{
@@ -43,22 +43,22 @@ public int mZeHandler(Menu menu, MenuAction action, int client, int index)
 						openMenu(client);
 					}
 				}
-				else if (!strcmp(szItem, "menu2"))
+				else if (szItem[0] == '2')
 				{
 					openClasses(client);
 				}
-				else if (!strcmp(szItem, "menu3"))
+				else if (szItem[0] == '3')
 				{
 					openShop(client);
 				}
-				else if (!strcmp(szItem, "menu4"))
+				else if (szItem[0] == '4')
 				{
 					if(IsClientAdmin(client) || IsClientLeader(client))
 					{
 						openAdmin(client);
 					}
 				}
-				else if (!strcmp(szItem, "menu5"))
+				else if (szItem[0] == '5')
 				{
 					char szSteamId[32], szQuery[512];
 					GetClientAuthId(client, AuthId_Engine, szSteamId, sizeof(szSteamId));
@@ -81,48 +81,26 @@ public int mZeHandler(Menu menu, MenuAction action, int client, int index)
 void openWeapons(int client)
 {
 	char text[84];
-	
 	Menu menu = new Menu(mZeGunsHandler);
-	
 	menu.SetTitle("[Weapons] Choose a gun:");
-	
-	if (!Primary_Gun[client][0] || Primary_Gun[client][0] == '1')
-	{
-		menu.AddItem("menu1", "Rifle guns");
-		menu.AddItem("menu2", "Heavy guns");
-		menu.AddItem("menu3", "SMG guns");
-	}
-	else
-	{
-		Format(text, sizeof(text), "Rifle guns [%s]", Primary_Gun[client]);
-		menu.AddItem("menu1", text);
-		Format(text, sizeof(text), "Heavy guns [%s]", Primary_Gun[client]);
-		menu.AddItem("menu2", text);
-		Format(text, sizeof(text), "SMG guns [%s]", Primary_Gun[client]);
-		menu.AddItem("menu3", text);
-	}
-	
-	if (!Secondary_Gun[client][0] || Secondary_Gun[client][0] == '1')
-	{
-		menu.AddItem("menu4", "Pistol guns");
-	}
-	else
-	{
-		Format(text, sizeof(text), "Pistol guns [%s]", Secondary_Gun[client]);
-		menu.AddItem("menu4", text);
-	}	
 
-	if(g_bSamegun[client] == true)
-	{
-		menu.AddItem("menu5", "Same gun next round [ON]");
-	}
-	else
-	{
-		menu.AddItem("menu5", "Same gun next round [OFF]");
-	}
+	int len = strcopy(text, sizeof text, "Rifle guns");
+	if(Primary_Gun[client][0] == 'w')	FormatEx(text[len], sizeof text - len, " [%s]", Primary_Gun[client]);
+	menu.AddItem("1", text);
+	len = strcopy(text, sizeof text, "Heavy guns");
+	if(Primary_Gun[client][0] == 'w')	FormatEx(text[len], sizeof text - len, " [%s]", Primary_Gun[client]);
+	menu.AddItem("2", text);
+	len = strcopy(text, sizeof text, "SMG guns");
+	if(Primary_Gun[client][0] == 'w')	FormatEx(text[len], sizeof text - len, " [%s]", Primary_Gun[client]);
+	menu.AddItem("3", text);
 
-	menu.AddItem("menu6", ">Get chosen guns<");
+	len = strcopy(text, sizeof text, "Pistol guns");
+	if(Secondary_Gun[client][0] == 'w')	FormatEx(text[len], sizeof text - len, " [%s]", Secondary_Gun[client]);
+	menu.AddItem("4", text);
 	
+	FormatEx(text, sizeof text, "Same gun next round [%s]", g_bSamegun[client] ? "ON" : "OFF");
+	menu.AddItem("5", text);
+	menu.AddItem("6", ">Get chosen guns<");
 	menu.Display(client, MENU_TIME_FOREVER);
 }
 
@@ -134,44 +112,20 @@ public int mZeGunsHandler(Menu menu, MenuAction action, int client, int index)
 		{
 			if (IsValidClient(client))
 			{
-				char szItem[32];
+				char szItem[4];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
-				if (!strcmp(szItem, "menu1"))
+				if (szItem[0] == '1')	FakeClientCommand(client, "sm_rifle");
+				else if (szItem[0] == '2')	FakeClientCommand(client, "sm_heavygun");
+				else if (szItem[0] == '3')	FakeClientCommand(client, "sm_smg");
+				else if (szItem[0] == '4')	FakeClientCommand(client, "sm_pistols");
+				else if (szItem[0] == '5')
 				{
-					FakeClientCommand(client, "sm_rifle");
+					g_bSamegun[client] = !g_bSamegun[client];
+					CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", g_bSamegun[client] ? "samegun_true" : "samegun_false");
+					openWeapons(client);
 				}
-				else if (!strcmp(szItem, "menu2"))
-				{
-					FakeClientCommand(client, "sm_heavygun");
-				}
-				else if (!strcmp(szItem, "menu3"))
-				{
-					FakeClientCommand(client, "sm_smg");
-				}
-				else if (!strcmp(szItem, "menu4"))
-				{
-					FakeClientCommand(client, "sm_pistols");
-				}
-				else if (!strcmp(szItem, "menu5"))
-				{
-					if(g_bSamegun[client] == true)
-					{
-						CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "samegun_false");
-						g_bSamegun[client] = false;
-						openWeapons(client);
-					}
-					else
-					{
-						CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "samegun_true");
-						g_bSamegun[client] = true;
-						openWeapons(client);
-					}
-				}
-				else if (!strcmp(szItem, "menu6"))
-				{
-					FakeClientCommand(client, "sm_get");
-				}
+				else if (szItem[0] == '6')	FakeClientCommand(client, "sm_get");
 			}
 		}
 		case MenuAction_End:
@@ -188,8 +142,8 @@ void openClasses(int client)
 	
 	menu.SetTitle("[Classes] Main Menu:");
 	
-	menu.AddItem("menu1", "Human class");
-	menu.AddItem("menu2", "Zombie class");
+	if(g_cZECanChoiceClass.IntValue & 1)	menu.AddItem("1", "Human class");
+	if(g_cZECanChoiceClass.IntValue & 2)	menu.AddItem("2", "Zombie class");
 	
 	menu.Display(client, MENU_TIME_FOREVER);
 }
@@ -202,17 +156,11 @@ public int mZeClassHandler(Menu menu, MenuAction action, int client, int index)
 		{
 			if (IsValidClient(client))
 			{
-				char szItem[32];
+				char szItem[4];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
-				if (!strcmp(szItem, "menu1"))
-				{
-					FakeClientCommand(client, "sm_humanclass");
-				}
-				else if (!strcmp(szItem, "menu2"))
-				{
-					FakeClientCommand(client, "sm_zombieclass");
-				}
+				if (szItem[0] == '1')	FakeClientCommand(client, "sm_humanclass");
+				else if (szItem[0] == '2')	FakeClientCommand(client, "sm_zombieclass");
 			}
 		}
 		case MenuAction_End:
@@ -230,30 +178,19 @@ void openShop(int client)
 	Menu menu = new Menu(mZeShopHandler);
 	
 	menu.SetTitle("[Shop] Main Menu:");
-	
-	FormatEx(text, sizeof(text), "Health-Shot [%i $] [HUMAN]", g_cZEHealthShot.IntValue);
-	menu.AddItem("menu1", text);
-	FormatEx(text, sizeof(text), "Fire Grenade [%i $] [HUMAN]", g_cZEHeNade.IntValue);
-	menu.AddItem("menu2", text);
-	FormatEx(text, sizeof(text), "[VIP] Freeze Grenade [%i $] [HUMAN]", g_cZEFlashNade.IntValue);
-	if(IsClientVIP(client))
-	{
-		menu.AddItem("menu3", text);
+	if(ZR_IsClientHuman(client))	{
+		FormatEx(text, sizeof(text), "Health-Shot [%i $] [HUMAN]", g_cZEHealthShot.IntValue);
+		menu.AddItem("11", text);
+		FormatEx(text, sizeof(text), "Fire Grenade [%i $] [HUMAN]", g_cZEHeNade.IntValue);
+		menu.AddItem("12", text);
+		FormatEx(text, sizeof(text), "[VIP] Freeze Grenade [%i $] [HUMAN]", g_cZEFlashNade.IntValue);
+		menu.AddItem("131", text, !IsClientVIP(client));
+		FormatEx(text, sizeof(text), "Molotov [%i $] [HUMAN]", g_cZEMolotov.IntValue);
+		menu.AddItem("14", text);
 	}
-	else
-	{
-		menu.AddItem("menu3", text, ITEMDRAW_DISABLED);
-	}
-	FormatEx(text, sizeof(text), "Molotov [%i $] [HUMAN]", g_cZEMolotov.IntValue);
-	menu.AddItem("menu4", text);
-	FormatEx(text, sizeof(text), "[VIP] Infection Grenade [%i $] [ZOMBIE]", g_cZEInfnade.IntValue);
-	if(IsClientVIP(client))
-	{
-		menu.AddItem("menu5", text);
-	}
-	else
-	{
-		menu.AddItem("menu5", text, ITEMDRAW_DISABLED);
+	else	{
+		FormatEx(text, sizeof(text), "[VIP] Infection Grenade [%i $] [ZOMBIE]", g_cZEInfnade.IntValue);
+		menu.AddItem("21", text, !IsClientVIP(client));
 	}
 	
 	menu.Display(client, MENU_TIME_FOREVER);
@@ -268,14 +205,16 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 			if (IsValidClient(client))
 			{
 				int money = GetEntProp(client, Prop_Send, "m_iAccount");
-				char szItem[32];
+				char szItem[4];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
 				char szBoughtItem[64];
+				if(ZR_IsClientHuman(client) != (szItem[0] == '1'))	return;
+				if(szItem[2] == '1' && !IsClientVIP(client))	return;
 				
-				if(g_bInfected[client] == false)
+				if(szItem[0] == '1')
 				{	
-					if (!strcmp(szItem, "menu1"))
+					if (szItem[1] == '1')
 					{
 						if(money >= g_cZEHealthShot.IntValue)
 						{
@@ -291,7 +230,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							openShop(client);
 						}
 					}
-					else if (!strcmp(szItem, "menu2"))
+					else if (szItem[1] == '2')
 					{
 						if(money >= g_cZEHeNade.IntValue)
 						{
@@ -308,7 +247,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							openShop(client);
 						}
 					}
-					else if (!strcmp(szItem, "menu3"))
+					else if (szItem[1] == '3')
 					{
 						if(money >= g_cZEFlashNade.IntValue)
 						{
@@ -325,7 +264,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							openShop(client);
 						}
 					}
-					else if (!strcmp(szItem, "menu4"))
+					else if (szItem[1] == '4')
 					{
 						if(money >= g_cZEMolotov.IntValue)
 						{
@@ -341,15 +280,10 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 							openShop(client);
 						}
 					}
-					else if (!strcmp(szItem, "menu5"))
-					{
-						CReplyToCommand(client, " \x04[ZE-Shop]\x01 %t", "no_zombie");
-						openShop(client);
-					}
 				}
-				else if(g_bInfected[client] == true)
+				else if(szItem[0] == '2')
 				{
-					if (!strcmp(szItem, "menu5"))
+					if (szItem[1] == '1')
 					{
 						if(money >= g_cZEInfnade.IntValue)
 						{

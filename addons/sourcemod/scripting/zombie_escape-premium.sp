@@ -35,7 +35,7 @@ public Plugin myinfo =
 	author = PLUGIN_AUTHOR, 
 	description = "Zombie escape plugin with new features", 
 	version = PLUGIN_VERSION, 
-	url = "https://steamcommunity.com/id/Sniper-oo7/"
+	url = "https://github.com/inklesspen1scripter/Zombie-Escape-Premium"
 };
 
 public void OnPluginStart()
@@ -120,6 +120,7 @@ public void OnPluginStart()
 	g_cZEZombieRiots = CreateConVar("sm_ze_zombie_riot", "10", "How much chance in percent to will be zombie riot round, 0 = disabled");
 	g_cZEZombieShieldType = CreateConVar("sm_ze_zombie_riot_shield", "1", "When will player get shield (1 = after infected, respawn, 0 = only after respawn)");
 	
+	g_cZECanChoiceClass = CreateConVar("sm_ze_can_player_choose_class", "3", "0 - Fully random\n1 - Humans can choose class\n2 - Zombies can choose class\n-1 - Everyone can choose class");
 	g_cZEFirstInfection = CreateConVar("sm_ze_infection", "30", "Time to first infection");
 	g_cZEMotherZombieHP = CreateConVar("sm_ze_motherzombiehp", "20000", "Amout of mother zombie HP");
 	g_cZEHealthShot = CreateConVar("sm_ze_healthshot", "2000", "Price of healthshot");
@@ -162,6 +163,16 @@ public void OnPluginStart()
 	
 	AutoExecConfig(true, "ze_premium");
 	Database.Connect(SQL_Connection, "ze_premium_sql");
+
+	ConVar cvar;
+	cvar = FindConVar("mp_teamlimit"); if(cvar) cvar.AddChangeHook(ResetCvarIntoZero);
+	cvar = FindConVar("mp_autoteambalance"); if(cvar) cvar.AddChangeHook(ResetCvarIntoZero);
+}
+
+public void ResetCvarIntoZero(ConVar cvar, const char[] oldValue, const char[] newValue)	{
+	if(strcmp(newValue, "0"))	{
+		cvar.BoolValue = false;
+	}
 }
 
 public void OnConfigsExecuted()	{
@@ -453,7 +464,6 @@ public void OnMapStart()
 	g_bPause = false;
 	g_bRoundEnd = false;
 	g_bWaitingForPlayer = false;
-	i_waitingforplayers = 0;
 }
 
 public void Event_RoundStart(Event event, const char[] name, bool bDontBroadcast)
@@ -515,7 +525,6 @@ public void OnRoundEnd(Handle event, char[] name, bool dontBroadcast)
 	i_Riotround = 0;
 	i_SpecialRound = 0;
 	i_binfnade = 0;
-	i_waitingforplayers = 0;
 	int winner_team = GetEventInt(event, "winner");
 	
 	if(winner_team == 2)
@@ -833,6 +842,5 @@ public Action CMD_Statistic(int client, int args)
 
 /*
 	TODO:
-	Cvar for random class without choice
 	Cvar to respawn first zombies
 */

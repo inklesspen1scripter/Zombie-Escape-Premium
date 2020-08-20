@@ -61,18 +61,8 @@ public Action FirstInfection(Handle timer)
 				}
 				else
 				{
-					i_waitingforplayers++;
-					char text[14];
-					switch(i_waitingforplayers)
-					{
-						case 1: Format(text, sizeof(text), ".");
-						case 2: Format(text, sizeof(text), "..");
-						case 3: 
-						{
-							Format(text, sizeof(text), "...");
-							i_waitingforplayers = 0;
-						}
-					}
+					char text[4];
+					strcopy(text, (GetTime() % 3) + 2, "...");
 					ShowHudText(i, -1, "Waiting for players%s\nPlayer on server: %i/%i", text, numberofplayers, g_cZEMinConnectedPlayers.IntValue);
 				}
 				if(g_bInfected[i] == false)
