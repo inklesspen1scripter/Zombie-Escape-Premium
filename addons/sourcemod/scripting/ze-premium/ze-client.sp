@@ -1,5 +1,6 @@
 public void OnClientDisconnect(int client)
 {
+	UpdateClientWeaponCookie(client);
 	if(g_bAntiDisconnect[client] == true)
 	{
 		char szSteamId[32], szQuery[512];
@@ -53,7 +54,7 @@ public void OnClientPostAdminCheck(int client)
 }
 
 public void OnClientCookiesCached(int client)	{
-	char szClass[32];
+	char szClass[64];
 	int id;
 	GetClientCookie(client, g_hZombieClass, szClass, sizeof(szClass));
 	id = FindZombieClassID(szClass);
@@ -66,4 +67,12 @@ public void OnClientCookiesCached(int client)	{
 	if(id == -1)
 		id = 0;
 	gPlayerSelectedClass[client][0] = id;
+
+	g_hSavedWeapons.Get(client, szClass, sizeof szClass);
+	if(szClass[0])	{
+		int pos = FindCharInString(szClass, ';');
+		szClass[pos++] = 0;
+		strcopy(Primary_Gun[client], sizeof Primary_Gun[], szClass);
+		strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], szClass[pos]);
+	}
 }

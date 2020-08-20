@@ -593,7 +593,7 @@ void openSwapTeam(int client)
 		{
 			char userid[12];
 			char username[MAX_NAME_LENGTH];
-			FormatEx(userid, sizeof userid, "%i", GetClientUserId(i)); // FormatEx faster IntToString
+			FormatEx(userid, sizeof userid, "%i", GetClientUserId(i)); // FormatEx faster IntToString (or not)
 			if(g_bInfected[i] == false)
 			{
 				FormatEx(username, sizeof(username), "%N [CT]", i);

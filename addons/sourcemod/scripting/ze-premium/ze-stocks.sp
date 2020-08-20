@@ -885,3 +885,11 @@ stock bool IsWeaponNade(const char[] weapon)	{
 	}
 	return false;
 }
+
+void UpdateClientWeaponCookie(int client)	{
+	char sBuffer[64];
+	int len = strcopy(sBuffer, sizeof sBuffer, Primary_Gun[client]);
+	sBuffer[len++] = ';'
+	strcopy(sBuffer[len], sizeof sBuffer - len, Secondary_Gun[client]);
+	g_hSavedWeapons.Set(client, sBuffer);
+}

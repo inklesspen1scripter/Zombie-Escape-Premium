@@ -11,6 +11,7 @@ char g_iaGrenadeOffsets[] = {15, 17, 16, 14, 18, 17};
 //COKIES
 Handle g_hHumanClass;
 Handle g_hZombieClass;
+Cookie g_hSavedWeapons;
 
 //FORWARDS
 Handle gF_ClientInfected;
@@ -119,8 +120,8 @@ char ZMWINSVTF[128], HUMANWINSVTF[128];
 char HUMANWINSMAT[128], ZMWINSMAT[128];
 
 //GUNS
-char Primary_Gun[MAXPLAYERS + 1][64];
-char Secondary_Gun[MAXPLAYERS + 1][64];
+char Primary_Gun[MAXPLAYERS + 1][32];
+char Secondary_Gun[MAXPLAYERS + 1][32];
 int i_Maximum_Choose[MAXPLAYERS + 1];
 bool g_bSamegun[MAXPLAYERS + 1] = false;
 

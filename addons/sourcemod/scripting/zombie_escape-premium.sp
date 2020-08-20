@@ -163,6 +163,7 @@ public void OnPluginStart()
 	
 	g_hZombieClass = RegClientCookie("zombie_class_chosen", "", CookieAccess_Private);
 	g_hHumanClass = RegClientCookie("human_class_chosen", "", CookieAccess_Private);
+	g_hSavedWeapons = new Cookie("ze_weapon_selected", "", CookieAccess_Private);
 	
 	CreateTimer(1.0, HUD, _, TIMER_REPEAT);
 	CreateTimer(5.0, PointsCheck, _, TIMER_REPEAT);
