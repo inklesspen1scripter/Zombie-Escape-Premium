@@ -878,6 +878,9 @@ stock StripPlayer(int client)	{
 	int weapon;
 	for(int i = 0;i!=size;i++)	{
 		weapon = GetEntDataEnt2(client, offset + i * 4);
-		if(weapon != -1)	RemoveEdict(weapon);
+		if(weapon != -1)	{
+			RemovePlayerItem(client, weapon);
+			RemoveEdict(weapon);
+		}
 	}
 }

@@ -213,6 +213,9 @@ void SetPlayerAsZombie(int client)
 	SetEntityGravity(client, zc.gravity);
 	SetEntityModel(client, zc.model);
 	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", zc.speed);
+
+	StripPlayer(client);
+	GivePlayerItem(client, "weapon_knife");
 }
 
 void SetPlayerAsHuman(int client)
