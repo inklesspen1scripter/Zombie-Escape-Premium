@@ -22,6 +22,10 @@ public Action FirstInfection(Handle timer)
 		}
 	}
 	//Counting end
+
+	int numberinfected = numberofplayers / 4;
+	if(!numberinfected)	numberinfected = 1;
+	float newpercent = float(numberinfected) / float(numberofplayers) * 100.0;
 	
 	if(i_Infection > 0)
 	{	
@@ -31,16 +35,6 @@ public Action FirstInfection(Handle timer)
 		{
 			if (IsValidClient(i) && !IsFakeClient(i))
 			{
-				int numberinfected;
-				if(numberofplayers < 4)
-				{
-					numberinfected = 1;
-				}
-				else
-				{
-					numberinfected = numberofplayers / 4;
-				}
-				float newpercent = float(numberinfected) / float(numberofplayers) * 100.0;
 				SetHudTextParams(-1.0, 0.1, 1.02, 0, 255, 0, 255, 0, 0.0, 0.0, 0.0);
 				if(numberofplayers >= g_cZEMinConnectedPlayers.IntValue)
 				{
@@ -65,14 +59,6 @@ public Action FirstInfection(Handle timer)
 					char text[4];
 					strcopy(text, (GetTime() % 3) + 2, "...");
 					ShowHudText(i, -1, "Waiting for players%s\nPlayer on server: %i/%i", text, numberofplayers, g_cZEMinConnectedPlayers.IntValue);
-				}
-				if(g_bInfected[i] == false)
-				{
-					PrintHintText(i, "\n<font class='fontSize-l'><font color='#FF4500'>CHOSEN GUN:</font>%s | %s", Primary_Gun[i], Secondary_Gun[i]);
-				}
-				else
-				{
-					PrintHintText(i, "\n<font class='fontSize-l'>You will be respawned in: <font color='#00FF00'>%i</font> sec", i_Infection);
 				}
 			}
 		}
@@ -99,9 +85,6 @@ public Action FirstInfection(Handle timer)
 				SetEntProp(i, Prop_Data, "m_takedamage", 2, 1);
 			}
 		}
-
-		int numberinfected = numberofplayers / 4;
-		if(!numberinfected)	numberinfected = 1;
 
 		//Fill ctoz array
 		int l;
@@ -136,7 +119,7 @@ public Action FirstInfection(Handle timer)
 			user = ctoz[l];
 			EraseArrayItem(l, ctoz, ctozc);
 
-			SetZombie(user, g_cZETeleportFirstToSpawn.BoolValue);
+			SetZombie(user, g_cZETeleportFirstToSpawn.BoolValue, true);
 			if(g_cZEMotherZombieHP.IntValue)	SetEntityHealth(user, g_cZEMotherZombieHP.IntValue);
 
 			if(!z)	{
@@ -193,14 +176,6 @@ public Action Respawn(Handle timer, int client)
 		if(g_bNoRespawn[client] == false)
 		{
 			CS_RespawnPlayer(client);
-			if(g_bInfected[client] == true)
-			{
-				if(gRoundType == ROUND_RIOT)
-				{
-					GivePlayerItem(client, "weapon_shield");
-				}
-				EmitSoundToAll("ze_premium/ze-respawn.mp3", client);
-			}
 			Call_StartForward(gF_ClientRespawned);
 			Call_PushCell(client);
 			Call_Finish();
@@ -287,10 +262,9 @@ public Action Slowdown(Handle timer, int client)
 {
 	if(IsValidClient(client) && IsPlayerAlive(client))
 	{
-		if(g_bInfected[client] == true && g_bOnFire[client] == true)
+		if(g_bInfected[client] == true)
 		{
 			SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", gPlayerZombieClass[client].speed);
-			g_bOnFire[client] = false;
 		}
 	}
 }
@@ -304,11 +278,6 @@ public Action PointsCheck(Handle timer)
 			Command_DataUpdate(i);
 		}
 	}
-}
-
-public Action EndFireHe(Handle timer, int client)
-{
-	g_bFireHE[client] = false;
 }
 
 public Action HUD(Handle timer)

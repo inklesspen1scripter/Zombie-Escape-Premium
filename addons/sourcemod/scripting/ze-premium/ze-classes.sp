@@ -34,13 +34,18 @@ void LoadClasses()	{
 	kv.ImportFromFile(g_sZEConfig);
 	HumanClass hc;
 	char power[32];
+	char sBuffer[128];
 	if(!kv.GotoFirstSubKey(true))	kv.JumpToKey("default", true);
 	do	{
 		hc.health = kv.GetNum("health", 100);
 		hc.protection = kv.GetNum("protection", 0);
 		hc.speed = kv.GetFloat("speed", 1.0);
 		hc.gravity = kv.GetFloat("gravity", 1.0);
-		kv.GetString("item", hc.item, sizeof hc.item, "");
+		kv.GetString("item", sBuffer, sizeof sBuffer, "");
+		ReplaceString(sBuffer, sizeof sBuffer, "weapon_", "", false);
+		ReplaceString(sBuffer, sizeof sBuffer, "FireNade", "hegrenade", false);
+		ReplaceString(sBuffer, sizeof sBuffer, "FreezeNade", "decoy", false);
+		strcopy(hc.item, sizeof hc.item, sBuffer);
 		kv.GetString("name", hc.name, sizeof hc.name, "Default");
 		kv.GetString("model_path", hc.model, sizeof hc.model, "models/player/custom_player/pikajew/hlvr/hazmat_worker/hazmat_worker.mdl");
 		if(!FileExists(hc.model, true))	hc.model[0] = 0;

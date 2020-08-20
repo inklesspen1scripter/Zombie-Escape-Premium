@@ -25,15 +25,12 @@ public void OnClientConnected(int client)
 	g_bIsLeader[client] = false;
 	g_bInfected[client] = false;
 	g_bBeacon[client] = false;
-	g_bFireHE[client] = false;
-	g_bOnFire[client] = false;
-	g_bFreezeFlash[client] = false;
 	g_bNoRespawn[client] = false;
 	g_bAntiDisconnect[client] = false;
-	g_bInfectNade[client] = false;
 	i_respawn[client] = 0;
 	i_Power[client] = 0;
 	g_bUltimate[client] = false;
+	gPlayerNextReloadSound[client] = 0.0;
 }
 
 public void OnClientPutInServer(int client)	{

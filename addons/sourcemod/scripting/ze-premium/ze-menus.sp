@@ -234,8 +234,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 					{
 						if(money >= g_cZEHeNade.IntValue)
 						{
-							GivePlayerItem(client, "weapon_hegrenade");
-							g_bFireHE[client] = true;
+							GivePlayerNade(client, "weapon_hegrenade");
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEHeNade.IntValue);
 							spended[client] += g_cZEHeNade.IntValue;
 							strcopy(szBoughtItem, sizeof(szBoughtItem), "Fire Grenade");	
@@ -251,8 +250,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 					{
 						if(money >= g_cZEFlashNade.IntValue)
 						{
-							GivePlayerItem(client, "weapon_decoy");
-							g_bFreezeFlash[client] = true;
+							GivePlayerNade(client, "weapon_decoy");
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEFlashNade.IntValue);
 							spended[client] += g_cZEFlashNade.IntValue;
 							strcopy(szBoughtItem, sizeof(szBoughtItem), "Freeze Grenade");	
@@ -268,7 +266,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 					{
 						if(money >= g_cZEMolotov.IntValue)
 						{
-							GivePlayerItem(client, "weapon_molotov");
+							GivePlayerNade(client, "weapon_molotov");
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEMolotov.IntValue);
 							spended[client] += g_cZEMolotov.IntValue;
 							strcopy(szBoughtItem, sizeof(szBoughtItem), "Molotov");	
@@ -289,16 +287,12 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 						{
 							if(g_cZEInfnadeusages.IntValue > i_binfnade)
 							{
-								int temp = GivePlayerItem(client, "weapon_smokegrenade");
-								if(temp != -1)	{
-									EquipPlayerWeapon(client, temp);
-									g_bInfectNade[client] = true;
-									SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEInfnade.IntValue);
-									spended[client] += g_cZEHealthShot.IntValue;
-									strcopy(szBoughtItem, sizeof(szBoughtItem), "Infection Grenade");	
-									CPrintToChat(client, " \x04[ZE-Shop]\x01 %t", "bought_item", szBoughtItem);
-									i_binfnade++;
-								}
+								GivePlayerNade(client, "weapon_smokegrenade");
+								SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEInfnade.IntValue);
+								spended[client] += g_cZEHealthShot.IntValue;
+								strcopy(szBoughtItem, sizeof(szBoughtItem), "Infection Grenade");	
+								CPrintToChat(client, " \x04[ZE-Shop]\x01 %t", "bought_item", szBoughtItem);
+								i_binfnade++;
 							}
 							else
 							{

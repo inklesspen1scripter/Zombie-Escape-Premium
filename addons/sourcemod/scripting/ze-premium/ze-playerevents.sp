@@ -43,27 +43,19 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 			}
 			else if(g_bInfected[client] == true)
 			{
-				DisableSpells(client);
-				if(g_bNotDied[client] == true)
+				i_killedzm[attacker]++;
+				int die = GetRandomInt(1, 3);
+				if(die == 1)
 				{
-					g_bNotDied[client] = false;
+					EmitSoundToAll("ze_premium/ze-die.mp3", client);
 				}
 				else
 				{
-					i_killedzm[attacker]++;
-					int die = GetRandomInt(1, 3);
-					if(die == 1)
-					{
-						EmitSoundToAll("ze_premium/ze-die.mp3", client);
-					}
-					else
-					{
-						char soundPath[PLATFORM_MAX_PATH];
-						FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-die%i.mp3", die);
-						EmitSoundToAll(soundPath, client);
-					}
-					CreateTimer(1.0, Respawn, client);
+					char soundPath[PLATFORM_MAX_PATH];
+					FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-die%i.mp3", die);
+					EmitSoundToAll(soundPath, client);
 				}
+				CreateTimer(1.0, Respawn, client);
 				if(GetZombieAliveCount() == 0)
 				{
 					CreateTimer(1.0, EndOfRound);
@@ -80,6 +72,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 public Action Event_Spawn(Event gEventHook, const char[] gEventName, bool iDontBroadcast)
 {
 	int iClient = GetClientOfUserId(GetEventInt(gEventHook, "userid"));
+	if(!iClient)	return;
 	
 	if(i_Infection > 0)
 	{
@@ -93,7 +86,7 @@ public Action Event_Spawn(Event gEventHook, const char[] gEventName, bool iDontB
 		}
 		else
 		{
-			SetPlayerAsZombie(iClient);
+			SetZombie(iClient);
 		}
 	}
 	SetEntProp(iClient, Prop_Send, "m_CollisionGroup", 2);
@@ -141,25 +134,28 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 					}
 					else
 					{
-						RemoveGuns(victim);
-						DisableTimers(victim);
-						DisableSpells(victim);
-						CS_SwitchTeam(victim, CS_TEAM_T);
-						SetPlayerAsZombie(victim);
+						SetZombie(victim, false);
 						EmitSoundToAll("ze_premium/ze-respawn.mp3", victim);
-						g_bInfected[victim] = true;
 						i_infected[attacker]++;
 						CPrintToChat(victim, " \x04[Zombie-Escape]\x01 %t", "infected_by_player", attacker);
 						SetEntProp(attacker, Prop_Data, "m_iFrags", GetClientFrags(attacker) + 1);
 						CPrintToChat(attacker, " \x04[Zombie-Escape]\x01 %t", "infected_frag", victim);
-						if(gRoundType == ROUND_RIOT && g_cZEZombieShieldType.IntValue > 0)
-						{
-							GivePlayerItem(victim, "weapon_shield");
-						}
 						Call_StartForward(gF_ClientInfected);
 						Call_PushCell(victim);
 						Call_PushCell(attacker);
 						Call_Finish();
+
+						Event event1 = CreateEvent("player_death");
+						event1.SetInt("userid", GetClientUserId(victim));
+						event1.SetInt("attacker", GetClientUserId(attacker));
+						event1.SetString("weapon", "knife");
+						for(int i = MaxClients;i;i--)	{
+							if(IsClientInGame(i))	{
+								event1.FireToClient(i);
+							}
+						}
+						event1.Close();
+
 						if(GetHumanAliveCount() == 0)
 						{
 							CreateTimer(1.0, EndOfRound);
@@ -172,7 +168,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 	
 	if(damagetype & DMG_BLAST)
 	{
-		if(IsValidClient(victim) && attacker != victim && g_bFireHE[attacker] == true)
+		if(IsValidClient(victim) && attacker != victim)
 		{
 			if(ZR_IsClientHuman(victim))
 			{
@@ -180,13 +176,11 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			}
 			else if(ZR_IsClientZombie(victim))
 			{
-				g_bOnFire[victim] = true;
 				EmitSoundToAll("ze_premium/ze-fire.mp3", victim);
 				CreateTimer(3.0, Onfire, victim);
 				CreateTimer(5.0, Slowdown, victim);
 				IgniteEntity(victim, 5.0);
 				SetEntPropFloat(victim, Prop_Data, "m_flLaggedMovementValue", 0.5);
-				CreateTimer(1.0, EndFireHe, attacker);
 			}
 		}
 	}
@@ -196,9 +190,8 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 public Action Event_PlayerHurt(Event event, const char[] name, bool dontBroadcast)
 {
 	int victim = GetClientOfUserId(GetEventInt(event,"userid")); // get victim & attacker
-	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	
-	if(IsValidClient(victim))
+	if(victim)
 	{
 		if(GetClientTeam(victim) == CS_TEAM_CT)
 		{
@@ -209,77 +202,22 @@ public Action Event_PlayerHurt(Event event, const char[] name, bool dontBroadcas
 			ZombiePain(victim);
 		}
 	}
-
-	if(!attacker)	return;
-	
-	int zombie, human;
-	char atkweapon[128];
-	zombie = GetEventInt(event, "attacker");
-	human = GetEventInt(event, "userid");
-	if(victim != attacker && attacker !=0 && GetClientTeam(attacker) == CS_TEAM_T)
-	{
-		GetEventString(event, "weapon", atkweapon, sizeof(atkweapon));
-		if (StrEqual(atkweapon, "knife") || StrEqual(atkweapon, "bayonet"))
-		{
-			g_bNotDied[victim] = true;
-			Event event1 = CreateEvent("player_death");
-			event1.SetInt("userid", human);
-			event1.SetInt("attacker", zombie);
-			event1.SetString("weapon", atkweapon);
-			event1.Fire();
-		}
-	}
 }
 
-public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
-{	
-	static bool s_ClientIsReloading[MAXPLAYERS + 1];
-	if (!IsClientInGame(client))
-		return Plugin_Continue;
-	
-	char sWeapon[64];
-	int iWeapon = Client_GetActiveWeaponName(client, sWeapon, sizeof(sWeapon));
-	if (iWeapon == INVALID_ENT_REFERENCE)
-		return Plugin_Continue;
-	
-	bool bIsReloading = Weapon_IsReloading(iWeapon);
-	// Shotguns don't use m_bInReload but have their own m_reloadState
-	if (!bIsReloading && HasEntProp(iWeapon, Prop_Send, "m_reloadState") && GetEntProp(iWeapon, Prop_Send, "m_reloadState") > 0)
-		bIsReloading = true;
-	
-	if (bIsReloading && !s_ClientIsReloading[client] && g_bInfected[client] == false)
-	{
-		if(g_cZEReloadingSound.IntValue > 0)
-		{
-			int random = GetRandomInt(1, 4);
-			char soundPath[PLATFORM_MAX_PATH];
-			Format(soundPath, sizeof(soundPath), "ze_premium/ze-reloading%i.mp3", random);
-			if(g_cZEReloadingSoundType.IntValue > 0)
-			{
+public void WeaponReloadPost(int weapon, bool success)	{
+	if(!success)	return;
+	int client = GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
+	if(client == -1 || ZR_IsClientZombie(client))	return;
+
+	if(g_cZEReloadingSound.BoolValue)	{
+		if(GetGameTime() >= gPlayerNextReloadSound[client])	{
+			gPlayerNextReloadSound[client] = GetGameTime() + g_cZEReloadingSoundCooldown.FloatValue;
+			char soundPath[32];
+			FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-reloading%i.mp3", GetRandomInt(1, 4));
+			if(g_cZEReloadingSoundType.BoolValue)
 				EmitSoundToAll(soundPath, client);
-			}
-			else
-			{
-				EmitSoundToClient(client, soundPath);
-			}
-			int Primary = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-			int Secondary = GetPlayerWeaponSlot(client, CS_SLOT_SECONDARY);
-			if (IsValidEdict(Primary))
-			{
-				SetReserveAmmo(client, Primary, 200);
-				if (IsValidEdict(Secondary))
-				{
-					SetReserveAmmo(client, Secondary, 200);
-				}
-			}
-			else if (IsValidEdict(Secondary))
-			{
-				SetReserveAmmo(client, Secondary, 200);
-			}
+			else	EmitSoundToClient(client, soundPath);
 		}
 	}
-	
-	s_ClientIsReloading[client] = bIsReloading;
-	
-	return Plugin_Continue;
+	SetReserveAmmo(client, weapon, 200);
 }

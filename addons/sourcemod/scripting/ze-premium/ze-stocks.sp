@@ -243,9 +243,6 @@ void DisableAll(int client)
 	f_causeddamage[client] = 0.0;
 	g_bUltimate[client] = false;
 	i_respawn[client] = 0;
-	g_bFireHE[client] = false;
-	g_bOnFire[client] = false;
-	g_bFreezeFlash[client] = false;
 	g_bNoRespawn[client] = false;
 }
 
@@ -264,30 +261,32 @@ void DisableTimers(int client)
 	}
 }
 
-void SetZombie(int client, bool respawn)
+void SetZombie(int client, bool respawn = false, bool first = false, bool nemesis = false)
 {
 	g_bInfected[client] = true;
-	CS_SwitchTeam(client, CS_TEAM_T);
+	EmitSoundToAll("ze_premium/ze-respawn.mp3", client);
 	if (respawn == true)
 	{
+		CS_SwitchTeam(client, CS_TEAM_T);
 		CS_RespawnPlayer(client);
-		EmitSoundToAll("ze_premium/ze-respawn.mp3", client);
 	}
 	if (g_bIsLeader[client] == true)
 	{
 		g_bIsLeader[client] = false;
 		CPrintToChatAll(" \x04[ZE-Leader]\x01 %t", "leader_died", client);
 	}
-	if (spended[client] > 0)
+	if (first && spended[client] > 0)
 	{
 		int money = GetEntProp(client, Prop_Send, "m_iAccount");
 		SetEntProp(client, Prop_Send, "m_iAccount", money + spended[client]);
 	}
-	SetPlayerAsZombie(client);
+	DisableTimers(client);
+	DisableSpells(client);
+	if(nemesis)	ApplyPlayerZombieClass(client, gZombieNemesis);
+	else	SetPlayerAsZombie(client);
 	if (gRoundType == ROUND_RIOT && g_cZEZombieShieldType.IntValue > 0)
 	{
-		int temp = GivePlayerItem(client, "weapon_shield");
-		if(temp != -1)	EquipPlayerWeapon(client, temp);
+		GivePlayerItem2(client, "weapon_shield");
 	}
 }
 
@@ -346,19 +345,6 @@ void ZombiePain(int victim)
 			}
 		}
 	}
-}
-
-//VOID FOR SHOP SYSTEM
-void FireNade(int client)
-{
-	g_bFireHE[client] = true;
-	GivePlayerItem(client, "weapon_hegrenade");
-}
-
-void FreezeNade(int client)
-{
-	g_bFreezeFlash[client] = true;
-	GivePlayerItem(client, "weapon_decoy");
 }
 
 public Action SoundHook(int clients[64], int &numClients, char sound[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags)
@@ -481,14 +467,14 @@ public void Grenade_SpawnPost(int entity)
 	
 	if (!strcmp(classname, "hegrenade_projectile"))
 	{
-		if (g_cZEHeGrenadeEffect.IntValue == 1 && g_bFireHE[client] == true)
+		if (g_cZEHeGrenadeEffect.IntValue == 1)
 		{
 			BeamFollowCreate(entity, FragColor);
 		}
 	}
 	else if (!strcmp(classname, "decoy_projectile"))
 	{
-		if (g_cZEFlashbangEffect.IntValue == 1 && g_bFreezeFlash[client] == true)
+		if (g_cZEFlashbangEffect.IntValue == 1)
 		{
 			BeamFollowCreate(entity, FlashColor);
 			CreateTimer(1.3, CreateEvent_DecoyDetonate, entity, TIMER_FLAG_NO_MAPCHANGE);
@@ -496,7 +482,7 @@ public void Grenade_SpawnPost(int entity)
 	}
 	else if (!strcmp(classname, "smokegrenade_projectile"))
 	{
-		if (g_cZESmokeEffect.IntValue == 1 && g_bInfectNade[client] == true)
+		if (g_cZESmokeEffect.IntValue == 1)
 		{
 			BeamFollowCreate(entity, SmokeColor);
 			CreateTimer(1.3, CreateEvent_SmokeDetonate, entity, TIMER_FLAG_NO_MAPCHANGE);
@@ -507,6 +493,7 @@ public void Grenade_SpawnPost(int entity)
 //SMOKE GRENADE
 void SmokeInfection(int client, float origin[3])
 {
+	#pragma unused client
 	origin[2] += 10.0;
 	
 	int infectedplayers;
@@ -580,7 +567,6 @@ void SmokeInfection(int client, float origin[3])
 	}
 	
 	TE_SetupBeamRingPoint(origin, 10.0, g_cZEInfnadedistance.FloatValue, g_iBeamSprite, g_iHaloSprite, 1, 1, 0.2, 100.0, 1.0, SmokeColor, 0, 0);
-	g_bInfectNade[client] = false;
 	CreateTimer(1.0, EndOfRound);
 	TE_SendToAll();
 	LightCreate(SMOKE, origin);
@@ -589,6 +575,7 @@ void SmokeInfection(int client, float origin[3])
 //FREEZE GRENADE
 void FlashFreeze(int client, float origin[3])
 {
+	#pragma unused client
 	origin[2] += 10.0;
 	
 	float targetOrigin[3];
@@ -635,7 +622,6 @@ void FlashFreeze(int client, float origin[3])
 	}
 	
 	TE_SetupBeamRingPoint(origin, 10.0, g_cZEFreezenadedistance.FloatValue, g_iBeamSprite, g_iHaloSprite, 1, 1, 0.2, 100.0, 1.0, FlashColor, 0, 0);
-	g_bFreezeFlash[client] = false;
 	TE_SendToAll();
 	LightCreate(SMOKE, origin);
 }
@@ -652,15 +638,14 @@ public void OnEntityCreated(int entity, const char[] classname)
 	{
 		SDKHook(entity, SDKHook_SpawnPost, Grenade_SpawnPost);
 	}
+	else if(!strncmp(classname, "weapon_", 7, false))	{
+		SDKHook(entity, SDKHook_ReloadPost, WeaponReloadPost);
+	}
 }
 
 void DisableSpells(int client)
 {
-	g_bFireHE[client] = false;
-	g_bOnFire[client] = false;
-	g_bFreezeFlash[client] = false;
 	g_bBeacon[client] = false;
-	g_bInfectNade[client] = false;
 	i_Power[client] = 0;
 	f_causeddamage[client] = 0.0;
 	g_bUltimate[client] = false;
@@ -838,4 +823,65 @@ stock void EraseArrayItem(int item, any[] data, int &count)	{
 	for(int i = item;i!=count;)	{
 		data[i] = data[i++];
 	}
+}
+
+stock int FindPlayerWeapon(int client, const char[] weaponname)	{
+	static int offset = -1;
+	static int size;
+
+	if(offset != -1)	{
+		offset = FindDataMapInfo(client, "m_hMyWeapons");
+		size = GetEntPropArraySize(client, Prop_Data, "m_hMyWeapons");
+	}
+
+	int weapon;
+	char classname[32];
+	for(int i = 0;i!=size;i++)	{
+		weapon = GetEntDataEnt2(client, offset + i * 4);
+		if(weapon != -1)	{
+			GetEdictClassname(weapon, classname, sizeof classname);
+			if(!strcmp(weaponname, classname))	return weapon;
+		}
+	}
+	return -1;
+}
+
+stock int GivePlayerNade(int client, const char[] item)	{
+	int nade = FindPlayerWeapon(client, item);
+	if(nade != -1)	{
+		int ammotype = GetEntProp(nade, Prop_Data, "m_iPrimaryAmmoType");
+		if(ammotype != -1)	{
+			SetEntProp(client, Prop_Send, "m_iAmmo", GetEntProp(client, Prop_Send, "m_iAmmo", .element = ammotype) + 1, .element = ammotype);
+		}
+
+		if(HasEntProp(nade, Prop_Send, "m_iPrimaryAmmoCount"))	{
+			SetEntProp(nade, Prop_Send, "m_iPrimaryAmmoCount", GetEntProp(nade, Prop_Send, "m_iPrimaryAmmoCount") + 1);
+		}
+		return nade;
+	}
+	return GivePlayerItem2(client, item);
+}
+
+stock int GivePlayerItem2(int client, const char[] item)	{
+	if(IsWeaponNade(item[7]))	return GivePlayerNade(client, item);
+	int tmp = GivePlayerItem(client, item);
+	if(tmp != -1 && GetEntPropEnt(tmp, Prop_Data, "m_hOwner") == -1)
+		EquipPlayerWeapon(client, tmp);
+	return tmp;
+}
+
+stock bool IsWeaponNade(const char[] weapon)	{
+	switch(CS_AliasToWeaponID(weapon))	{
+		case	CSWeapon_HEGRENADE,
+				CSWeapon_SMOKEGRENADE,
+				CSWeapon_FLASHBANG,
+				CSWeapon_INCGRENADE,
+				CSWeapon_MOLOTOV,
+				CSWeapon_TAGGRENADE,
+				CSWeapon_FIREBOMB,
+				CSWeapon_DIVERSION,
+				CSWeapon_FRAGGRENADE,
+				CSWeapon_SNOWBALL:	return true;
+	}
+	return false;
 }

@@ -49,6 +49,7 @@ ConVar g_cZEFlashbangEffect;
 ConVar g_cZESmokeEffect;
 ConVar g_cZEInfnade;
 ConVar g_cZEInfnadeusages;
+ConVar g_cZEReloadingSoundCooldown;
 ConVar g_cZEInfnadedistance;
 ConVar g_cZEFreezenadedistance;
 ConVar g_cZEInfectionBans;
@@ -95,7 +96,7 @@ enum struct HumanClass	{
 	float speed;
 	int power;
 	int protection;
-	char item[32];
+	char item[64];
 
 	int access;
 }
@@ -142,7 +143,6 @@ ROUNDTYPE gRoundType;
 
 bool g_bInfected[MAXPLAYERS + 1] = false;
 int i_pause[MAXPLAYERS + 1];
-bool g_bNotDied[MAXPLAYERS + 1];
 bool g_bFirstInfected[MAXPLAYERS + 1] = false;
 bool g_bWasFirstInfected[MAXPLAYERS + 1];
 bool g_bNoRespawn[MAXPLAYERS + 1] = false;
@@ -164,15 +164,13 @@ bool g_bRoundStarted = false;
 bool g_bPause = false;
 int i_respawn[MAXPLAYERS + 1];
 int i_infectionban[MAXPLAYERS + 1];
+float gPlayerNextReloadSound[MAXPLAYERS + 1];
 
 int g_iSoundEnts[2048];
 int g_iNumSounds;
 
 //SHOP
-bool g_bFireHE[MAXPLAYERS + 1] = false;
 bool g_bOnFire[MAXPLAYERS + 1] = false;
-bool g_bFreezeFlash[MAXPLAYERS + 1] = false;
-bool g_bInfectNade[MAXPLAYERS + 1] = false;
 int spended[MAXPLAYERS + 1];
 int i_binfnade;
 

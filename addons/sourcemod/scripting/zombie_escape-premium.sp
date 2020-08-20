@@ -79,7 +79,7 @@ public void OnPluginStart()
 	
 	RegConsoleCmd("sm_leader", CMD_Leader);
 	
-	RegConsoleCmd("sm_shop", CMD_Shop);
+	RegConsoleCmd("sm_zshop", CMD_Shop);
 	
 	RegConsoleCmd("sm_humanclass", CMD_HumanClass);
 	RegConsoleCmd("sm_zombieclass", CMD_ZMClass);
@@ -157,6 +157,7 @@ public void OnPluginStart()
 	
 	g_cZEReloadingSound = CreateConVar("sm_ze_human_reloading_sound", "1", "1 = enable human reloading sound, 0 = disable");
 	g_cZEReloadingSoundType = CreateConVar("sm_ze_human_reloading_sound_type", "1", "1 = emit sound to all players, 0 = emit sound only to reloading player");
+	g_cZEReloadingSoundCooldown = CreateConVar("sm_ze_human_reloading_sound_cooldown", "10", "Cooldown for weapon reload");
 	
 	g_cZEMinConnectedPlayers = CreateConVar("sm_ze_minimum_players", "2", "Minimum of connected players on server for start the game", _, true, 2.0, true, 6.0);
 	

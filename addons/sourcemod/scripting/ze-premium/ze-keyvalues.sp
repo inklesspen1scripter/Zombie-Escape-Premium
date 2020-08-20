@@ -524,7 +524,7 @@ void ApplyPlayerZombieClass(int client, ZombieClass zc)	{
 	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", zc.speed);
 
 	StripPlayer(client);
-	GivePlayerItem(client, "weapon_knife");
+	GivePlayerItem2(client, "weapon_knife");
 }
 
 void ApplyPlayerHumanClass(int client, HumanClass hc)	{
@@ -538,12 +538,15 @@ void ApplyPlayerHumanClass(int client, HumanClass hc)	{
 
 	if(hc.item[0])
 	{
-		if (!strcmp(hc.item, "FireNade", false))
-			FireNade(client);
-		else if (!strcmp(hc.item, "FreezeNade", false))
-			FreezeNade(client);
-		else
-			GivePlayerItem(client, hc.item);
+		char buffer2[sizeof hc.item];
+		strcopy(buffer2, sizeof buffer2, hc.item);
+		char buffer[32] = "weapon_";
+		for(int pos = FindCharInString(buffer2, ';', true);;pos = FindCharInString(buffer2, ';', true))	{
+			strcopy(buffer[7], sizeof buffer - 7, buffer2[pos + 1]);
+			GivePlayerItem2(client, buffer);
+			if(pos != -1)	buffer2[pos] = 0;
+			else	break;
+		}
 	}
 
 	i_protection[client] = hc.protection;
