@@ -9,11 +9,7 @@ public int Native_StartingInfection(Handle plugin, int argc)
 
 public int Native_SpecialRound(Handle plugin, int argc)
 {
-	if (i_SpecialRound > 0)
-	{
-		return true;
-	}
-	return false;
+	return gRoundType != ROUND_NORMAL;
 }
 
 public int Native_IsInfected(Handle plugin, int argc)
@@ -38,12 +34,7 @@ public int Native_IsHuman(Handle plugin, int argc)
 
 public int Native_IsNemesis(Handle plugin, int argc)
 {
-	int client = GetNativeCell(1);
-	if (!g_bIsNemesis[client])
-	{
-		return false;
-	}
-	return true;
+	return !strcmp(gPlayerZombieClass[GetNativeCell(1)].ident, gZombieNemesis.ident);
 }
 
 public int Native_SetRespawnAction(Handle plugin, int argc)

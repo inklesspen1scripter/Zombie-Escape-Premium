@@ -62,7 +62,6 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 						FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-die%i.mp3", die);
 						EmitSoundToAll(soundPath, client);
 					}
-					g_bIsNemesis[client] = false;
 					CreateTimer(1.0, Respawn, client);
 				}
 				if(GetZombieAliveCount() == 0)
@@ -153,7 +152,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 						CPrintToChat(victim, " \x04[Zombie-Escape]\x01 %t", "infected_by_player", attacker);
 						SetEntProp(attacker, Prop_Data, "m_iFrags", GetClientFrags(attacker) + 1);
 						CPrintToChat(attacker, " \x04[Zombie-Escape]\x01 %t", "infected_frag", victim);
-						if(i_Riotround > 0 && g_cZEZombieShieldType.IntValue > 0)
+						if(gRoundType == ROUND_RIOT && g_cZEZombieShieldType.IntValue > 0)
 						{
 							GivePlayerItem(victim, "weapon_shield");
 						}

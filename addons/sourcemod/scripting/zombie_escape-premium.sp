@@ -13,8 +13,10 @@
 #include <smlib>
 #include <sdkhooks>
 #include <zepremium>
-#include <zeknockback>
 #include <emitsoundany>
+
+native bool entWatch_IsSpecialItem(int entity);
+native bool EntWatch_IsSpecialItem(int entity);
 
 #include "ze-premium/ze-globals.sp"
 #include "ze-premium/ze-classes.sp"
@@ -40,6 +42,11 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	// Prepare static classes
+	gZombieNemesis.arms[0] = 0;
+	strcopy(gZombieNemesis.ident, sizeof gZombieNemesis.ident, "nemesis\x01");
+	strcopy(gZombieNemesis.name, sizeof gZombieNemesis.name, "Nemesis");
+
 	ZombieClass zc;
 	HumanClass hc;
 	gZombieClasses = new ArrayList(sizeof zc);
@@ -117,12 +124,14 @@ public void OnPluginStart()
 	g_cZENemesisSpeed = CreateConVar("sm_ze_nemesis_speed", "1.7", "Amout of nemesis speed");
 	g_cZENemesisGravity = CreateConVar("sm_ze_nemesis_gravity", "0.7", "Amout of nemesis gravity");
 	
+	g_cZEMotherZombieHP = CreateConVar("sm_ze_motherzombiehp", "20000", "Amout of mother zombie HP\nSet 0 to disable this option");
+
 	g_cZEZombieRiots = CreateConVar("sm_ze_zombie_riot", "10", "How much chance in percent to will be zombie riot round, 0 = disabled");
 	g_cZEZombieShieldType = CreateConVar("sm_ze_zombie_riot_shield", "1", "When will player get shield (1 = after infected, respawn, 0 = only after respawn)");
 	
+	g_cZETeleportFirstToSpawn = CreateConVar("sm_ze_teleport_first_to_spawn", "1", "0 - first zombies will not be teleported to spawn\n1 - first zombies will be teleported to spawn");
 	g_cZECanChoiceClass = CreateConVar("sm_ze_can_player_choose_class", "3", "0 - Fully random\n1 - Humans can choose class\n2 - Zombies can choose class\n-1 - Everyone can choose class");
 	g_cZEFirstInfection = CreateConVar("sm_ze_infection", "30", "Time to first infection");
-	g_cZEMotherZombieHP = CreateConVar("sm_ze_motherzombiehp", "20000", "Amout of mother zombie HP");
 	g_cZEHealthShot = CreateConVar("sm_ze_healthshot", "2000", "Price of healthshot");
 	g_cZEHeNade = CreateConVar("sm_ze_henade", "1000", "Price of he nade");
 	g_cZEFlashNade = CreateConVar("sm_ze_flashnade", "1000", "Price of flash nade");
@@ -176,16 +185,12 @@ public void ResetCvarIntoZero(ConVar cvar, const char[] oldValue, const char[] n
 }
 
 public void OnConfigsExecuted()	{
-	gClassNemesis.health = g_cZENemesisHP.IntValue;
-	gClassNemesis.speed = g_cZENemesisSpeed.FloatValue;
-	gClassNemesis.gravity = g_cZENemesisGravity.FloatValue;
-	g_cZENemesisModel.GetString(gClassNemesis.model, sizeof gClassNemesis.model);
-	if(!FileExists(gClassNemesis.model, true))	gClassNemesis.model[0] = 0;
-	if(gClassNemesis.model[0])	PrecacheModel(gClassNemesis.model, true);
-
-	gClassNemesis.arms[0] = 0;
-	strcopy(gClassNemesis.ident, sizeof gClassNemesis.ident, "nemesis\n");
-	strcopy(gClassNemesis.name, sizeof gClassNemesis.name, "Nemesis");
+	gZombieNemesis.health = g_cZENemesisHP.IntValue;
+	gZombieNemesis.speed = g_cZENemesisSpeed.FloatValue;
+	gZombieNemesis.gravity = g_cZENemesisGravity.FloatValue;
+	g_cZENemesisModel.GetString(gZombieNemesis.model, sizeof gZombieNemesis.model);
+	if(!FileExists(gZombieNemesis.model, true))	gZombieNemesis.model[0] = 0;
+	if(gZombieNemesis.model[0])	PrecacheModel(gZombieNemesis.model, true);
 }
 
 public void SQL_Error(Database hDatabase, DBResultSet hResults, const char[] szError, int iData)
@@ -228,9 +233,22 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 	gF_ClientHumanPost = CreateGlobalForward("ZR_OnClientHumanPost", ET_Ignore, Param_Cell);
 	gF_ClientRespawned = CreateGlobalForward("ZR_OnClientRespawned", ET_Ignore, Param_Cell);
 	
+	MarkNativeAsOptional("entWatch_IsSpecialItem");
+	MarkNativeAsOptional("EntWatch_IsSpecialItem");
+
 	RegPluginLibrary("zepremium");
 	
 	return APLRes_Success;
+}
+
+bool IsSpecialItem(int entity)	{
+	if(CanTestFeatures())	{
+		if(GetFeatureStatus(FeatureType_Native, "entWatch_IsSpecialItem") == FeatureStatus_Available)
+		return entWatch_IsSpecialItem(entity);
+		if(GetFeatureStatus(FeatureType_Native, "EntWatch_IsSpecialItem") == FeatureStatus_Available)
+		return EntWatch_IsSpecialItem(entity);
+	}
+	return false;
 }
 
 public Action Command_CheckJoin(int client, const char[] command, int args)
@@ -522,8 +540,7 @@ public void OnRoundEnd(Handle event, char[] name, bool dontBroadcast)
 	g_bRoundEnd = true;
 	g_bMarker = false;
 	g_bPause = false;
-	i_Riotround = 0;
-	i_SpecialRound = 0;
+	gRoundType = ROUND_NORMAL;
 	i_binfnade = 0;
 	int winner_team = GetEventInt(event, "winner");
 	
@@ -783,11 +800,12 @@ public Action CMD_GetGun(int client, int args)
 					}
 					GivePlayerItem(client, Primary_Gun[client]);
 				}
-				if (Secondary_Gun[client][0] == 'w' && ZR_HaveItem(client) == false)
+				if (Secondary_Gun[client][0] == 'w')
 				{
 					int secweapon = GetPlayerWeaponSlot(client, CS_SLOT_SECONDARY);
-					if (IsValidEdict(secweapon) && secweapon != -1)
+					if(secweapon != -1 && !IsSpecialItem(secweapon))
 					{
+						RemovePlayerItem(client, secweapon);
 						RemoveEdict(secweapon);
 					}
 					GivePlayerItem(client, Secondary_Gun[client]);

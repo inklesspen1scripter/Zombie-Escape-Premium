@@ -36,6 +36,7 @@ ConVar g_cZEDefendModelVmt;
 ConVar g_cZEDefendModelVtf;
 ConVar g_cZEFollowmeModelVmt;
 ConVar g_cZEFollowmeModelVtf;
+ConVar g_cZETeleportFirstToSpawn;
 ConVar g_cZENemesis;
 ConVar g_cZENemesisModel;
 ConVar g_cZENemesisHP;
@@ -103,7 +104,7 @@ int gPlayerSelectedClass[MAXPLAYERS + 1][2];
 ZombieClass gPlayerZombieClass[MAXPLAYERS + 1];
 HumanClass gPlayerHumanClass[MAXPLAYERS + 1];
 
-ZombieClass gClassNemesis;
+ZombieClass gZombieNemesis;
 
 Database g_hDatabase;
 
@@ -132,8 +133,14 @@ bool g_bBeacon[MAXPLAYERS + 1] = false;
 Handle H_Beacon[MAXPLAYERS + 1];
 
 //ZOMBIES
+enum ROUNDTYPE	{
+	ROUND_NORMAL,
+	ROUND_RIOT,
+	ROUND_NEMESIS
+};
+ROUNDTYPE gRoundType;
+
 bool g_bInfected[MAXPLAYERS + 1] = false;
-bool g_bIsNemesis[MAXPLAYERS + 1] = false;
 int i_pause[MAXPLAYERS + 1];
 bool g_bNotDied[MAXPLAYERS + 1];
 bool g_bFirstInfected[MAXPLAYERS + 1] = false;
@@ -141,8 +148,6 @@ bool g_bWasFirstInfected[MAXPLAYERS + 1];
 bool g_bNoRespawn[MAXPLAYERS + 1] = false;
 bool g_bAntiDisconnect[MAXPLAYERS + 1] = false;
 char Zombie_Arms[MAXPLAYERS + 1][PLATFORM_MAX_PATH + 1];
-int i_Riotround;
-int i_SpecialRound;
 
 //CLASSES
 int i_Power[MAXPLAYERS + 1];

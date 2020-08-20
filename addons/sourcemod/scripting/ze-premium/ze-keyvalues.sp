@@ -508,6 +508,7 @@ public Action ResetGlovesTimer2(Handle timer, DataPack pack)
 void ApplyPlayerZombieClass(int client, ZombieClass zc)	{
 	gPlayerZombieClass[client] = zc;
 
+	g_bInfected[client] = true;
 	CS_SwitchTeam(client, CS_TEAM_T);
 	CS_UpdateClientModel(client);
 
@@ -529,7 +530,8 @@ void ApplyPlayerZombieClass(int client, ZombieClass zc)	{
 void ApplyPlayerHumanClass(int client, HumanClass hc)	{
 	gPlayerHumanClass[client] = hc;
 	
-	CS_SwitchTeam(client, CS_TEAM_CT);
+	g_bInfected[client] = false;
+	if(g_bRoundStarted)	CS_SwitchTeam(client, CS_TEAM_CT);
 	CS_UpdateClientModel(client);
 
 	CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);

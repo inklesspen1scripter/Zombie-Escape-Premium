@@ -107,23 +107,13 @@ stock bool IsClientVIP(int client)
 //TAKING GUNS ZOMBIES
 public Action OnWeaponCanUse(int client, int weapon)
 {
-	if (!IsValidClient(client))
+	if (ZR_IsClientZombie(client))
 		return Plugin_Continue;
 	
-	if (GetClientTeam(client) != CS_TEAM_T)
+	char sWeapon[8];
+	GetEntityNetClass(weapon, sWeapon, sizeof(sWeapon));
+	if(!strncmp(sWeapon, "CKnife", 6))
 		return Plugin_Continue;
-	
-	if (i_Infection != 0)
-		return Plugin_Continue;
-	
-	char sWeapon[32];
-	GetEdictClassname(weapon, sWeapon, sizeof(sWeapon));
-	
-	if ((StrContains(sWeapon, "knife", false) != -1) || (StrContains(sWeapon, "bayonet", false) != -1) || (StrContains(sWeapon, "shield", false) != -1) || (StrContains(sWeapon, "smoke", false) != -1))
-	{
-		return Plugin_Continue;
-	}
-	
 	return Plugin_Handled;
 }
 
@@ -140,7 +130,6 @@ public int SpawnMarker(int client, char[] sprite)
 	
 	int Ent = CreateEntityByName("env_sprite");
 	if (!Ent)return -1;
-	
 	DispatchKeyValue(Ent, "model", sprite);
 	DispatchKeyValue(Ent, "classname", "env_sprite");
 	DispatchKeyValue(Ent, "spawnflags", "1");
@@ -149,7 +138,6 @@ public int SpawnMarker(int client, char[] sprite)
 	DispatchKeyValue(Ent, "rendercolor", "255 255 255");
 	DispatchSpawn(Ent);
 	TeleportEntity(Ent, Origin, NULL_VECTOR, NULL_VECTOR);
-	
 	return Ent;
 }
 
@@ -215,18 +203,10 @@ public void RemoveMarker(int client)
 
 void CheckTimer()
 {
-	switch (i_Infection)
-	{
-		case 10:EmitSoundToAll("ze_premium/10.mp3");
-		case 9:EmitSoundToAll("ze_premium/9.mp3");
-		case 8:EmitSoundToAll("ze_premium/8.mp3");
-		case 7:EmitSoundToAll("ze_premium/7.mp3");
-		case 6:EmitSoundToAll("ze_premium/6.mp3");
-		case 5:EmitSoundToAll("ze_premium/5.mp3");
-		case 4:EmitSoundToAll("ze_premium/4.mp3");
-		case 3:EmitSoundToAll("ze_premium/3.mp3");
-		case 2:EmitSoundToAll("ze_premium/2.mp3");
-		case 1:EmitSoundToAll("ze_premium/1.mp3");
+	if(0 < i_Infection && i_Infection <= 10)	{
+		char sBuffer[20];
+		FormatEx(sBuffer, sizeof sBuffer, "ze_premium/%i.mp3", i_Infection);
+		EmitSoundToAll(sBuffer);
 	}
 }
 
@@ -293,16 +273,6 @@ void SetZombie(int client, bool respawn)
 		CS_RespawnPlayer(client);
 		EmitSoundToAll("ze_premium/ze-respawn.mp3", client);
 	}
-	int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-	if (IsValidEdict(primweapon) && primweapon != -1)
-	{
-		RemoveEdict(primweapon);
-	}
-	int secweapon = GetPlayerWeaponSlot(client, CS_SLOT_SECONDARY);
-	if (IsValidEdict(secweapon) && secweapon != -1)
-	{
-		RemoveEdict(secweapon);
-	}
 	if (g_bIsLeader[client] == true)
 	{
 		g_bIsLeader[client] = false;
@@ -313,11 +283,12 @@ void SetZombie(int client, bool respawn)
 		int money = GetEntProp(client, Prop_Send, "m_iAccount");
 		SetEntProp(client, Prop_Send, "m_iAccount", money + spended[client]);
 	}
-	if (i_Riotround > 0 && g_cZEZombieShieldType.IntValue > 0)
-	{
-		GivePlayerItem(client, "weapon_shield");
-	}
 	SetPlayerAsZombie(client);
+	if (gRoundType == ROUND_RIOT && g_cZEZombieShieldType.IntValue > 0)
+	{
+		int temp = GivePlayerItem(client, "weapon_shield");
+		if(temp != -1)	EquipPlayerWeapon(client, temp);
+	}
 }
 
 void HumanPain(int victim)
@@ -346,7 +317,7 @@ void ZombiePain(int victim)
 	if (i_pause[victim] >= 5)
 	{
 		i_pause[victim] = 0;
-		if (g_bIsNemesis[victim] == true)
+		if (!strcmp(gPlayerZombieClass[victim].ident, gZombieNemesis.ident))
 		{
 			int hit = GetRandomInt(1, 3);
 			if (hit == 1)
@@ -392,63 +363,40 @@ void FreezeNade(int client)
 
 public Action SoundHook(int clients[64], int &numClients, char sound[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
-	if (g_cZEZombieSounds.IntValue > 0)
+	if (entity != -1 && !strncmp(sound, "weapons/knife/knife_", 20) && g_cZEZombieSounds.IntValue > 0)
 	{
-		int player = GetPlayerHoldingKnife(entity);
-		if (player > 0 && IsClientInGame(player) && IsPlayerAlive(player) && GetClientTeam(player) == CS_TEAM_T && g_bInfected[player] == true)
+		char sBuffer[8];
+		GetEntityNetClass(entity, sBuffer, sizeof sBuffer);
+		if(strncmp(sBuffer, "CKnife", 6))	return Plugin_Continue;
+		static int offset = -1;
+		if(offset == -1)	offset = FindDataMapInfo(entity, "m_hOwner");
+		int player = GetEntDataEnt2(entity, offset);
+		if (player != -1 && g_bInfected[player] == true)
 		{
-			if (StrContains(sound, "weapons/knife/knife_hit_") != -1)
+			if (!strncmp(sound[20], "hit", 3))
 			{
-				EmitSoundToAll("ze_premium/ze-wallhit.mp3", entity, channel, level, flags, volume, pitch);
-				return Plugin_Stop;
+				if(sound[23] == '_')	strcopy(sound, sizeof sound, "ze_premium/ze-wallhit.mp3");
+				else	FormatEx(sound, sizeof(sound), "ze_premium/ze-zombiehit%i.mp3", GetRandomInt(1, 4));
+				return Plugin_Changed;
 			}
-			
-			else if (StrContains(sound, "weapons/knife/knife_slash") != -1)
+			else if (!strncmp(sound[20], "slash", 5))
 			{
-				int random = GetRandomInt(1, 6);
-				char soundPath[PLATFORM_MAX_PATH];
-				Format(soundPath, sizeof(soundPath), "ze_premium/ze-slash%i.mp3", random);
-				EmitSoundToAll(soundPath, entity, channel, level, flags, volume, pitch);
-				return Plugin_Stop;
+				FormatEx(sound, sizeof sound, "ze_premium/ze-slash%i.mp3", GetRandomInt(1, 6));
+				return Plugin_Changed;
 			}
-			
-			else if (StrContains(sound, "weapons/knife/knife_hit") != -1)
+			else if (!strncmp(sound[20], "stab", 4))
 			{
-				int random = GetRandomInt(1, 4);
-				char soundPath[PLATFORM_MAX_PATH];
-				Format(soundPath, sizeof(soundPath), "ze_premium/ze-zombiehit%i.mp3", random);
-				EmitSoundToAll(soundPath, entity, channel, level, flags, volume, pitch);
-				return Plugin_Stop;
-			}
-			
-			else if (StrContains(sound, "weapons/knife/knife_stab") != -1)
-			{
-				EmitSoundToAll("ze_premium/ze-stab.mp3", entity, channel, level, flags, volume, pitch);
-				return Plugin_Stop;
+				strcopy(sound, sizeof sound, "ze_premium/ze-stab.mp3");
+				return Plugin_Changed;
 			}
 		}
 	}
-	
-	return Plugin_Changed;
-}
-
-int GetPlayerHoldingKnife(int weapon)
-{
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if (IsValidClient(i))
-		{
-			int knife = GetPlayerWeaponSlot(i, CS_SLOT_KNIFE);
-			if (weapon == knife)
-				return i;
-		}
-	}
-	
-	return -1;
+	return Plugin_Continue;
 }
 
 public void StopMapMusic()
 {
+	//wtf
 	char sSound[PLATFORM_MAX_PATH];
 	int entity = INVALID_ENT_REFERENCE;
 	for (int i = 1; i <= MaxClients; i++) {
@@ -882,5 +830,12 @@ stock StripPlayer(int client)	{
 			RemovePlayerItem(client, weapon);
 			RemoveEdict(weapon);
 		}
+	}
+}
+
+stock void EraseArrayItem(int item, any[] data, int &count)	{
+	count--;
+	for(int i = item;i!=count;)	{
+		data[i] = data[i++];
 	}
 }

@@ -1,6 +1,7 @@
 public Action FirstInfection(Handle timer)
 {
 	int numberofplayers = GetTeamClientCount(2) + GetTeamClientCount(3);
+	//Counting
 	if (GameRules_GetProp("m_bWarmupPeriod") != 1)
 	{
 		if(g_bPause == false && numberofplayers >= g_cZEMinConnectedPlayers.IntValue)
@@ -20,12 +21,13 @@ public Action FirstInfection(Handle timer)
 			}
 		}
 	}
+	//Counting end
 	
 	if(i_Infection > 0)
 	{	
-		CheckTimer();
+		CheckTimer(); // show timer
 		
-		for (int i = 1; i <= MaxClients; i++)
+		for (int i = MaxClients; i ; i--)
 		{
 			if (IsValidClient(i) && !IsFakeClient(i))
 			{
@@ -38,8 +40,7 @@ public Action FirstInfection(Handle timer)
 				{
 					numberinfected = numberofplayers / 4;
 				}
-				float percent = float(numberofplayers) / 100;
-				float newpercent = float(numberinfected) / percent;
+				float newpercent = float(numberinfected) / float(numberofplayers) * 100.0;
 				SetHudTextParams(-1.0, 0.1, 1.02, 0, 255, 0, 255, 0, 0.0, 0.0, 0.0);
 				if(numberofplayers >= g_cZEMinConnectedPlayers.IntValue)
 				{
@@ -77,161 +78,101 @@ public Action FirstInfection(Handle timer)
 		}
 	}
 	
+
 	if(i_Infection <= 0)
 	{
 		g_bRoundStarted = true;
+
+		int ctoz[64]; // Clients to zombie
+		int ctozc = 0; // Clients to zombie count
+		int jc[64]; // Just clients
+		int jcc = 0; // Just clients count
+
+		// Collect just players and players with infection ban
 		for (int i = 1; i <= MaxClients; i++)
 		{
-			if (IsValidClient(i))
+			if (IsValidClient(i) && GetClientTeam(i) > 1)
 			{
-				if(i_infectionban[i] > 0)
-				{
-					SetZombie(i, true);
-				}
-				else if(g_bInfected[i] == false)
-				{
-					CS_SwitchTeam(i, CS_TEAM_CT);
-				}
+				if(i_infectionban[i] > 0)	ctoz[ctozc++] = i;
+				else if(!g_bWasFirstInfected[i])	jc[jcc++] = i;
+				CS_SwitchTeam(i, CS_TEAM_CT);
 				SetEntProp(i, Prop_Data, "m_takedamage", 2, 1);
 			}
 		}
-		int numberinfected;
-		if(numberofplayers < 4)
-		{
-			numberinfected = 1;
+
+		int numberinfected = numberofplayers / 4;
+		if(!numberinfected)	numberinfected = 1;
+
+		//Fill ctoz array
+		int l;
+		while(ctozc < numberinfected)	{
+			l = GetRandomInt(0, jcc-1);
+			ctoz[ctozc++] = jc[l];
+			EraseArrayItem(l, jc, jcc);
 		}
-		else
-		{
-			numberinfected = numberofplayers / 4;
+
+		// Check free human in case all players have infection ban
+		if(!jcc)	{
+			EraseArrayItem(GetRandomInt(0, ctozc-1), ctoz, ctozc);
 		}
-		int infection;
-		int firstinfected;
+
+		if(GetRandomInt(1, 100) <= g_cZEZombieRiots.IntValue)
+		{
+			gRoundType = ROUND_RIOT;
+			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "riot_round");
+			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "riot_round");
+			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "riot_round");
+			EmitSoundToAll("ze_premium/ze-riotround.mp3");
+		}
+		else if(GetRandomInt(1, 100) <= g_cZENemesis.IntValue)	{
+			gRoundType = ROUND_NEMESIS;
+			EmitSoundToAll("ze_premium/ze-nemesis.mp3");
+		}
+		else	gRoundType = ROUND_NORMAL;
+
 		int user;
-		int nemesis = 0;
-		if(g_cZEZombieRiots.IntValue > 0)
-		{
-			int riotchance = GetRandomInt(1, 100);
-			if(riotchance >= 1 && riotchance <= g_cZEZombieRiots.IntValue)
-			{
-				i_Riotround = 1;
-				i_SpecialRound = 1;
-				CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "riot_round");
-				CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "riot_round");
-				CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "riot_round");
-				EmitSoundToAll("ze_premium/ze-riotround.mp3");
-			}
-		}
-		
-		do
-		{
-			infection++;
-			if(infection <= 1)
-			{	
-				firstinfected = GetRandomsPlayer();
-				g_bInfected[firstinfected] = true;
-				g_bFirstInfected[firstinfected] = true;
-				CS_SwitchTeam(firstinfected, CS_TEAM_T);
-				CS_RespawnPlayer(firstinfected);
-				RemoveGuns(firstinfected);
-				if(g_bIsLeader[firstinfected] == true)
-				{
-					g_bIsLeader[firstinfected] = false;
-					CPrintToChatAll(" \x04[ZE-Leader]\x01 %t", "leader_died", firstinfected);
+		for(int z = 0;ctozc;z++)	{
+			l = GetRandomInt(0, ctozc-1);
+			user = ctoz[l];
+			EraseArrayItem(l, ctoz, ctozc);
+
+			SetZombie(user, g_cZETeleportFirstToSpawn.BoolValue);
+			if(g_cZEMotherZombieHP.IntValue)	SetEntityHealth(user, g_cZEMotherZombieHP.IntValue);
+
+			if(!z)	{
+				g_bFirstInfected[user] = true;
+				if(gRoundType == ROUND_NEMESIS)	{
+					ApplyPlayerZombieClass(user, gZombieNemesis);
 				}
-				SetEntityHealth(firstinfected, g_cZEMotherZombieHP.IntValue);
-				if(spended[firstinfected] > 0)
-				{
-					int money = GetEntProp(firstinfected, Prop_Send, "m_iAccount");
-					SetEntProp(firstinfected, Prop_Send, "m_iAccount", money + spended[firstinfected]);
-				}
-				if(i_Riotround > 0 && g_cZEZombieShieldType.IntValue > 0)
-				{
-					GivePlayerItem(firstinfected, "weapon_shield");
-				}
-				if(g_cZENemesis.IntValue > 0 && i_Riotround == 0)
-				{
-					int nemesischance = GetRandomInt(1, 100);
-					if(nemesischance >= 1 && nemesischance <= g_cZENemesis.IntValue)
-					{
-						EmitSoundToAll("ze_premium/ze-nemesis.mp3");
-						nemesis = 1;
-						i_SpecialRound = 1;
-						gPlayerZombieClass[firstinfected] = gClassNemesis;
-						g_bIsNemesis[firstinfected] = true;
-						SetEntityHealth(firstinfected, gClassNemesis.health);
-						SetEntityModel(firstinfected, gClassNemesis.model);
-						SetEntPropFloat(firstinfected, Prop_Data, "m_flLaggedMovementValue", gClassNemesis.speed);
-						SetEntityGravity(firstinfected, gClassNemesis.gravity);
-					}
-				}
-				
-				if(nemesis == 0)
-				{
-					int random = GetRandomInt(1, 3);
+				else if(gRoundType != ROUND_RIOT)	{
 					char soundPath[PLATFORM_MAX_PATH];
-					Format(soundPath, sizeof(soundPath), "ze_premium/ze-firstzm%i.mp3", random);
+					Format(soundPath, sizeof(soundPath), "ze_premium/ze-firstzm%i.mp3", GetRandomInt(1, 3));
 					EmitSoundToAll(soundPath);
 				}
-				CreateTimer(g_cZEInfectionTime.FloatValue, AntiDisconnect, firstinfected);
-				g_bAntiDisconnect[firstinfected] = true;
-				Call_StartForward(gF_ClientInfected);
-				Call_PushCell(firstinfected);
-				Call_PushCell(firstinfected);
-				Call_Finish();
+
+				SetHudTextParams(-1.0, 0.1, 4.02, 255, 0, 0, 255, 0, 0.0, 0.0, 0.0);
+				for (int i = 1; i <= MaxClients; i++)
+				{
+					if (IsClientInGame(i))
+					{
+						ShowHudText(i, -1, (gRoundType == ROUND_NEMESIS) ? "Player %N is NEMESIS ! Run, run save your lives..." :
+							"Player %N was infected ! Apocalypse has started...", user);
+					}
+				}
+				CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected", user);
 			}
-			else
-			{
-				user = GetRandomsPlayer();
-				g_bInfected[user] = true;
-				CS_SwitchTeam(user, CS_TEAM_T);
-				CS_RespawnPlayer(user);
-				RemoveGuns(user);
-				if(g_bIsLeader[user] == true)
-				{
-					g_bIsLeader[user] = false;
-					CPrintToChatAll(" \x04[ZE-Leader]\x01 %t", "leader_died", user);
-				}
-				if(spended[user] > 0)
-				{
-					int money = GetEntProp(user, Prop_Send, "m_iAccount");
-					SetEntProp(user, Prop_Send, "m_iAccount", money + spended[user]);
-				}
-				if(i_Riotround > 0 && g_cZEZombieShieldType.IntValue > 0)
-				{
-					GivePlayerItem(user, "weapon_shield");
-				}
-				SetEntityHealth(user, g_cZEMotherZombieHP.IntValue);
-				EmitSoundToAll("ze_premium/ze-respawn.mp3", user);
-				CreateTimer(g_cZEInfectionTime.FloatValue, AntiDisconnect, user);
-				g_bAntiDisconnect[user] = true;
-				Call_StartForward(gF_ClientInfected);
-				Call_PushCell(user);
-				Call_PushCell(user);
-				Call_Finish();
-			}
-		} 
-		while (infection < numberinfected);
-		
-		for (int i = 1; i <= MaxClients; i++)
-		{
-			if (IsValidClient(i))
-			{
-				if(nemesis == 0)
-				{
-					SetHudTextParams(-1.0, 0.1, 4.02, 255, 0, 0, 255, 0, 0.0, 0.0, 0.0);
-					ShowHudText(i, -1, "Player %N was infected ! Apocalypse has started...", firstinfected);
-				}
-				else
-				{
-					SetHudTextParams(-1.0, 0.1, 4.02, 139, 0, 0, 255, 0, 0.0, 0.0, 0.0);
-					ShowHudText(i, -1, "Player %N is NEMESIS ! Run, run save your lives...", firstinfected);
-				}
-			}
+
+			CreateTimer(g_cZEInfectionTime.FloatValue, AntiDisconnect, GetClientUserId(user));
+			g_bAntiDisconnect[user] = true;
+			Call_StartForward(gF_ClientInfected);
+			Call_PushCell(user);
+			Call_PushCell(user);
+			Call_Finish();
 		}
-		CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected", firstinfected);
-		KillTimer(H_FirstInfection);
-		H_FirstInfection = null;	
+		H_FirstInfection = null;
+		return Plugin_Stop;
 	}
+	return Plugin_Continue;
 }
 
 public Action Timer_Beacon(Handle timer, int client)
@@ -254,7 +195,7 @@ public Action Respawn(Handle timer, int client)
 			CS_RespawnPlayer(client);
 			if(g_bInfected[client] == true)
 			{
-				if(i_Riotround > 0)
+				if(gRoundType == ROUND_RIOT)
 				{
 					GivePlayerItem(client, "weapon_shield");
 				}

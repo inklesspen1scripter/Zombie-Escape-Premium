@@ -9,24 +9,11 @@ public void OnClientDisconnect(int client)
 		g_hDatabase.Query(SQL_Error, szQuery);
 		CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "infected_disconnected", client, newiban);
 	}
-	i_Maximum_Choose[client] = 0;
-	g_bSamegun[client] = false;
 	i_typeofsprite[client] = 0;
-	i_respawn[client] = 0;
-	g_bBeacon[client] = false;
-	g_bIsLeader[client] = false;
-	g_bInfected[client] = false;
-	g_bFireHE[client] = false;
-	g_bNoRespawn[client] = false;
-	g_bIsNemesis[client] = false;
-	g_bOnFire[client] = false;
-	g_bFreezeFlash[client] = false;
-	g_bAntiDisconnect[client] = false;
-	g_bInfectNade[client] = false;
 	PrintToChatAll(" \x04[Zombie Escape] \x01Player\x06 %N\x01 has disconnected from the server!", client);
 }
 
-public void OnClientPutInServer(int client)
+public void OnClientConnected(int client)
 {
 	GetHumanClass(0, gPlayerHumanClass[client]);
 	GetZombieClass(0, gPlayerZombieClass[client]);
@@ -39,7 +26,6 @@ public void OnClientPutInServer(int client)
 	g_bInfected[client] = false;
 	g_bBeacon[client] = false;
 	g_bFireHE[client] = false;
-	g_bIsNemesis[client] = false;
 	g_bOnFire[client] = false;
 	g_bFreezeFlash[client] = false;
 	g_bNoRespawn[client] = false;
@@ -48,6 +34,9 @@ public void OnClientPutInServer(int client)
 	i_respawn[client] = 0;
 	i_Power[client] = 0;
 	g_bUltimate[client] = false;
+}
+
+public void OnClientPutInServer(int client)	{
 	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamage);
 	SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
 	PrintToChatAll(" \x04[Zombie Escape] \x01Player\x06 %N\x01 has join to the server!", client);
