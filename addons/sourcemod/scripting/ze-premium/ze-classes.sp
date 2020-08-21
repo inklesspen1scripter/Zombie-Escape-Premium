@@ -12,6 +12,7 @@ void LoadClasses()	{
 		zc.speed = kv.GetFloat("speed", 1.2);
 		zc.gravity = kv.GetFloat("gravity", 1.0);
 		kv.GetString("name", zc.name, sizeof zc.name, "Default");
+		kv.GetString("desc", zc.desc, sizeof zc.desc, "");
 		kv.GetString("model_path", zc.model, sizeof zc.model, "models/player/custom_player/kodua/frozen_nazi/frozen_nazi.mdl");
 		if(!FileExists(zc.model, true))	zc.model[0] = 0;
 		kv.GetString("arms_path", zc.arms, sizeof zc.arms, "models/player/custom_player/kodua/frozen_nazi/arms.mdl");
@@ -47,6 +48,7 @@ void LoadClasses()	{
 		ReplaceString(sBuffer, sizeof sBuffer, "FreezeNade", "decoy", false);
 		strcopy(hc.item, sizeof hc.item, sBuffer);
 		kv.GetString("name", hc.name, sizeof hc.name, "Default");
+		kv.GetString("desc", hc.desc, sizeof hc.desc, "");
 		kv.GetString("model_path", hc.model, sizeof hc.model, "models/player/custom_player/pikajew/hlvr/hazmat_worker/hazmat_worker.mdl");
 		if(!FileExists(hc.model, true))	hc.model[0] = 0;
 		kv.GetSectionName(hc.ident, sizeof hc.ident);

@@ -104,9 +104,17 @@ public Action CMD_ZMClass(int client, int args)
 	Menu zmmenu = new Menu(MenuHandler_ZombieClass);
 	SetMenuTitle(zmmenu, "Zombie class\nSelected: %s", zc.name);
 	int size = gZombieClasses.Length;
+	char sBuffer[192];
+	int len;
 	for(int i = 0;i != size;i++)
 	{
 		GetZombieClass(i, zc);
+
+		len = strcopy(sBuffer, sizeof sBuffer, zc.name);
+		if(zc.desc[0])	{
+			sBuffer[len++] = '\n';
+			strcopy(sBuffer[len], sizeof sBuffer - len, zc.desc);
+		}
 		zmmenu.AddItem(zc.ident, zc.name, i == gPlayerSelectedClass[i][1]);
 	}
 	zmmenu.Display(client, 0);
@@ -155,10 +163,17 @@ public Action CMD_HumanClass(int client, int args)
 	Menu zmmenu = new Menu(MenuHandler_HumanClass);
 	SetMenuTitle(zmmenu, "Human class\nSelected: %s", hc.name);
 	int size = gHumanClasses.Length;
+	char sBuffer[192];
+	int len;
 	for(int i = 0;i != size;i++)
 	{
 		GetHumanClass(i, hc);
-		zmmenu.AddItem(hc.ident, hc.name, i == gPlayerSelectedClass[i][0]);
+		len = strcopy(sBuffer, sizeof sBuffer, hc.name);
+		if(hc.desc[0])	{
+			sBuffer[len++] = '\n';
+			strcopy(sBuffer[len], sizeof sBuffer - len, hc.desc);
+		}
+		zmmenu.AddItem(hc.ident, sBuffer, i == gPlayerSelectedClass[i][0]);
 	}
 	zmmenu.Display(client, 0);
 	return Plugin_Handled;

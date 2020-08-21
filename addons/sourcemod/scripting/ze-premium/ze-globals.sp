@@ -74,6 +74,7 @@ KeyValues kvWeapons;
 enum struct ZombieClass	{
 	char ident[32];
 	char name[96];
+	char desc[96];
 
 	char model[96];
 	char arms[96];
@@ -89,6 +90,7 @@ ArrayList gZombieClasses;
 enum struct HumanClass	{
 	char ident[32];
 	char name[96];
+	char desc[96];
 
 	char model[96];
 
