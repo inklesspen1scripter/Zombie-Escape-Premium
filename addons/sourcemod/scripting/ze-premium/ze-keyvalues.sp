@@ -80,7 +80,12 @@ void ApplyPlayerZombieClass(int client, ZombieClass zc)	{
 	SetEntPropFloat(client, Prop_Data, "m_flLaggedMovementValue", zc.speed);
 
 	StripPlayer(client);
-	GivePlayerItem2(client, "weapon_knife");
+	int tmp = GivePlayerItem2(client, "weapon_knife");
+	if(tmp != -1)	{
+		char sBuffer[24];
+		GetEdictClassname(tmp, sBuffer, sizeof sBuffer);
+		FakeClientCommand(client, "use %s", sBuffer);
+	}
 }
 
 void ApplyPlayerHumanClass(int client, HumanClass hc)	{
