@@ -9,11 +9,6 @@ void LoadCommands()	{
 	RegConsoleCmd("sm_r", CMD_Respawn);
 	RegConsoleCmd("sm_zrespawn", CMD_Respawn);
 	
-	RegConsoleCmd("sm_rifle", CMD_WeaponsRifle);
-	RegConsoleCmd("sm_heavygun", CMD_WeaponsHeavy);
-	RegConsoleCmd("sm_smg", CMD_WeaponsSmg);
-	RegConsoleCmd("sm_pistols", CMD_WeaponsPistols);
-	
 	RegConsoleCmd("sm_get", CMD_GetGun);
 	RegConsoleCmd("sm_weapon", CMD_Weapon);
 	RegConsoleCmd("sm_weapons", CMD_Weapon);
@@ -34,9 +29,9 @@ void LoadCommands()	{
 	RegConsoleCmd("sm_zadmin", CMD_Admin);
 	RegConsoleCmd("sm_zeadmin", CMD_Admin);
 	
-	RegConsoleCmd("sm_p90", CMD_P90);
-	RegConsoleCmd("sm_bizon", CMD_Bizon);
-	RegConsoleCmd("sm_negev", CMD_Negev);
+	RegConsoleCmd("p90", CMD_WeaponAlias);
+	RegConsoleCmd("bizon", CMD_WeaponAlias);
+	RegConsoleCmd("negev", CMD_WeaponAlias);
 	
 	RegConsoleCmd("sm_topplayer", CMD_Topplayer);
 	RegConsoleCmd("sm_toplayer", CMD_Topplayer);
@@ -47,26 +42,6 @@ void LoadCommands()	{
 
 	AddCommandListener(Command_PowerH, "+lookatweapon");
 	AddCommandListener(Command_CheckJoin, "jointeam");
-}
-
-public Action CMD_WeaponsRifle(int client, int args)	{
-	ShowPlayerWeapons(client, "Rifles");
-	return Plugin_Handled;
-}
-
-public Action CMD_WeaponsHeavy(int client, int args)	{
-	ShowPlayerWeapons(client, "Heavyguns");
-	return Plugin_Handled;
-}
-
-public Action CMD_WeaponsSmg(int client, int args)	{
-	ShowPlayerWeapons(client, "Smg");
-	return Plugin_Handled;
-}
-
-public Action CMD_WeaponsPistols(int client, int args)	{
-	ShowPlayerWeapons(client, "Pistols", true);
-	return Plugin_Handled;
 }
 
 public Action CMD_HumanClass(int client, int args)	{
@@ -155,64 +130,17 @@ public Action CMD_Leader(int client, int args)
 	return Plugin_Handled;
 }
 
-public Action CMD_P90(int client, int args)
+public Action CMD_WeaponAlias(int client, int args)
 {
 	if (g_bInfected[client] == false)
 	{
 		if (i_Maximum_Choose[client] < g_cZEMaximumUsage.IntValue)
 		{
-			int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-			if (IsValidEdict(primweapon) && primweapon != -1)
-			{
-				RemoveEdict(primweapon);
-			}
-			Format(Primary_Gun[client], sizeof(Primary_Gun), "weapon_p90");
-			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", Primary_Gun[client]);
-			GivePlayerItem(client, Primary_Gun[client]);
-			i_Maximum_Choose[client]++;
-			int usages = g_cZEMaximumUsage.IntValue - i_Maximum_Choose[client];
-			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "gun_uses_left", usages);
-		}
-	}
-	return Plugin_Handled;
-}
-
-public Action CMD_Bizon(int client, int args)
-{
-	if (g_bInfected[client] == false)
-	{
-		if (i_Maximum_Choose[client] < g_cZEMaximumUsage.IntValue)
-		{
-			int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-			if (IsValidEdict(primweapon) && primweapon != -1)
-			{
-				RemoveEdict(primweapon);
-			}
-			Format(Primary_Gun[client], sizeof(Primary_Gun), "weapon_bizon");
-			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", Primary_Gun[client]);
-			GivePlayerItem(client, Primary_Gun[client]);
-			i_Maximum_Choose[client]++;
-			int usages = g_cZEMaximumUsage.IntValue - i_Maximum_Choose[client];
-			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "gun_uses_left", usages);
-		}
-	}
-	return Plugin_Handled;
-}
-
-public Action CMD_Negev(int client, int args)
-{
-	if (g_bInfected[client] == false)
-	{
-		if (i_Maximum_Choose[client] < g_cZEMaximumUsage.IntValue)
-		{
-			int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-			if (IsValidEdict(primweapon) && primweapon != -1)
-			{
-				RemoveEdict(primweapon);
-			}
-			Format(Primary_Gun[client], sizeof(Primary_Gun), "weapon_negev");
-			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", Primary_Gun[client]);
-			GivePlayerItem(client, Primary_Gun[client]);
+			char sBuffer[32];
+			strcopy(sBuffer, sizeof sBuffer, "weapon_");
+			GetCmdArg(0, sBuffer[7], sizeof sBuffer - 7);
+			ChoosePlayerGun(client, sBuffer[7], true);
+			GivePlayerItem2(client, sBuffer);
 			i_Maximum_Choose[client]++;
 			int usages = g_cZEMaximumUsage.IntValue - i_Maximum_Choose[client];
 			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "gun_uses_left", usages);
@@ -225,31 +153,27 @@ public Action CMD_GetGun(int client, int args)
 {
 	if (g_bInfected[client] == false)
 	{
-		if (Primary_Gun[client][0] == 'w' || Secondary_Gun[client][0] == 'w')
+		if (Primary_Gun[client][0] || Secondary_Gun[client][0])
 		{
 			if (i_Maximum_Choose[client] < g_cZEMaximumUsage.IntValue)
 			{
+				char sBuffer[32];
+				strcopy(sBuffer, sizeof sBuffer, "weapon_");
 				i_Maximum_Choose[client]++;
 				int usages = g_cZEMaximumUsage.IntValue - i_Maximum_Choose[client];
 				CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "gun_uses_left", usages);
-				if (Primary_Gun[client][0] == 'w')
+				if (Primary_Gun[client][0])
 				{
-					int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-					if (IsValidEdict(primweapon) && primweapon != -1)
-					{
-						RemoveEdict(primweapon);
-					}
-					GivePlayerItem(client, Primary_Gun[client]);
+					strcopy(sBuffer[7], sizeof sBuffer - 7, Primary_Gun[client]);
+					GivePlayerItem2(client, sBuffer);
 				}
 				if (Secondary_Gun[client][0] == 'w')
 				{
+					strcopy(sBuffer[7], sizeof sBuffer - 7, Primary_Gun[client]);
 					int secweapon = GetPlayerWeaponSlot(client, CS_SLOT_SECONDARY);
 					if(secweapon != -1 && !IsSpecialItem(secweapon))
-					{
-						RemovePlayerItem(client, secweapon);
-						RemoveEdict(secweapon);
-					}
-					GivePlayerItem(client, Secondary_Gun[client]);
+						SDKHooks_DropWeapon(client, secweapon, view_as<float>({0.0,0.0,0.0}), view_as<float>({0.0,0.0,0.0}));
+					GivePlayerItem(client, sBuffer);
 				}
 			}
 			else

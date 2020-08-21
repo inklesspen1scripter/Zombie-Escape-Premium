@@ -54,6 +54,8 @@ public void OnPluginStart()
 	PrepareClasses();
 	LoadTranslations("ZE-Premium");
 	
+	gWeaponList1 = new ArrayList(ByteCountToCells(32));
+	gWeaponList2 = new ArrayList(ByteCountToCells(32));
 	g_hZombieClass = RegClientCookie("zombie_class_chosen", "", CookieAccess_Private);
 	g_hHumanClass = RegClientCookie("human_class_chosen", "", CookieAccess_Private);
 	g_hSavedWeapons = new Cookie("ze_weapon_selected", "", CookieAccess_Private);
@@ -143,11 +145,46 @@ public Action Command_CheckJoin(int client, const char[] command, int args)
 public void OnMapStart()
 {
 	char g_sZEConfig[PLATFORM_MAX_PATH];
-
-	if(kvWeapons)	delete kvWeapons;
-	kvWeapons = new KeyValues("Weapons");
+	char sBuffer[32];
+	gWeaponList1.Clear();
+	gWeaponList2.Clear();
 	BuildPath(Path_SM, g_sZEConfig, sizeof(g_sZEConfig), "configs/ze_premium/weapons.cfg");
-	kvWeapons.ImportFromFile(g_sZEConfig);
+	KeyValues kv = new KeyValues("Weapons");
+	kv.ImportFromFile(g_sZEConfig);
+	kv.Rewind();
+	if(kv.JumpToKey("primary", false))	{
+		if(kv.GotoFirstSubKey(false))	{
+			do	{
+				kv.GetString(NULL_STRING, sBuffer, sizeof sBuffer, "");
+				if(sBuffer[0] && CS_IsValidWeaponID(CS_AliasToWeaponID(sBuffer)))
+					gWeaponList1.PushString(sBuffer);
+				}	while(kv.GotoNextKey(false));
+			kv.GoBack();
+		}
+		kv.GoBack();
+	}
+
+	if(!gWeaponList1.Length){
+		gWeaponList1.PushString("ak47");
+		gWeaponList1.PushString("m4a1");
+	}
+
+	if(kv.JumpToKey("secondary", false))	{
+		if(kv.GotoFirstSubKey(false))	{
+			do	{
+				kv.GetString(NULL_STRING, sBuffer, sizeof sBuffer, "");
+				if(sBuffer[0] && CS_IsValidWeaponID(CS_AliasToWeaponID(sBuffer)))
+					gWeaponList2.PushString(sBuffer);
+				}	while(kv.GotoNextKey(false));
+			kv.GoBack();
+		}
+		kv.GoBack();
+	}
+
+	if(!gWeaponList2.Length){
+		gWeaponList2.PushString("glock");
+	}
+	kv.Close();
 
 	LoadClasses();
 	

@@ -155,23 +155,28 @@ public void Event_RoundStart(Event event, const char[] name, bool bDontBroadcast
 				
 				if (g_bSamegun[i] == true)
 				{
-					if (Primary_Gun[i][0] == 'w')
+					int weapon;
+					char sBuffer[32];
+					strcopy(sBuffer, sizeof sBuffer, "weapon_");
+					if (Primary_Gun[i][0])
 					{
-						int primweapon = GetPlayerWeaponSlot(i, CS_SLOT_PRIMARY);
-						if (IsValidEdict(primweapon) && primweapon != -1)
-						{
-							RemoveEdict(primweapon);
+						strcopy(sBuffer[7], sizeof sBuffer - 7, Primary_Gun[i]);
+						weapon = GetPlayerWeaponSlot(i, CS_SLOT_PRIMARY);
+						if(weapon != -1)	{
+							RemovePlayerItem(i, weapon);
+							RemoveEdict(weapon);
 						}
-						GivePlayerItem(i, Primary_Gun[i]);
+						GivePlayerItem(i, sBuffer);
 					}
-					if (Secondary_Gun[i][0] == 'w')
+					if (Secondary_Gun[i][0])
 					{
-						int secweapon = GetPlayerWeaponSlot(i, CS_SLOT_SECONDARY);
-						if (IsValidEdict(secweapon) && secweapon != -1)
-						{
-							RemoveEdict(secweapon);
+						strcopy(sBuffer[7], sizeof sBuffer - 7, Secondary_Gun[i]);
+						weapon = GetPlayerWeaponSlot(i, CS_SLOT_SECONDARY);
+						if(weapon != -1)	{
+							RemovePlayerItem(i, weapon);
+							RemoveEdict(weapon);
 						}
-						GivePlayerItem(i, Secondary_Gun[i]);
+						GivePlayerItem(i, sBuffer);
 					}
 				}
 				DisableTimers(i);

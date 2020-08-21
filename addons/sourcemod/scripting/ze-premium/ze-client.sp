@@ -21,8 +21,8 @@ public void OnClientConnected(int client)
 	gPlayerSelectedClass[client][0] = 0;
 	gPlayerSelectedClass[client][1] = 0;
 
-	Primary_Gun[client][0] = 0;
-	Secondary_Gun[client][0] = 0;
+	gWeaponList1.GetString(0, Primary_Gun[client], sizeof Primary_Gun[]);
+	gWeaponList2.GetString(0, Secondary_Gun[client], sizeof Secondary_Gun[]);
 	i_Maximum_Choose[client] = 0;
 	g_bSamegun[client] = false;
 	g_bIsLeader[client] = false;
@@ -73,7 +73,9 @@ public void OnClientCookiesCached(int client)	{
 	if(szClass[0])	{
 		int pos = FindCharInString(szClass, ';');
 		szClass[pos++] = 0;
-		strcopy(Primary_Gun[client], sizeof Primary_Gun[], szClass);
-		strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], szClass[pos]);
+		int s = 0;
+		if(!strncmp("weapon_", szClass, 7))	s = 7;
+		strcopy(Primary_Gun[client], sizeof Primary_Gun[], szClass[s]);
+		strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], szClass[pos + s]);
 	}
 }

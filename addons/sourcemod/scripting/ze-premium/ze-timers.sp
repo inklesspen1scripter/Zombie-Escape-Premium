@@ -498,7 +498,6 @@ public Action ResetGlovesTimer2(Handle timer, DataPack pack)
 	int clientIndex = GetClientOfUserId(pack.ReadCell());
 	int activeWeapon = EntRefToEntIndex(pack.ReadCell());
 	pack.ReadString(model, 128);
-	pack.Close();
 	
 	if(clientIndex)
 	{

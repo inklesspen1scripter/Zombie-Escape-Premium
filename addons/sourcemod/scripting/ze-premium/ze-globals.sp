@@ -69,7 +69,8 @@ ConVar g_cZEReloadingSoundType;
 ConVar g_cZEMinConnectedPlayers;
 ConVar g_cZEInfectionNadeEffect;
 
-KeyValues kvWeapons;
+ArrayList gWeaponList1;
+ArrayList gWeaponList2;
 
 enum struct ZombieClass	{
 	char ident[32];

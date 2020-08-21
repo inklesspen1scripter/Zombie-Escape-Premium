@@ -81,22 +81,18 @@ public int mZeHandler(Menu menu, MenuAction action, int client, int index)
 void openWeapons(int client)
 {
 	char text[84];
+	char sBuffer[32];
 	Menu menu = new Menu(mZeGunsHandler);
 	menu.SetTitle("[Weapons] Choose a gun:");
 
-	int len = strcopy(text, sizeof text, "Rifle guns");
-	if(Primary_Gun[client][0] == 'w')	FormatEx(text[len], sizeof text - len, " [%s]", Primary_Gun[client]);
+	strcopy(sBuffer, sizeof sBuffer, Primary_Gun[client]);
+	CS_GetTranslatedWeaponAlias(sBuffer, sBuffer, sizeof sBuffer);
+	FormatEx(text, sizeof text, "Primary gun [%s]", sBuffer);
 	menu.AddItem("1", text);
-	len = strcopy(text, sizeof text, "Heavy guns");
-	if(Primary_Gun[client][0] == 'w')	FormatEx(text[len], sizeof text - len, " [%s]", Primary_Gun[client]);
+	strcopy(sBuffer, sizeof sBuffer, Secondary_Gun[client]);
+	CS_GetTranslatedWeaponAlias(sBuffer, sBuffer, sizeof sBuffer);
+	FormatEx(text, sizeof text, "Secondary gun [%s]", sBuffer);
 	menu.AddItem("2", text);
-	len = strcopy(text, sizeof text, "SMG guns");
-	if(Primary_Gun[client][0] == 'w')	FormatEx(text[len], sizeof text - len, " [%s]", Primary_Gun[client]);
-	menu.AddItem("3", text);
-
-	len = strcopy(text, sizeof text, "Pistol guns");
-	if(Secondary_Gun[client][0] == 'w')	FormatEx(text[len], sizeof text - len, " [%s]", Secondary_Gun[client]);
-	menu.AddItem("4", text);
 	
 	FormatEx(text, sizeof text, "Same gun next round [%s]", g_bSamegun[client] ? "ON" : "OFF");
 	menu.AddItem("5", text);
@@ -115,10 +111,8 @@ public int mZeGunsHandler(Menu menu, MenuAction action, int client, int index)
 				char szItem[4];
 				menu.GetItem(index, szItem, sizeof(szItem));
 				
-				if (szItem[0] == '1')	FakeClientCommand(client, "sm_rifle");
-				else if (szItem[0] == '2')	FakeClientCommand(client, "sm_heavygun");
-				else if (szItem[0] == '3')	FakeClientCommand(client, "sm_smg");
-				else if (szItem[0] == '4')	FakeClientCommand(client, "sm_pistols");
+				if (szItem[0] == '1')	ShowPlayerWeapons(client, false);
+				else if (szItem[0] == '2')	ShowPlayerWeapons(client, true);
 				else if (szItem[0] == '5')
 				{
 					g_bSamegun[client] = !g_bSamegun[client];
@@ -975,26 +969,23 @@ public int MenuHandler_HumanClass(Menu menu, MenuAction action, int client, int 
 	}
 }
 
-void ShowPlayerWeapons(int client, const char[] category, bool secondary = false)	{
+void ShowPlayerWeapons(int client, bool secondary = false)	{
 	if(g_bInfected[client])	return;
 	char sBuffer[32];
 	Menu zmmenu = new Menu(MenuHandler_WeaponsSelect);
-	FormatEx(sBuffer, sizeof sBuffer, "%s:", category);
-	sBuffer[0] = CharToUpper(sBuffer[0]);
-	SetMenuTitle(zmmenu, sBuffer);
- 	
- 	kvWeapons.Rewind();
- 	if (!kvWeapons.JumpToKey(category))	return;
-	if (!kvWeapons.GotoFirstSubKey())	return;
+	SetMenuTitle(zmmenu, "%s:", secondary ? "Secondary weapon" : "Primary weapon");
  
 	char ClassID[32];
 	ClassID[0] = secondary ? '2' : '1';
-	do
+	ArrayList list = secondary ? gWeaponList2 : gWeaponList1;
+	int size = list.Length;
+	for(int i = 0;i!=size;i++)
 	{
-		kvWeapons.GetSectionName(ClassID[1], sizeof(ClassID) - 1);
-		kvWeapons.GetString("name", sBuffer, sizeof(sBuffer));
+		list.GetString(i, ClassID[1], sizeof ClassID - 1);
+		strcopy(sBuffer, sizeof sBuffer, ClassID[1]);
+		CS_GetTranslatedWeaponAlias(sBuffer, sBuffer, sizeof sBuffer);
 		zmmenu.AddItem(ClassID, sBuffer);
-	} while (kvWeapons.GotoNextKey());
+	}
  
 	zmmenu.Display(client, 0);	
 }
@@ -1007,9 +998,7 @@ public int MenuHandler_WeaponsSelect(Menu menu, MenuAction action, int client, i
 		{
 			char info[32];
 			GetMenuItem(menu, item, info, sizeof(info));
-			if(info[0] == '1')	strcopy(Primary_Gun[client], sizeof Primary_Gun[], info[1]);
-			else	strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], info[1]);
-			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", Primary_Gun[client]);
+			ChoosePlayerGun(client, info[1], info[1] == '1');
 			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "get_the_gun");
 			openWeapons(client);
 		}
@@ -1018,4 +1007,13 @@ public int MenuHandler_WeaponsSelect(Menu menu, MenuAction action, int client, i
 			delete menu;
 		}
 	}
+}
+
+void ChoosePlayerGun(int client, const char[] alias, bool primary)	{
+	char sBuffer[32];
+	strcopy(sBuffer, sizeof sBuffer, alias);
+	if(primary)	strcopy(Primary_Gun[client], sizeof Primary_Gun[], alias);
+	else	strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], alias);
+	CS_GetTranslatedWeaponAlias(sBuffer, sBuffer, sizeof sBuffer);
+	CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", sBuffer);
 }
