@@ -158,3 +158,16 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 	}
 	return Plugin_Continue;
 }
+
+//TAKING GUNS ZOMBIES
+public Action OnWeaponCanUse(int client, int weapon)
+{
+	if (ZR_IsClientHuman(client))
+		return Plugin_Continue;
+	
+	char sWeapon[8];
+	GetEntityNetClass(weapon, sWeapon, sizeof(sWeapon));
+	if(!strncmp(sWeapon, "CKnife", 6))
+		return Plugin_Continue;
+	return Plugin_Handled;
+}

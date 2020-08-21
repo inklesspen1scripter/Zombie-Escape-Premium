@@ -82,19 +82,6 @@ stock bool IsClientVIP(int client)
 	return CheckCommandAccess(client, "", ADMFLAG_RESERVATION);
 }
 
-//TAKING GUNS ZOMBIES
-public Action OnWeaponCanUse(int client, int weapon)
-{
-	if (ZR_IsClientHuman(client))
-		return Plugin_Continue;
-	
-	char sWeapon[8];
-	GetEntityNetClass(weapon, sWeapon, sizeof(sWeapon));
-	if(!strncmp(sWeapon, "CKnife", 6))
-		return Plugin_Continue;
-	return Plugin_Handled;
-}
-
 public int SpawnMarker(int client, char[] sprite)
 {
 	if (!IsPlayerAlive(client))
@@ -361,18 +348,6 @@ void Client_StopSound(int client, int entity, int channel, const char[] name)
 	EmitSoundToClient(client, name, entity, channel, SNDLEVEL_NONE, SND_STOP, 0.0, SNDPITCH_NORMAL, _, _, _, true);
 }
 
-public void Command_DataUpdate(int client)
-{
-	if (IsValidClient(client) && !IsFakeClient(client))
-	{
-		char szSteamId[32], szQuery[512];
-		GetClientAuthId(client, AuthId_Engine, szSteamId, sizeof(szSteamId));
-		
-		g_hDatabase.Format(szQuery, sizeof(szQuery), "SELECT * FROM ze_premium_sql WHERE steamid='%s'", szSteamId);
-		g_hDatabase.Query(szQueryUpdateData, szQuery, GetClientUserId(client));
-	}
-}
-
 public bool FilterTarget(int entity, int contentsMask, any data)
 {
 	return (data == entity);
@@ -556,7 +531,7 @@ void DisableSpells(int client)
 	}
 }
 
-void RemoveGuns(int client)
+stock void RemoveGuns(int client)
 {
 	int primweapon = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
 	if (IsValidEdict(primweapon) && primweapon != -1)
@@ -614,42 +589,6 @@ stock Action DeleteOverlay(Handle timer, int client)
 		return;
 	
 	ClientCommand(client, "r_screenoverlay \"\"");
-}
-
-public Action CS_OnBuyCommand(int iClient, const char[] chWeapon)
-{
-    if(StrEqual(chWeapon, "smokegrenade") || StrEqual(chWeapon, "incgrenade") || StrEqual(chWeapon, "molotov") || StrEqual(chWeapon, "flashbang") || StrEqual(chWeapon, "hegrenade") || StrEqual(chWeapon, "decoy") || StrEqual(chWeapon, "g3sg1") || StrEqual(chWeapon, "scar20")) 
-    {
-        return Plugin_Handled; // Block the buy.
-    }
-    
-    return Plugin_Continue; // Continue as normal.
-} 
-
-public Action Command_PowerH(int client, const char[] command, int args)
-{
-    if(IsValidClient(client, _, false) && g_bInfected[client] == false)
-	{
-    	if(g_bUltimate[client] == true)
-    	{
-			i_Power[client] = gPlayerHumanClass[client].power;
-			if (i_Power[client])
-			{
-				if(1 < i_Power[client] && i_Power[client] <= 3)	{
-					H_AmmoTimer[client] = CreateTimer(1.0, PowerOfTimer, GetClientUserId(client), TIMER_REPEAT);
-				}
-				CreateTimer(6.0, EndPower, GetClientUserId(client));
-				PrintToChatAll(" \x04[ZE-Class]\x01 Player \x06%N\x01 activated his ultimate power!", client);
-				PrintHintText(client, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FFFFFF'>You activated:</font> <font color='#FF8C00'>%s", GetPowerName(i_Power[client]));
-				EmitSoundToAll("ze_premium/ze-powereffect.mp3", client);
-				g_bUltimate[client] = false;
-			}
-		}
-		else
-		{
-			PrintToChat(client, " \x04[ZE-Class]\x01 Your ultimate power is \x07not\x01 ready !");
-		}
-	}
 }
 
 stock int CheckPlayerRange(int client)
