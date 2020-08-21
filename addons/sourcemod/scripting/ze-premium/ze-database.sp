@@ -74,16 +74,15 @@ public void szQueryUpdateData(Database hDatabase, DBResultSet hResults, const ch
 	}
 }
 
-public void SQL_QueryToplist(Database hDatabase, DBResultSet hResults, const char[] szError, any data)
+public void SQL_QueryToplist(Database hDatabase, DBResultSet hResults, const char[] szError, int client)
 {
 	if (hResults == null)
 	{
 		ThrowError(szError);
 	}
 	
-	ResetPack(g_hDataPackUser);
-	int client = ReadPackCell(g_hDataPackUser);
-	
+	client = GetClientOfUserId(client);
+	if(!client)	return;
 	char szName[MAX_NAME_LENGTH + 8];
 	char text[64];
 	Menu ClenList = CreateMenu(ClenListHandler);

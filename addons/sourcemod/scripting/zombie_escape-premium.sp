@@ -834,13 +834,7 @@ public Action CMD_Topplayer(int client, int args)
 {
 	if (IsValidClient(client))
 	{
-		char szQueryList[512];
-		
-		g_hDataPackUser = CreateDataPack();
-		WritePackCell(g_hDataPackUser, client);
-	
-		g_hDatabase.Format(szQueryList, sizeof(szQueryList), "SELECT * FROM ze_premium_sql ORDER BY humanwins DESC LIMIT 10");
-		g_hDatabase.Query(SQL_QueryToplist, szQueryList);
+		g_hDatabase.Query(SQL_QueryToplist, "SELECT * FROM ze_premium_sql ORDER BY humanwins DESC LIMIT 10", GetClientUserId(client));
 		return Plugin_Handled;
 	}
 	return Plugin_Handled;

@@ -796,12 +796,7 @@ public int mInfectionChooseHandler(Menu menu, MenuAction action, int client, int
 				menu.GetItem(index, name, sizeof(name));
 				int user = GetClientOfUserId(StringToInt(name));
 				
-				if(IsValidClient(user))
-				{
-					g_hDataPackUser = CreateDataPack();
-					WritePackCell(g_hDataPackUser, user);
-					openInfectionLong(client);
-				}
+				if(user)	openInfectionLong(client, user);
 			}
 		}
 		case MenuAction_End:
@@ -811,16 +806,22 @@ public int mInfectionChooseHandler(Menu menu, MenuAction action, int client, int
 	}
 }
 
-void openInfectionLong(int client)
+void openInfectionLong(int client, int target)
 {
 	Menu menu = new Menu(mZeInfectionLongHandler);
 	
 	menu.SetTitle("[Infection Ban] How long?");
-	
-	menu.AddItem("2", "2 rounds");
-	menu.AddItem("5", "5 rounds");
-	menu.AddItem("10", "10 rounds");
-	menu.AddItem("0", "[Remove ban]");
+	char sInfo[16];
+	FormatEx(sInfo, sizeof sInfo, "%i\n", GetClientUserId(target));
+	int len = strlen(sInfo);
+	strcopy(sInfo[len], sizeof sInfo - len, "2");
+	menu.AddItem(sInfo, "2 rounds");
+	strcopy(sInfo[len], sizeof sInfo - len, "5");
+	menu.AddItem(sInfo, "5 rounds");
+	strcopy(sInfo[len], sizeof sInfo - len, "10");
+	menu.AddItem(sInfo, "10 rounds");
+	strcopy(sInfo[len], sizeof sInfo - len, "0");
+	menu.AddItem(sInfo, "[Remove ban]");
 	
 	menu.Display(client, MENU_TIME_FOREVER);
 }
@@ -835,15 +836,17 @@ public int mZeInfectionLongHandler(Menu menu, MenuAction action, int client, int
 			{
 				char szItem[32];
 				menu.GetItem(index, szItem, sizeof(szItem));
-				
-				ResetPack(g_hDataPackUser);
-				int user = ReadPackCell(g_hDataPackUser);
+				int pos = FindCharInString(szItem, '\n');
+				szItem[pos++] = 0;
+				int user = GetClientOfUserId(StringToInt(szItem));
+				if(!user)	return;
+
 				int newiban;
 				char szSteamId[32], szQuery[512];
 				GetClientAuthId(user, AuthId_Engine, szSteamId, sizeof(szSteamId));
 				
-				int addtoban = StringToInt(szItem);
-				newiban = addtoban ? (i_infectionban[user] + 2) : 0;
+				int addtoban = StringToInt(szItem[pos]);
+				newiban = addtoban ? (i_infectionban[user] + addtoban) : 0;
 				i_infectionban[user] = newiban;
 				g_hDatabase.Format(szQuery, sizeof(szQuery), "UPDATE ze_premium_sql SET infectionban = '%i' WHERE steamid='%s'", newiban, szSteamId);
 				g_hDatabase.Query(SQL_Error, szQuery);

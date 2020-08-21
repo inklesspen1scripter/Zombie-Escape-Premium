@@ -112,8 +112,6 @@ ZombieClass gZombieNemesis;
 
 Database g_hDatabase;
 
-Handle g_hDataPackUser;
-
 //MODELS
 char DEFEND[128], DEFENDVTF[128];
 char FOLLOWME[128], FOLLOWMEVTF[128];
