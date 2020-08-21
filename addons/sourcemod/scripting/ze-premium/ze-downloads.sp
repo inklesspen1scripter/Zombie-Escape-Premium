@@ -1,48 +1,50 @@
 void DownloadFiles()	{
-	char file[96];
-	BuildPath(Path_SM, file, sizeof file, "configs/ze_premium-download.ini");
-	Handle fileh = OpenFile(file, "r");
-	char buffer[96];
+	//	Use https://forums.alliedmods.net/showthread.php?t=303985
 	
-	if(fileh == INVALID_HANDLE)	CloseHandle(fileh);
-	else while (ReadFileLine(fileh, buffer, sizeof(buffer)))
-	{
-		TrimString(buffer);
-		if(buffer[0])	ReadFileFolder(buffer);
-		if (IsEndOfFile(fileh))
-			break;
-	}
+	//char file[96];
+	//BuildPath(Path_SM, file, sizeof file, "configs/ze_premium-download.ini");
+	//Handle fileh = OpenFile(file, "r");
+	//char buffer[96];
+	
+	//if(fileh == INVALID_HANDLE)	CloseHandle(fileh);
+	//else while (ReadFileLine(fileh, buffer, sizeof(buffer)))
+	//{
+	//	TrimString(buffer);
+	//	if(buffer[0])	ReadFileFolder(buffer);
+	//	if (IsEndOfFile(fileh))
+	//		break;
+	//}
 }
 
 public ReadFileFolder(char[] path)
 {
-	if(DirExists(path))
-	{
-		char buffer[96];
-		char tmp_path[96];
-		FileType type = FileType_Unknown;
-		int len = strcopy(tmp_path, sizeof tmp_path, path);
-		tmp_path[len++] = '/';
-		Handle dirh = OpenDirectory(path);
-		while(ReadDirEntry(dirh, buffer, sizeof(buffer), type))
-		{
-			TrimString(buffer);
+	//if(DirExists(path))
+	//{
+	//	char buffer[96];
+	//	char tmp_path[96];
+	//	FileType type = FileType_Unknown;
+	//	int len = strcopy(tmp_path, sizeof tmp_path, path);
+	//	tmp_path[len++] = '/';
+	//	Handle dirh = OpenDirectory(path);
+	//	while(ReadDirEntry(dirh, buffer, sizeof(buffer), type))
+	//	{
+	//		TrimString(buffer);
 
-			if (buffer[0] && strcmp(buffer, ".", false) && strcmp(buffer, "..", false))
-			{
-				strcopy(tmp_path[len], sizeof tmp_path - len, buffer);
-				if(type == FileType_File)	{
-					if(FileExists(tmp_path)) AddFileToDownloadsTable(tmp_path);
-				}
-				else	ReadFileFolder(tmp_path);
-			}
-		}
-		dirh.Close();
-	}
-	else
-	{
-		AddFileToDownloadsTable(path);
-	}
+	//		if (buffer[0] && strcmp(buffer, ".", false) && strcmp(buffer, "..", false))
+	//		{
+	//			strcopy(tmp_path[len], sizeof tmp_path - len, buffer);
+	//			if(type == FileType_File)	{
+	//				if(FileExists(tmp_path)) AddFileToDownloadsTable(tmp_path);
+	//			}
+	//			else	ReadFileFolder(tmp_path);
+	//		}
+	//	}
+	//	dirh.Close();
+	//}
+	//else
+	//{
+	//	AddFileToDownloadsTable(path);
+	//}
 }
 
 void LoadStaticDownloads()	{

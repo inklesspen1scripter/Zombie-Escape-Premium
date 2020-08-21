@@ -234,7 +234,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 					{
 						if(money >= g_cZEHeNade.IntValue)
 						{
-							GivePlayerNade(client, "weapon_hegrenade");
+							GivePlayerItem2(client, "weapon_hegrenade");
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEHeNade.IntValue);
 							spended[client] += g_cZEHeNade.IntValue;
 							strcopy(szBoughtItem, sizeof(szBoughtItem), "Fire Grenade");	
@@ -250,7 +250,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 					{
 						if(money >= g_cZEFlashNade.IntValue)
 						{
-							GivePlayerNade(client, "weapon_decoy");
+							GivePlayerItem2(client, "weapon_decoy");
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEFlashNade.IntValue);
 							spended[client] += g_cZEFlashNade.IntValue;
 							strcopy(szBoughtItem, sizeof(szBoughtItem), "Freeze Grenade");	
@@ -266,7 +266,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 					{
 						if(money >= g_cZEMolotov.IntValue)
 						{
-							GivePlayerNade(client, "weapon_molotov");
+							GivePlayerItem2(client, "weapon_molotov");
 							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEMolotov.IntValue);
 							spended[client] += g_cZEMolotov.IntValue;
 							strcopy(szBoughtItem, sizeof(szBoughtItem), "Molotov");	
@@ -287,7 +287,7 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 						{
 							if(g_cZEInfnadeusages.IntValue > i_binfnade)
 							{
-								GivePlayerNade(client, "weapon_smokegrenade");
+								GivePlayerItem2(client, "weapon_smokegrenade");
 								SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEInfnade.IntValue);
 								spended[client] += g_cZEHealthShot.IntValue;
 								strcopy(szBoughtItem, sizeof(szBoughtItem), "Infection Grenade");	

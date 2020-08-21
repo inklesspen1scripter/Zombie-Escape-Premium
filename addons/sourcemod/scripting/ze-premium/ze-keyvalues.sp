@@ -1,3 +1,32 @@
+void SetZombie(int client, bool respawn = false, bool first = false, bool nemesis = false)
+{
+	g_bInfected[client] = true;
+	EmitSoundToAll("ze_premium/ze-respawn.mp3", client);
+	if (respawn == true)
+	{
+		CS_SwitchTeam(client, CS_TEAM_T);
+		CS_RespawnPlayer(client);
+	}
+	if (g_bIsLeader[client] == true)
+	{
+		g_bIsLeader[client] = false;
+		CPrintToChatAll(" \x04[ZE-Leader]\x01 %t", "leader_died", client);
+	}
+	if (first && spended[client] > 0)
+	{
+		int money = GetEntProp(client, Prop_Send, "m_iAccount");
+		SetEntProp(client, Prop_Send, "m_iAccount", money + spended[client]);
+	}
+	DisableTimers(client);
+	DisableSpells(client);
+	if(nemesis)	ApplyPlayerZombieClass(client, gZombieNemesis);
+	else	SetPlayerAsZombie(client);
+	if (gRoundType == ROUND_RIOT && g_cZEZombieShieldType.IntValue > 0)
+	{
+		GivePlayerItem2(client, "weapon_shield");
+	}
+}
+
 void SetPlayerAsZombie(int client)
 {
 	ZombieClass zc;

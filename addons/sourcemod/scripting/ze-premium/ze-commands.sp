@@ -121,9 +121,9 @@ public Action CMD_Respawn(int client, int args)
 	else if(g_bInfected[client] == false && !IsPlayerAlive(client))
 	{
 		CS_SwitchTeam(client, CS_TEAM_T);
-		SetPlayerAsZombie(client);
+		g_bInfected[client] = true;	
+		CS_RespawnPlayer(client);
 		EmitSoundToAll("ze_premium/ze-respawn.mp3", client);
-		g_bInfected[client] = true;
 	}
 	else
 	{

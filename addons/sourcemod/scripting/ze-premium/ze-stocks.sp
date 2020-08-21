@@ -239,35 +239,6 @@ void DisableTimers(int client)
 	}
 }
 
-void SetZombie(int client, bool respawn = false, bool first = false, bool nemesis = false)
-{
-	g_bInfected[client] = true;
-	EmitSoundToAll("ze_premium/ze-respawn.mp3", client);
-	if (respawn == true)
-	{
-		CS_SwitchTeam(client, CS_TEAM_T);
-		CS_RespawnPlayer(client);
-	}
-	if (g_bIsLeader[client] == true)
-	{
-		g_bIsLeader[client] = false;
-		CPrintToChatAll(" \x04[ZE-Leader]\x01 %t", "leader_died", client);
-	}
-	if (first && spended[client] > 0)
-	{
-		int money = GetEntProp(client, Prop_Send, "m_iAccount");
-		SetEntProp(client, Prop_Send, "m_iAccount", money + spended[client]);
-	}
-	DisableTimers(client);
-	DisableSpells(client);
-	if(nemesis)	ApplyPlayerZombieClass(client, gZombieNemesis);
-	else	SetPlayerAsZombie(client);
-	if (gRoundType == ROUND_RIOT && g_cZEZombieShieldType.IntValue > 0)
-	{
-		GivePlayerItem2(client, "weapon_shield");
-	}
-}
-
 void HumanPain(int victim)
 {
 	i_pause[victim]++;
@@ -327,7 +298,17 @@ void ZombiePain(int victim)
 
 public Action SoundHook(int clients[64], int &numClients, char sound[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
-	if (entity != -1 && !strncmp(sound, "weapons/knife/knife_", 20) && g_cZEZombieSounds.IntValue > 0)
+	//	L 08/21/2020 - 09:37:33: [SM] Exception reported: Client 1 is not in game
+	//	L 08/21/2020 - 09:37:33: [SM] Blaming: zombie_escape-premium.smx::SoundHook
+	int count = 0;
+	for(int i = 0;i!=numClients;i++)	{
+		if(IsClientInGame(clients[i]))	{
+			clients[count++] = clients[i];
+		}
+	}
+	numClients = count;
+	
+	if (g_cZEZombieSounds.BoolValue && entity != -1 && !strncmp(sound, "weapons/knife/knife_", 20))
 	{
 		char sBuffer[8];
 		GetEntityNetClass(entity, sBuffer, sizeof sBuffer);
@@ -355,7 +336,7 @@ public Action SoundHook(int clients[64], int &numClients, char sound[PLATFORM_MA
 			}
 		}
 	}
-	return Plugin_Continue;
+	return Plugin_Changed;
 }
 
 public void StopMapMusic()
@@ -778,12 +759,13 @@ stock int GivePlayerNade(int client, const char[] item)	{
 		}
 		return nade;
 	}
-	return GivePlayerItem2(client, item);
+	return GivePlayerItem(client, item);
 }
 
 stock int GivePlayerItem2(int client, const char[] item)	{
-	if(IsWeaponNade(item[7]))	return GivePlayerNade(client, item);
-	int tmp = GivePlayerItem(client, item);
+	int tmp;
+	if(IsWeaponNade(item[7]))	tmp = GivePlayerNade(client, item);
+	else	tmp = GivePlayerItem(client, item);
 	if(tmp != -1 && GetEntPropEnt(tmp, Prop_Data, "m_hOwner") == -1)
 		EquipPlayerWeapon(client, tmp);
 	return tmp;
