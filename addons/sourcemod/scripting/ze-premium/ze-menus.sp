@@ -460,7 +460,7 @@ public int mZeLeaderHandler(Menu menu, MenuAction action, int client, int index)
 					else
 					{
 						g_bBeacon[client] = true;
-						H_Beacon[client] = CreateTimer(0.2, Timer_Beacon, client, TIMER_REPEAT);
+						H_Beacon[client] = CreateTimer(0.2, Timer_Beacon, GetClientUserId(client), TIMER_REPEAT);
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "beacon_on");
 						openLeader(client);
 					}

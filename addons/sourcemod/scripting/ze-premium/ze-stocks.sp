@@ -448,7 +448,7 @@ void LightCreate(int grenade, float pos[3])
 		{
 			DispatchKeyValue(iEntity, "_light", "75 75 255 255");
 			DispatchKeyValueFloat(iEntity, "distance", g_cZEInfnadedistance.FloatValue);
-			CreateTimer(0.2, Delete, iEntity, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(0.2, Delete, EntIndexToEntRef(iEntity), TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	DispatchSpawn(iEntity);
@@ -477,7 +477,7 @@ public void Grenade_SpawnPost(int entity)
 		if (g_cZEFlashbangEffect.IntValue == 1)
 		{
 			BeamFollowCreate(entity, FlashColor);
-			CreateTimer(1.3, CreateEvent_DecoyDetonate, entity, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(1.3, CreateEvent_DecoyDetonate, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 	else if (!strcmp(classname, "smokegrenade_projectile"))
@@ -485,7 +485,7 @@ public void Grenade_SpawnPost(int entity)
 		if (g_cZESmokeEffect.IntValue == 1)
 		{
 			BeamFollowCreate(entity, SmokeColor);
-			CreateTimer(1.3, CreateEvent_SmokeDetonate, entity, TIMER_FLAG_NO_MAPCHANGE);
+			CreateTimer(1.3, CreateEvent_SmokeDetonate, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
 		}
 	}
 }
@@ -707,10 +707,10 @@ stock void ShowOverlayAll(char[] path, float lifetime)
 }
 
 // Remove overlay from a client - Timer!
-stock Action DeleteOverlay(Handle timer, any userid)
+stock Action DeleteOverlay(Handle timer, int client)
 {
-	int client = GetClientOfUserId(userid);
-	if (client <= 0 || !IsClientInGame(client) || IsFakeClient(client) || IsClientSourceTV(client) || IsClientReplay(client))
+	client = GetClientOfUserId(client);
+	if (client || IsFakeClient(client) || IsClientSourceTV(client) || IsClientReplay(client))
 		return;
 	
 	ClientCommand(client, "r_screenoverlay \"\"");
@@ -736,9 +736,9 @@ public Action Command_PowerH(int client, const char[] command, int args)
 			if (i_Power[client])
 			{
 				if(1 < i_Power[client] && i_Power[client] <= 3)	{
-					H_AmmoTimer[client] = CreateTimer(1.0, PowerOfTimer, client, TIMER_REPEAT);
+					H_AmmoTimer[client] = CreateTimer(1.0, PowerOfTimer, GetClientUserId(client), TIMER_REPEAT);
 				}
-				CreateTimer(6.0, EndPower, client);
+				CreateTimer(6.0, EndPower, GetClientUserId(client));
 				PrintToChatAll(" \x04[ZE-Class]\x01 Player \x06%N\x01 activated his ultimate power!", client);
 				PrintHintText(client, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FFFFFF'>You activated:</font> <font color='#FF8C00'>%s", GetPowerName(i_Power[client]));
 				EmitSoundToAll("ze_premium/ze-powereffect.mp3", client);

@@ -444,7 +444,8 @@ public int MenuHandler_WeaponsPistols(Menu menu, MenuAction action, int client, 
 
 public Action SetArms(Handle timer, int client)
 {
-	SetPlayerArms(client, Zombie_Arms[client]);	
+	client = GetClientOfUserId(client);
+	if(client)	SetPlayerArms(client, Zombie_Arms[client]);	
 }
 
 public void SetPlayerArms(int client, char[] arms)
@@ -491,8 +492,8 @@ public void SetPlayerArms(int client, char[] arms)
 		{
 			DataPack dpack;
 			CreateDataTimer(0.1, ResetGlovesTimer2, dpack);
-			dpack.WriteCell(client);
-			dpack.WriteCell(activeWeapon);
+			dpack.WriteCell(GetClientUserId(client));
+			dpack.WriteCell(EntIndexToEntRef(activeWeapon));
 			dpack.WriteString(DEFAULT_ARMS);
 		}
 		int ent = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
@@ -508,15 +509,16 @@ public Action ResetGlovesTimer2(Handle timer, DataPack pack)
 {
 	char model[128];
 	ResetPack(pack);
-	int clientIndex = pack.ReadCell();
-	int activeWeapon = pack.ReadCell();
+	int clientIndex = GetClientOfUserId(pack.ReadCell());
+	int activeWeapon = EntRefToEntIndex(pack.ReadCell());
 	pack.ReadString(model, 128);
+	pack.Close();
 	
-	if(IsClientInGame(clientIndex))
+	if(clientIndex)
 	{
 		SetEntPropString(clientIndex, Prop_Send, "m_szArmsModel", model);
 		
-		if(IsValidEntity(activeWeapon)) SetEntPropEnt(clientIndex, Prop_Send, "m_hActiveWeapon", activeWeapon);
+		if(activeWeapon != -1) SetEntPropEnt(clientIndex, Prop_Send, "m_hActiveWeapon", activeWeapon);
 	}
 }
 
@@ -530,7 +532,7 @@ void ApplyPlayerZombieClass(int client, ZombieClass zc)	{
 	if(zc.arms[0])
 	{
 		strcopy(Zombie_Arms[client], sizeof Zombie_Arms[], zc.arms);
-		CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
+		CreateTimer(0.7, SetArms, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 	}
 	
 	SetEntityHealth(client, zc.health);
@@ -549,7 +551,7 @@ void ApplyPlayerHumanClass(int client, HumanClass hc)	{
 	if(g_bRoundStarted)	CS_SwitchTeam(client, CS_TEAM_CT);
 	CS_UpdateClientModel(client);
 
-	CreateTimer(0.7, SetArms, client, TIMER_FLAG_NO_MAPCHANGE);
+	CreateTimer(0.7, SetArms, GetClientUserId(client), TIMER_FLAG_NO_MAPCHANGE);
 
 	if(hc.item[0])
 	{

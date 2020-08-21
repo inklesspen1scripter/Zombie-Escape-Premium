@@ -160,7 +160,8 @@ public Action FirstInfection(Handle timer)
 
 public Action Timer_Beacon(Handle timer, int client)
 {
-	if(g_bBeacon[client] == true && IsValidClient(client))
+	client = GetClientOfUserId(client);
+	if(client && g_bBeacon[client] == true)
 	{
 		float fPos[3];
 		GetClientAbsOrigin(client, fPos);
@@ -171,15 +172,13 @@ public Action Timer_Beacon(Handle timer, int client)
 
 public Action Respawn(Handle timer, int client)
 {
-	if(IsValidClient(client))
+	client = GetClientOfUserId(client);
+	if(client && g_bNoRespawn[client] == false && !IsPlayerAlive(client))
 	{
-		if(g_bNoRespawn[client] == false)
-		{
-			CS_RespawnPlayer(client);
-			Call_StartForward(gF_ClientRespawned);
-			Call_PushCell(client);
-			Call_Finish();
-		}
+		CS_RespawnPlayer(client);
+		Call_StartForward(gF_ClientRespawned);
+		Call_PushCell(client);
+		Call_Finish();
 	}
 }
 
@@ -199,7 +198,8 @@ public Action EndOfRound(Handle timer)
 
 public Action AntiDisconnect(Handle timer, int client)
 {
-	if(IsValidClient(client))
+	client = GetClientOfUserId(client);
+	if(client)
 	{
 		g_bAntiDisconnect[client] = false;
 	}
@@ -207,7 +207,8 @@ public Action AntiDisconnect(Handle timer, int client)
 
 public Action SwitchTeam(Handle timer, int client)
 {
-	if(IsValidClient(client))
+	client = GetClientOfUserId(client);
+	if(client)
 	{
 		if(g_bRoundStarted == true)
 		{
@@ -234,11 +235,10 @@ public Action SwitchTeam(Handle timer, int client)
 	}
 }
 
-public Action Timer_Unfreeze(Handle timer, int userid)
+public Action Timer_Unfreeze(Handle timer, int client)
 {
-	int client = GetClientOfUserId(userid);
-	
-	if (!IsValidClient(client) && !IsPlayerAlive(client))
+	client = GetClientOfUserId(client);
+	if (client && !IsPlayerAlive(client))
 		return Plugin_Handled;
 	
 	SetEntityMoveType(client, MOVETYPE_WALK);
@@ -249,7 +249,8 @@ public Action Timer_Unfreeze(Handle timer, int userid)
 
 public Action Onfire(Handle timer, int client)
 {
-	if(IsValidClient(client) && IsPlayerAlive(client))
+	client = GetClientOfUserId(client);
+	if(client && IsPlayerAlive(client))
 	{
 		if(GetClientTeam(client) == CS_TEAM_T && g_bOnFire[client] == true)
 		{
@@ -260,7 +261,8 @@ public Action Onfire(Handle timer, int client)
 
 public Action Slowdown(Handle timer, int client)
 {
-	if(IsValidClient(client) && IsPlayerAlive(client))
+	client = GetClientOfUserId(client);
+	if(client && IsPlayerAlive(client))
 	{
 		if(g_bInfected[client] == true)
 		{
@@ -326,7 +328,8 @@ public Action HUD(Handle timer)
 
 public Action CreateEvent_SmokeDetonate(Handle timer, any entity)
 {
-	if (!IsValidEdict(entity))
+	entity = EntRefToEntIndex(entity);
+	if (entity == -1)
 	{
 		return Plugin_Stop;
 	}
@@ -348,7 +351,8 @@ public Action CreateEvent_SmokeDetonate(Handle timer, any entity)
 
 public Action CreateEvent_DecoyDetonate(Handle timer, any entity)
 {
-	if (!IsValidEdict(entity))
+	entity = EntRefToEntIndex(entity);
+	if (entity == -1)
 	{
 		return Plugin_Stop;
 	}
@@ -370,7 +374,8 @@ public Action CreateEvent_DecoyDetonate(Handle timer, any entity)
 
 public Action Delete(Handle timer, any entity)
 {
-	if (IsValidEdict(entity))
+	entity = EntRefToEntIndex(entity);
+	if (entity != -1)
 	{
 		AcceptEntityInput(entity, "kill");
 	}
@@ -378,7 +383,8 @@ public Action Delete(Handle timer, any entity)
 
 public Action EndPower(Handle timer, int client)
 {
-	if (IsValidClient(client))
+	client = GetClientOfUserId(client);
+	if (client)
 	{
 		i_Power[client] = 0;
 		PrintHintText(client, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FF0000'>Your ultimate power has expired!");
@@ -391,7 +397,8 @@ public Action EndPower(Handle timer, int client)
 
 public Action PowerOfTimer(Handle timer, int client)
 {
-	if (IsValidClient(client))
+	client = GetClientOfUserId(client);
+	if (client)
 	{
 		if(i_Power[client] == 2)
 		{
@@ -405,7 +412,7 @@ public Action PowerOfTimer(Handle timer, int client)
 		else if(i_Power[client] == 3)
 		{
 			int Primary = GetPlayerWeaponSlot(client, CS_SLOT_PRIMARY);
-			if (IsValidEdict(Primary))
+			if (Primary != -1)
 			{
 				char SecondaryName[30];
 				GetEntityClassname(Primary, SecondaryName, sizeof(SecondaryName));

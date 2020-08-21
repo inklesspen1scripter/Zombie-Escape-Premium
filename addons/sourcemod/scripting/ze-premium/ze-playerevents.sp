@@ -26,15 +26,14 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 				}
 				g_bInfected[client] = true;
 				CS_SwitchTeam(client, CS_TEAM_T);
-				SetPlayerAsZombie(client);
 				if(i_Infection > 0)
 				{
 					float nextrespawn = float(i_Infection);
-					H_Respawntimer[client] = CreateTimer(nextrespawn, Respawn, client);
+					H_Respawntimer[client] = CreateTimer(nextrespawn, Respawn, GetClientOfUserId(client));
 				}
 				else
 				{
-					CreateTimer(1.0, Respawn, client);
+					CreateTimer(1.0, Respawn, GetClientOfUserId(client));
 				}
 				if(GetHumanAliveCount() == 0)
 				{
@@ -65,7 +64,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 	}
 	else
 	{
-		CreateTimer(1.0, Respawn, client);
+		CreateTimer(1.0, Respawn, GetClientOfUserId(client));
 	}
 }
 
@@ -177,8 +176,8 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			else if(ZR_IsClientZombie(victim))
 			{
 				EmitSoundToAll("ze_premium/ze-fire.mp3", victim);
-				CreateTimer(3.0, Onfire, victim);
-				CreateTimer(5.0, Slowdown, victim);
+				CreateTimer(3.0, Onfire, GetClientUserId(victim));
+				CreateTimer(5.0, Slowdown, GetClientUserId(victim));
 				IgniteEntity(victim, 5.0);
 				SetEntPropFloat(victim, Prop_Data, "m_flLaggedMovementValue", 0.5);
 			}

@@ -49,7 +49,7 @@ public void OnClientPostAdminCheck(int client)
 	
 	if(i_Infection <= 0)
 	{
-		CreateTimer(1.0, SwitchTeam, client);
+		CreateTimer(1.0, SwitchTeam, GetClientUserId(client));
 	}
 }
 
