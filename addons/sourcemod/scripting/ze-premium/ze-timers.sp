@@ -147,10 +147,7 @@ public Action FirstInfection(Handle timer)
 
 			CreateTimer(g_cZEInfectionTime.FloatValue, AntiDisconnect, GetClientUserId(user));
 			g_bAntiDisconnect[user] = true;
-			Call_StartForward(gF_ClientInfected);
-			Call_PushCell(user);
-			Call_PushCell(user);
-			Call_Finish();
+			Forward_OnClientInfected(user, user);
 		}
 		H_FirstInfection = null;
 		return Plugin_Stop;
@@ -176,9 +173,7 @@ public Action Respawn(Handle timer, int client)
 	if(client && g_bNoRespawn[client] == false && !IsPlayerAlive(client))
 	{
 		CS_RespawnPlayer(client);
-		Call_StartForward(gF_ClientRespawned);
-		Call_PushCell(client);
-		Call_Finish();
+		Forward_OnClientRespawned(client);
 	}
 }
 
@@ -431,4 +426,84 @@ public Action PowerOfTimer(Handle timer, int client)
 			}
 		}
 	}	
+}
+
+public Action SetArms(Handle timer, int client)
+{
+	client = GetClientOfUserId(client);
+	if(client)	SetPlayerArms(client, Zombie_Arms[client]);	
+}
+
+public void SetPlayerArms(int client, char[] arms)
+{
+	if(!IsPlayerAlive(client)) 
+	{
+		return;
+	}
+	
+	char currentmodel[128];
+	
+	GetEntPropString(client, Prop_Send, "m_szArmsModel", currentmodel, sizeof(currentmodel));
+
+	if(g_bInfected[client] == true)
+	{
+		int activeWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+		if(activeWeapon != -1)
+		{
+			SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", -1);
+		}
+		if(activeWeapon != -1)
+		{
+			DataPack dpack;
+			CreateDataTimer(0.1, ResetGlovesTimer2, dpack);
+			dpack.WriteCell(client);
+			dpack.WriteCell(activeWeapon);
+			dpack.WriteString(arms);
+		}
+		int ent = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
+		if(ent != -1)
+		{
+			AcceptEntityInput(ent, "KillHierarchy");
+		}
+		SetEntPropString(client, Prop_Send, "m_szArmsModel", arms);
+	}
+	else
+	{
+		int activeWeapon = GetEntPropEnt(client, Prop_Send, "m_hActiveWeapon");
+		if(activeWeapon != -1)
+		{
+			SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", -1);
+		}
+		if(activeWeapon != -1)
+		{
+			DataPack dpack;
+			CreateDataTimer(0.1, ResetGlovesTimer2, dpack);
+			dpack.WriteCell(GetClientUserId(client));
+			dpack.WriteCell(EntIndexToEntRef(activeWeapon));
+			dpack.WriteString(DEFAULT_ARMS);
+		}
+		int ent = GetEntPropEnt(client, Prop_Send, "m_hMyWearables");
+		if(ent != -1)
+		{
+			AcceptEntityInput(ent, "KillHierarchy");
+		}
+		SetEntPropString(client, Prop_Send, "m_szArmsModel", DEFAULT_ARMS);
+	}
+}
+
+public Action ResetGlovesTimer2(Handle timer, DataPack pack)
+{
+	char model[128];
+	ResetPack(pack);
+	int clientIndex = GetClientOfUserId(pack.ReadCell());
+	int activeWeapon = EntRefToEntIndex(pack.ReadCell());
+	pack.ReadString(model, 128);
+	pack.Close();
+	
+	if(clientIndex)
+	{
+		SetEntPropString(clientIndex, Prop_Send, "m_szArmsModel", model);
+		
+		if(activeWeapon != -1) SetEntPropEnt(clientIndex, Prop_Send, "m_hActiveWeapon", activeWeapon);
+	}
 }

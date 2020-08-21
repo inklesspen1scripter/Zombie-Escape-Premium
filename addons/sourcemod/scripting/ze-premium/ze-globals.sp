@@ -84,6 +84,7 @@ enum struct ZombieClass	{
 	float speed;
 
 	int access;
+	bool hidden;
 }
 ArrayList gZombieClasses;
 
@@ -102,6 +103,7 @@ enum struct HumanClass	{
 	char item[64];
 
 	int access;
+	bool hidden;
 }
 ArrayList gHumanClasses;
 int gPlayerSelectedClass[MAXPLAYERS + 1][2];

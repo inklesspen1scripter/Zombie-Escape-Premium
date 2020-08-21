@@ -21,6 +21,8 @@ public void OnClientConnected(int client)
 	gPlayerSelectedClass[client][0] = 0;
 	gPlayerSelectedClass[client][1] = 0;
 
+	Primary_Gun[client][0] = 0;
+	Secondary_Gun[client][0] = 0;
 	i_Maximum_Choose[client] = 0;
 	g_bSamegun[client] = false;
 	g_bIsLeader[client] = false;
@@ -35,8 +37,7 @@ public void OnClientConnected(int client)
 }
 
 public void OnClientPutInServer(int client)	{
-	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamage);
-	SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
+	LoadPlayerHooks(client);
 	PrintToChatAll(" \x04[Zombie Escape] \x01Player\x06 %N\x01 has join to the server!", client);
 }
 

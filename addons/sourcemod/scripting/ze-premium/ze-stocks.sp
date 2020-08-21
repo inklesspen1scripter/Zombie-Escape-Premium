@@ -36,7 +36,7 @@ stock bool IsValidClient(int client, bool bots = true, bool dead = true)
 	if (!IsClientInGame(client))
 		return false;
 	
-	if (IsFakeClient(client) && !bots)
+	if (!bots && IsFakeClient(client))
 		return false;
 	
 	if (IsClientSourceTV(client))
@@ -45,7 +45,7 @@ stock bool IsValidClient(int client, bool bots = true, bool dead = true)
 	if (IsClientReplay(client))
 		return false;
 	
-	if (!IsPlayerAlive(client) && !dead)
+	if (!dead && !IsPlayerAlive(client))
 		return false;
 	
 	return true;
@@ -65,28 +65,6 @@ stock int SetClipAmmo(int client, int weapon, int ammo)
 {
 	SetEntProp(weapon, Prop_Send, "m_iClip1", ammo);
 	SetEntProp(weapon, Prop_Send, "m_iClip2", ammo);
-}
-
-stock int GetRandomsPlayer(bool alive = true)
-{
-	int[] clients = new int[MaxClients];
-	int clientCount;
-	
-	for (int i = 1; i <= MaxClients; i++)
-	{
-		if (!IsValidClient(i, _, !alive))
-			continue;
-		
-		if (g_bInfected[i] != false)
-			continue;
-		
-		if (g_bWasFirstInfected[i] != false)
-			continue;
-		
-		clients[clientCount++] = i;
-	}
-	
-	return (clientCount == 0) ? -1 : clients[GetRandomInt(0, clientCount - 1)];
 }
 
 stock bool IsClientAdmin(int client)
@@ -414,20 +392,6 @@ public void Command_DataUpdate(int client)
 	}
 }
 
-public void OnHeGrenadeDetonate(Handle event, char[] name, bool dontBroadcast)
-{
-	if (g_cZEHeGrenadeEffect.IntValue == 0)
-	{
-		return;
-	}
-	
-	float origin[3];
-	origin[0] = GetEventFloat(event, "x"); origin[1] = GetEventFloat(event, "y"); origin[2] = GetEventFloat(event, "z");
-	
-	TE_SetupBeamRingPoint(origin, 10.0, 400.0, g_iBeamSprite, g_iHaloSprite, 1, 1, 0.2, 100.0, 1.0, FragColor, 0, 0);
-	TE_SendToAll();
-}
-
 public bool FilterTarget(int entity, int contentsMask, any data)
 {
 	return (data == entity);
@@ -454,40 +418,6 @@ void LightCreate(int grenade, float pos[3])
 	DispatchSpawn(iEntity);
 	TeleportEntity(iEntity, pos, NULL_VECTOR, NULL_VECTOR);
 	AcceptEntityInput(iEntity, "TurnOn");
-}
-
-//TRAIL GRENADE
-public void Grenade_SpawnPost(int entity)
-{
-	int client = GetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity");
-	if (client == -1)return;
-	
-	char classname[64];
-	GetEdictClassname(entity, classname, 64);
-	
-	if (!strcmp(classname, "hegrenade_projectile"))
-	{
-		if (g_cZEHeGrenadeEffect.IntValue == 1)
-		{
-			BeamFollowCreate(entity, FragColor);
-		}
-	}
-	else if (!strcmp(classname, "decoy_projectile"))
-	{
-		if (g_cZEFlashbangEffect.IntValue == 1)
-		{
-			BeamFollowCreate(entity, FlashColor);
-			CreateTimer(1.3, CreateEvent_DecoyDetonate, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
-		}
-	}
-	else if (!strcmp(classname, "smokegrenade_projectile"))
-	{
-		if (g_cZESmokeEffect.IntValue == 1)
-		{
-			BeamFollowCreate(entity, SmokeColor);
-			CreateTimer(1.3, CreateEvent_SmokeDetonate, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);
-		}
-	}
 }
 
 //SMOKE GRENADE
@@ -630,17 +560,6 @@ void BeamFollowCreate(int entity, int color[4])
 {
 	TE_SetupBeamFollow(entity, g_iBeamSprite, 0, 1.0, 10.0, 10.0, 5, color);
 	TE_SendToAll();
-}
-
-public void OnEntityCreated(int entity, const char[] classname)
-{
-	if (StrContains(classname, "_projectile") != -1)
-	{
-		SDKHook(entity, SDKHook_SpawnPost, Grenade_SpawnPost);
-	}
-	else if(!strncmp(classname, "weapon_", 7, false))	{
-		SDKHook(entity, SDKHook_ReloadPost, WeaponReloadPost);
-	}
 }
 
 void DisableSpells(int client)

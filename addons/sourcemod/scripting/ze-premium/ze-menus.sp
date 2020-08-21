@@ -637,10 +637,7 @@ public int mRoundBanHandler(Menu menu, MenuAction action, int client, int index)
 						RemoveGuns(user);
 						DisableSpells(user);
 						SetPlayerAsZombie(user);
-						Call_StartForward(gF_ClientInfected);
-						Call_PushCell(user);
-						Call_PushCell(client);
-						Call_Finish();
+						Forward_OnClientInfected(user, client);
 					}
 					else
 					{
@@ -650,9 +647,7 @@ public int mRoundBanHandler(Menu menu, MenuAction action, int client, int index)
 						DisableSpells(user);
 						SetPlayerAsHuman(user);
 						SetEntityGravity(user, 1.0);
-						Call_StartForward(gF_ClientHumanPost);
-						Call_PushCell(user);
-						Call_Finish();
+						Forward_OnClientHumanPost(user);
 					}
 					openSwapTeam(client);
 				}
@@ -856,6 +851,167 @@ public int mZeInfectionLongHandler(Menu menu, MenuAction action, int client, int
 					CPrintToChatAll(" \x04[ZE-Admin]\x01 %t", "infection_unban", user);
 				openInfectionBan(client);
 			}
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
+}
+
+void ShowPlayerZMClass(int client)	{
+	if(!(g_cZECanChoiceClass.IntValue & 2))	return;
+
+	ZombieClass zc;
+	GetZombieClass(gPlayerSelectedClass[client][1], zc);
+	Menu zmmenu = new Menu(MenuHandler_ZombieClass);
+	SetMenuTitle(zmmenu, "Zombie class\nSelected: %s", zc.name);
+	int size = gZombieClasses.Length;
+	char sBuffer[192];
+	int len;
+	for(int i = 0;i != size;i++)
+	{
+		GetZombieClass(i, zc);
+		if(zc.hidden)	continue;
+		len = strcopy(sBuffer, sizeof sBuffer, zc.name);
+		if(zc.desc[0])	{
+			sBuffer[len++] = '\n';
+			strcopy(sBuffer[len], sizeof sBuffer - len, zc.desc);
+		}
+		zmmenu.AddItem(zc.ident, zc.name, i == gPlayerSelectedClass[i][1]);
+	}
+	zmmenu.Display(client, 0);
+	return;
+}
+
+public int MenuHandler_ZombieClass(Menu menu, MenuAction action, int client, int item) 
+{
+	switch(action)
+	{
+		case MenuAction_Select:
+		{
+			char info[32];
+			GetMenuItem(menu, item, info, sizeof(info));
+			int id = FindZombieClassID(info);
+			if(id == -1)	{
+				PrintToChat(client, " \x04[ZE-Class]\x01 Error");
+				return;
+			}
+			ZombieClass zc;
+			GetZombieClass(id, zc);
+			if(zc.access)	{
+				if(!(GetUserFlagBits(client) & zc.access))	{
+					PrintToChat(client, " \x04[ZE-Class]\x01 You don't have a \x04VIP");
+					return;
+				}
+			}
+
+			SetClientCookie(client, g_hZombieClass, zc.ident);
+			gPlayerSelectedClass[client][1] = id;
+			CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", zc.name);
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
+}
+
+void ShowPlayerHumanClass(int client)	{
+	if(!(g_cZECanChoiceClass.IntValue & 1))	return;
+
+	HumanClass hc;
+	GetHumanClass(gPlayerSelectedClass[client][0], hc);
+	Menu zmmenu = new Menu(MenuHandler_HumanClass);
+	SetMenuTitle(zmmenu, "Human class\nSelected: %s", hc.name);
+	int size = gHumanClasses.Length;
+	char sBuffer[192];
+	int len;
+	for(int i = 0;i != size;i++)
+	{
+		GetHumanClass(i, hc);
+		if(hc.hidden)	continue;
+		len = strcopy(sBuffer, sizeof sBuffer, hc.name);
+		if(hc.desc[0])	{
+			sBuffer[len++] = '\n';
+			strcopy(sBuffer[len], sizeof sBuffer - len, hc.desc);
+		}
+		zmmenu.AddItem(hc.ident, sBuffer, i == gPlayerSelectedClass[i][0]);
+	}
+	zmmenu.Display(client, 0);
+	return;
+}
+
+public int MenuHandler_HumanClass(Menu menu, MenuAction action, int client, int item) 
+{
+	switch(action)
+	{
+		case MenuAction_Select:
+		{
+			char info[32];
+			GetMenuItem(menu, item, info, sizeof(info));
+			int id = FindHumanClassID(info);
+			if(id == -1)	{
+				PrintToChat(client, " \x04[ZE-Class]\x01 Error");
+				return;
+			}
+			HumanClass hc;
+			GetHumanClass(id, hc);
+			if(hc.access)	{
+				if(!(GetUserFlagBits(client) & hc.access))	{
+					PrintToChat(client, " \x04[ZE-Class]\x01 You don't have a \x04VIP");
+					return;
+				}
+			}
+
+			SetClientCookie(client, g_hHumanClass, hc.ident);
+			gPlayerSelectedClass[client][0] = id;
+			CPrintToChat(client, " \x04[ZE-Class]\x01 %t", "chosen_class", hc.name);
+		}
+		case MenuAction_End:
+		{
+			delete menu;
+		}
+	}
+}
+
+void ShowPlayerWeapons(int client, const char[] category, bool secondary = false)	{
+	if(g_bInfected[client])	return;
+	char sBuffer[32];
+	Menu zmmenu = new Menu(MenuHandler_WeaponsSelect);
+	FormatEx(sBuffer, sizeof sBuffer, "%s:", category);
+	sBuffer[0] = CharToUpper(sBuffer[0]);
+	SetMenuTitle(zmmenu, sBuffer);
+ 	
+ 	kvWeapons.Rewind();
+ 	if (!kvWeapons.JumpToKey(category))	return;
+	if (!kvWeapons.GotoFirstSubKey())	return;
+ 
+	char ClassID[32];
+	ClassID[0] = secondary ? '2' : '1';
+	do
+	{
+		kvWeapons.GetSectionName(ClassID[1], sizeof(ClassID) - 1);
+		kvWeapons.GetString("name", sBuffer, sizeof(sBuffer));
+		zmmenu.AddItem(ClassID, sBuffer);
+	} while (kvWeapons.GotoNextKey());
+ 
+	zmmenu.Display(client, 0);	
+}
+
+public int MenuHandler_WeaponsSelect(Menu menu, MenuAction action, int client, int item) 
+{
+	switch(action)
+	{
+		case MenuAction_Select:
+		{
+			char info[32];
+			GetMenuItem(menu, item, info, sizeof(info));
+			if(info[0] == '1')	strcopy(Primary_Gun[client], sizeof Primary_Gun[], info[1]);
+			else	strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], info[1]);
+			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", Primary_Gun[client]);
+			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "get_the_gun");
+			openWeapons(client);
 		}
 		case MenuAction_End:
 		{

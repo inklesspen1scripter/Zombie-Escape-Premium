@@ -1,3 +1,23 @@
+void PrepareClasses()	{
+	gZombieNemesis.arms[0] = 0;
+	strcopy(gZombieNemesis.ident, sizeof gZombieNemesis.ident, "nemesis\x01");
+	strcopy(gZombieNemesis.name, sizeof gZombieNemesis.name, "Nemesis");
+
+	ZombieClass zc;
+	HumanClass hc;
+	gZombieClasses = new ArrayList(sizeof zc);
+	gHumanClasses = new ArrayList(sizeof hc);
+}
+
+void LoadConVarClasses()	{
+	gZombieNemesis.health = g_cZENemesisHP.IntValue;
+	gZombieNemesis.speed = g_cZENemesisSpeed.FloatValue;
+	gZombieNemesis.gravity = g_cZENemesisGravity.FloatValue;
+	g_cZENemesisModel.GetString(gZombieNemesis.model, sizeof gZombieNemesis.model);
+	if(!FileExists(gZombieNemesis.model, true))	gZombieNemesis.model[0] = 0;
+	if(gZombieNemesis.model[0])	PrecacheModel(gZombieNemesis.model, true);
+}
+
 void LoadClasses()	{
 	char g_sZEConfig[PLATFORM_MAX_PATH];
 	char flags[40];
@@ -11,6 +31,7 @@ void LoadClasses()	{
 		zc.health = kv.GetNum("health", 10000);
 		zc.speed = kv.GetFloat("speed", 1.2);
 		zc.gravity = kv.GetFloat("gravity", 1.0);
+		zc.hidden = view_as<bool>(kv.GetNum("hidden", 0));
 		kv.GetString("name", zc.name, sizeof zc.name, "Default");
 		kv.GetString("desc", zc.desc, sizeof zc.desc, "");
 		kv.GetString("model_path", zc.model, sizeof zc.model, "models/player/custom_player/kodua/frozen_nazi/frozen_nazi.mdl");
@@ -42,6 +63,7 @@ void LoadClasses()	{
 		hc.protection = kv.GetNum("protection", 0);
 		hc.speed = kv.GetFloat("speed", 1.0);
 		hc.gravity = kv.GetFloat("gravity", 1.0);
+		hc.hidden = view_as<bool>(kv.GetNum("hidden", 0));
 		kv.GetString("item", sBuffer, sizeof sBuffer, "");
 		ReplaceString(sBuffer, sizeof sBuffer, "weapon_", "", false);
 		ReplaceString(sBuffer, sizeof sBuffer, "FireNade", "hegrenade", false);
