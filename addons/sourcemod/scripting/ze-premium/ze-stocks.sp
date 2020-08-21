@@ -85,7 +85,7 @@ stock bool IsClientVIP(int client)
 //TAKING GUNS ZOMBIES
 public Action OnWeaponCanUse(int client, int weapon)
 {
-	if (ZR_IsClientZombie(client))
+	if (ZR_IsClientHuman(client))
 		return Plugin_Continue;
 	
 	char sWeapon[8];

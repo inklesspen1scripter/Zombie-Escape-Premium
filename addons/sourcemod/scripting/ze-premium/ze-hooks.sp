@@ -121,7 +121,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 						event1.SetInt("attacker", GetClientUserId(attacker));
 						event1.SetString("weapon", "knife");
 						for(int i = MaxClients;i;i--)	{
-							if(IsClientInGame(i))	{
+							if(IsClientInGame(i) && !IsFakeClient(i))	{
 								event1.FireToClient(i);
 							}
 						}
@@ -131,6 +131,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 						{
 							CreateTimer(1.0, EndOfRound);
 						}
+						return Plugin_Handled;
 					}
 				}
 			}
