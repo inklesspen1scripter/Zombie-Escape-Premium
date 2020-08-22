@@ -27,7 +27,6 @@ public void OnClientConnected(int client)
 	g_bSamegun[client] = false;
 	g_bIsLeader[client] = false;
 	g_bInfected[client] = false;
-	g_bBeacon[client] = false;
 	g_bNoRespawn[client] = false;
 	g_bAntiDisconnect[client] = false;
 	i_respawn[client] = 0;
@@ -36,7 +35,8 @@ public void OnClientConnected(int client)
 	gPlayerNextUltimate[client] = 0.0;
 	gPlayerUltimateTimer[client] = INVALID_HANDLE;
 	H_AmmoTimer[client] = INVALID_HANDLE;
-
+	H_Beacon[client] = INVALID_HANDLE;
+	H_Respawntimer[client] = INVALID_HANDLE;
 }
 
 public void OnClientPutInServer(int client)	{

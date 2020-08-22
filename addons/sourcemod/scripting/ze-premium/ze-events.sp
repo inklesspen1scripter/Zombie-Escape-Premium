@@ -46,6 +46,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 				if(i_Infection > 0)
 				{
 					float nextrespawn = float(i_Infection);
+					if(H_Respawntimer[client])	delete H_Respawntimer[client];
 					H_Respawntimer[client] = CreateTimer(nextrespawn, Respawn, GetClientUserId(client));
 				}
 				else

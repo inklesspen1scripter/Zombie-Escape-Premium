@@ -407,7 +407,7 @@ void openLeader(int client)
 		menu.AddItem("menu1", "Choose leader");
 	}
 	menu.AddItem("menu2", "Sprites & Markers");
-	if(g_bBeacon[client] == true)
+	if(H_Beacon[client])
 	{
 		menu.AddItem("menu3", "Beacon [ON]");
 	}
@@ -440,20 +440,18 @@ public int mZeLeaderHandler(Menu menu, MenuAction action, int client, int index)
 				}
 				else if (!strcmp(szItem, "menu3"))
 				{
-					if(g_bBeacon[client] == true)
+					if(H_Beacon[client])
 					{
-						g_bBeacon[client] = false;
 						if (H_Beacon[client] != INVALID_HANDLE)
 						{
 							delete H_Beacon[client];
-							g_bBeacon[client] = false;
+							H_Beacon[client] = INVALID_HANDLE;
 							CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "beacon_off");
 							openLeader(client);
 						}
 					}
 					else
 					{
-						g_bBeacon[client] = true;
 						H_Beacon[client] = CreateTimer(0.2, Timer_Beacon, GetClientUserId(client), TIMER_REPEAT);
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "beacon_on");
 						openLeader(client);
@@ -716,12 +714,12 @@ public int mLeaderChooseHandler(Menu menu, MenuAction action, int client, int in
 								{
 									g_bIsLeader[i] = false;
 									CPrintToChat(i, " \x04[ZE-Leader]\x01 %t", "removed_from_leader");
-									if(g_bBeacon[i] == true)
+									if(H_Beacon[i])
 									{
 										if (H_Beacon[i] != null && H_Beacon[i] != INVALID_HANDLE)
 										{
 											delete H_Beacon[i];
-											g_bBeacon[i] = false;
+											H_Beacon[i] = INVALID_HANDLE;
 										}
 									}
 								}

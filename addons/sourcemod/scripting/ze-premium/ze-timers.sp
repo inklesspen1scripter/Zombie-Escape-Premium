@@ -165,7 +165,7 @@ public Action FirstInfection(Handle timer)
 public Action Timer_Beacon(Handle timer, int client)
 {
 	client = GetClientOfUserId(client);
-	if(client && g_bBeacon[client] == true)
+	if(client)
 	{
 		float fPos[3];
 		GetClientAbsOrigin(client, fPos);
@@ -177,7 +177,9 @@ public Action Timer_Beacon(Handle timer, int client)
 public Action Respawn(Handle timer, int client)
 {
 	client = GetClientOfUserId(client);
-	if(client && g_bNoRespawn[client] == false && !IsPlayerAlive(client))
+	if(!client)	return;
+	H_Respawntimer[client] = INVALID_HANDLE;
+	if(!g_bNoRespawn[client] && !IsPlayerAlive(client))
 	{
 		CS_RespawnPlayer(client);
 		Forward_OnClientRespawned(client);

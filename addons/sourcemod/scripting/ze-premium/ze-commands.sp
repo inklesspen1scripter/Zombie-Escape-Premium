@@ -172,7 +172,10 @@ public Action CMD_GetGun(int client, int args)
 					strcopy(sBuffer[7], sizeof sBuffer - 7, Primary_Gun[client]);
 					int secweapon = GetPlayerWeaponSlot(client, CS_SLOT_SECONDARY);
 					if(secweapon != -1 && !IsSpecialItem(secweapon))
-						SDKHooks_DropWeapon(client, secweapon, view_as<float>({0.0,0.0,0.0}), view_as<float>({0.0,0.0,0.0}));
+					{
+						static const float vel[3] = {0.1,0.1,0.1};
+						SDKHooks_DropWeapon(client, secweapon, NULL_VECTOR, vel);
+					}
 					GivePlayerItem(client, sBuffer);
 				}
 			}

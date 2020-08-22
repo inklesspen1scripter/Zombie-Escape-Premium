@@ -138,7 +138,6 @@ int i_markerEntities[MAXPLAYERS + 1];
 int i_typeofsprite[MAXPLAYERS + 1];
 bool g_bMarker = false;
 bool g_bIsLeader[MAXPLAYERS + 1] = false;
-bool g_bBeacon[MAXPLAYERS + 1] = false;
 Handle H_Beacon[MAXPLAYERS + 1];
 
 //ZOMBIES

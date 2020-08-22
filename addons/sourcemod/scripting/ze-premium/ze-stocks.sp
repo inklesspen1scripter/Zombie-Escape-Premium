@@ -201,27 +201,30 @@ void DisableAll(int client)
 	g_bInfected[client] = false;
 	i_typeofsprite[client] = 0;
 	i_Maximum_Choose[client] = 0;
-	g_bBeacon[client] = false;
 	g_bIsLeader[client] = false;
 	spended[client] = 0;
 	i_respawn[client] = 0;
 	g_bNoRespawn[client] = false;
+
+	if(H_Beacon[client])	{
+		delete H_Beacon[client];
+		H_Beacon[client] = INVALID_HANDLE;
+	}
 
 	ResetPlayerUltimate(client, true);
 }
 
 void DisableTimers(int client)
 {
-	if(g_bBeacon[client] == true)
+	if (H_Beacon[client] != INVALID_HANDLE)
 	{
-		if (H_Beacon[client] != INVALID_HANDLE)
-		{
-			delete H_Beacon[client];
-		}
+		delete H_Beacon[client];
+		H_Beacon[client] = INVALID_HANDLE;
 	}
 	if(H_Respawntimer[client] != INVALID_HANDLE)
 	{
 		delete H_Respawntimer[client];
+		H_Respawntimer[client] = INVALID_HANDLE;
 	}
 }
 
@@ -519,7 +522,10 @@ void BeamFollowCreate(int entity, int color[4])
 
 void DisableSpells(int client)
 {
-	g_bBeacon[client] = false;
+	if(H_Beacon[client])	{
+		delete H_Beacon[client];
+		H_Beacon[client] = INVALID_HANDLE;
+	}
 	ResetPlayerUltimate(client, true);
 	if(g_bIsLeader[client] == true)
 	{
