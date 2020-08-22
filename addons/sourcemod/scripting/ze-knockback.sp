@@ -36,15 +36,9 @@ public Action Event_PlayerHurt(Handle event, char[] name, bool dontBroadcast)
 
 	int damage = GetEventInt(event, "dmg_health");
 
-	float knockback;
+	float knockback = gc_ZEKnockbackAmount.FloatValue; // knockback amount
 	if(ZR_Power(attacker) == 1)
-	{
-		knockback = gc_ZEKnockbackAmount.FloatValue + 20.0; // knockback amount
-	}
-	else
-	{
-		knockback = gc_ZEKnockbackAmount.FloatValue; // knockback amount
-	}
+		knockback = gc_ZEKnockbackAmount.FloatValue * 2.0;
 	float clientloc[3];
 	float attackerloc[3];
 

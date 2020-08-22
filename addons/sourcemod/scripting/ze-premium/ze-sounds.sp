@@ -27,8 +27,9 @@ void LoadSounds()	{
 			kv.GetString(NULL_STRING, sBuffer[6], sizeof sBuffer - 6, "");
 			if(!sBuffer[6])	continue;
 			if(list.FindString(sBuffer) == -1)	{
-				list.PushString(sBuffer);
-				AddToStringTable(tableindex, sBuffer);
+				list.PushString(sBuffer[6]);
+				AddToStringTable(tableindex, sBuffer[6]);
+				AddFileToDownloadsTable(sBuffer);
 			}
 		}	while(kv.GotoNextKey(false));
 	}
