@@ -82,7 +82,7 @@ public ZR_OnClientInfected(int client, int attacker)
 	if (!IsPlayerAlive(client)) return;
 	
 	if (IsPlayerAlive(client))
-    {
+	{
 		SetEntityRenderColor(client, 255,255,255,255);
 	}
 }

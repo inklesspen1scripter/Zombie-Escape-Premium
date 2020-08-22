@@ -299,16 +299,18 @@ public Action HUD(Handle timer)
 					if(gPlayerHumanClass[i].power)
 					{
 						char progress[32];
-						if(g_bUltimate[i] == true)
+						if(i_Power[i])	{
+							strcopy(progress, sizeof(progress), "ACTIVE");
+						}
+						else if(f_causeddamage[i] < g_cZEUltimateDamageNeed.FloatValue)
 						{
-							strcopy(progress, sizeof(progress), "READY TO USE (F)");
+							int chars = RoundToFloor(5.0 * f_causeddamage[i] / g_cZEUltimateDamageNeed.FloatValue);
+							strcopy(progress, chars + 1, "☒☒☒☒☒");
+							strcopy(progress[chars], 6 - chars, "☐☐☐☐☐");
 						}
 						else
 						{
-							if(f_causeddamage[i] >= 2000)strcopy(progress, sizeof(progress), "☒☒☒☒☐");
-							else if(f_causeddamage[i] >= 1000)strcopy(progress, sizeof(progress), "☒☒☒☐☐");
-							else if(f_causeddamage[i] >= 500)strcopy(progress, sizeof(progress), "☒☒☐☐☐");
-							else strcopy(progress, sizeof(progress), "☒☐☐☐☐");
+							strcopy(progress, sizeof(progress), "READY TO USE (F)");
 						}
 						SetHudTextParams(-1.0, -0.05, 1.02, 65, 105, 225, 255, 0, 0.0, 0.0, 0.0);
 						ShowHudText(i, -1, "Type: Human | Class: %s | Won rounds: %i\nUltimate Power: %s", gPlayerHumanClass[i].name, i_hwins[i], progress);
@@ -385,12 +387,8 @@ public Action EndPower(Handle timer, int client)
 	client = GetClientOfUserId(client);
 	if (client)
 	{
-		i_Power[client] = 0;
+		ResetPlayerUltimate(client, false);
 		PrintHintText(client, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FF0000'>Your ultimate power has expired!");
-		if (H_AmmoTimer[client] != INVALID_HANDLE)
-		{
-			delete H_AmmoTimer[client];
-		}
 	}	
 }
 

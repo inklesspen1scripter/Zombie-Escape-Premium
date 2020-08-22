@@ -67,24 +67,24 @@ new g_Taged[MAXPLAYERS] = {false, ...};
 //----------------------------------------------------------------------------------------------------
 // Purpose: Color Settings
 //----------------------------------------------------------------------------------------------------
-new String:color_tag[16]         = "{olive}";
-new String:color_name[16]        = "{green}";
-new String:color_steamid[16]     = "{default}";
-new String:color_use[16]         = "{red}";
-new String:color_pickup[16]      = "{red}";
-new String:color_drop[16]        = "{red}";
+new String:color_tag[16]		 = "{olive}";
+new String:color_name[16]		= "{green}";
+new String:color_steamid[16]	 = "{default}";
+new String:color_use[16]		 = "{red}";
+new String:color_pickup[16]	  = "{red}";
+new String:color_drop[16]		= "{red}";
 new String:color_disconnect[16]  = "{red}";
-new String:color_death[16]       = "{red}";
-new String:color_warning[16]     = "{red}";
+new String:color_death[16]	   = "{red}";
+new String:color_warning[16]	 = "{red}";
 
 //----------------------------------------------------------------------------------------------------
 // Purpose: Client Settings
 //----------------------------------------------------------------------------------------------------
-new Handle:G_hCookie_Display     = INVALID_HANDLE;
+new Handle:G_hCookie_Display	 = INVALID_HANDLE;
 new Handle:G_hCookie_Restricted  = INVALID_HANDLE;
 
-new bool:G_bDisplay[MAXPLAYERS + 1]     = false;
-new bool:G_bDisplay2[MAXPLAYERS + 1]     = false;
+new bool:G_bDisplay[MAXPLAYERS + 1]	 = false;
+new bool:G_bDisplay2[MAXPLAYERS + 1]	 = false;
 new bool:G_bRestricted[MAXPLAYERS + 1]  = false;
 //new bool:G_bHasPosData[MAXPLAYERS + 1]  = false;
 
@@ -97,14 +97,14 @@ new Float:HudPosition[MAXPLAYERS+1][2];
 //----------------------------------------------------------------------------------------------------
 // Purpose: Plugin Settings
 //----------------------------------------------------------------------------------------------------
-new Handle:G_hCvar_DisplayEnabled    = INVALID_HANDLE;
+new Handle:G_hCvar_DisplayEnabled	= INVALID_HANDLE;
 new Handle:G_hCvar_DisplayCooldowns  = INVALID_HANDLE;
-new Handle:G_hCvar_ModeTeamOnly      = INVALID_HANDLE;
-new Handle:G_hCvar_ConfigColor       = INVALID_HANDLE;
-ConVar     G_hCvar_DefaultHudPos;
+new Handle:G_hCvar_ModeTeamOnly	  = INVALID_HANDLE;
+new Handle:G_hCvar_ConfigColor	   = INVALID_HANDLE;
+ConVar	 G_hCvar_DefaultHudPos;
 
 new bool:G_bRoundTransition  = false;
-new bool:G_bConfigLoaded     = false;
+new bool:G_bConfigLoaded	 = false;
 //new Handle:EntHud;
 float DefaultHudPos[2];
 
@@ -113,11 +113,11 @@ float DefaultHudPos[2];
 //----------------------------------------------------------------------------------------------------
 public Plugin:myinfo =
 {
-	name         = "entWatch CS:GO ScoreBoard HUD Edition",
-	author       = "Prometheum & zaCade, Modified by. Someone",
+	name		 = "entWatch CS:GO ScoreBoard HUD Edition",
+	author	   = "Prometheum & zaCade, Modified by. Someone",
 	description  = "Notify players about entity interactions.",
-	version      = PLUGIN_VERSION,
-	url          = "https://github.com/zaCade/entWatch"
+	version	  = PLUGIN_VERSION,
+	url		  = "https://github.com/zaCade/entWatch"
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -127,13 +127,13 @@ public OnPluginStart()
 {
 	CreateConVar("entwatch_version", PLUGIN_VERSION, "Current version of entWatch", 0|FCVAR_SPONLY|FCVAR_REPLICATED|FCVAR_NOTIFY|FCVAR_DONTRECORD);
 	buttons = CreateTrie();
-	G_hCvar_DisplayEnabled    = CreateConVar("entwatch_display_enable", "1", "Enable/Disable the display.", 0, true, 0.0, true, 1.0);
+	G_hCvar_DisplayEnabled	= CreateConVar("entwatch_display_enable", "1", "Enable/Disable the display.", 0, true, 0.0, true, 1.0);
 	G_hCvar_DisplayCooldowns  = CreateConVar("entwatch_display_cooldowns", "1", "Show/Hide the cooldowns on the display.", 0, true, 0.0, true, 1.0);
-	G_hCvar_ModeTeamOnly      = CreateConVar("entwatch_mode_teamonly", "1", "Enable/Disable team only mode.", 0, true, 0.0, true, 1.0);
-	G_hCvar_ConfigColor       = CreateConVar("entwatch_config_color", "color_classic", "The name of the color config.", 0);
+	G_hCvar_ModeTeamOnly	  = CreateConVar("entwatch_mode_teamonly", "1", "Enable/Disable team only mode.", 0, true, 0.0, true, 1.0);
+	G_hCvar_ConfigColor	   = CreateConVar("entwatch_config_color", "color_classic", "The name of the color config.", 0);
 	G_hCvar_DefaultHudPos	  = CreateConVar("entwatch_default_hudpos", "0.0 0.4", "default hudpos.");
 	
-	G_hCookie_Display     = RegClientCookie("entwatch_display", "", CookieAccess_Private);
+	G_hCookie_Display	 = RegClientCookie("entwatch_display", "", CookieAccess_Private);
 	G_hCookie_Restricted  = RegClientCookie("entwatch_restricted", "", CookieAccess_Private);
 	
 	G_hCvar_DefaultHudPos.AddChangeHook(ConVarChange);
@@ -231,25 +231,25 @@ public OnMapStart()
 {
 	for (new index = 0; index < entArraySize; index++)
 	{
-		Format(entArray[index][ent_name],         32, "");
-		Format(entArray[index][ent_shortname],    32, "");
-		Format(entArray[index][ent_color],        32, "");
+		Format(entArray[index][ent_name],		 32, "");
+		Format(entArray[index][ent_shortname],	32, "");
+		Format(entArray[index][ent_color],		32, "");
 		Format(entArray[index][ent_buttonclass],  32, "");
 		Format(entArray[index][ent_filtername],   32, "");
 		entArray[index][ent_hasfiltername]  = false;
-		entArray[index][ent_blockpickup]    = false;
+		entArray[index][ent_blockpickup]	= false;
 		entArray[index][ent_allowtransfer]  = false;
-		entArray[index][ent_forcedrop]      = false;
-		entArray[index][ent_chat]           = false;
-		entArray[index][ent_hud]            = false;
-		entArray[index][ent_hammerid]       = -1;
-		entArray[index][ent_weaponid]       = -1;
-		entArray[index][ent_buttonid]       = -1;
-		entArray[index][ent_ownerid]        = -1;
-		entArray[index][ent_mode]           = 0;
-		entArray[index][ent_uses]           = 0;
-		entArray[index][ent_maxuses]        = 0;
-		entArray[index][ent_cooldown]       = 0;
+		entArray[index][ent_forcedrop]	  = false;
+		entArray[index][ent_chat]		   = false;
+		entArray[index][ent_hud]			= false;
+		entArray[index][ent_hammerid]	   = -1;
+		entArray[index][ent_weaponid]	   = -1;
+		entArray[index][ent_buttonid]	   = -1;
+		entArray[index][ent_ownerid]		= -1;
+		entArray[index][ent_mode]		   = 0;
+		entArray[index][ent_uses]		   = 0;
+		entArray[index][ent_maxuses]		= 0;
+		entArray[index][ent_cooldown]	   = 0;
 		entArray[index][ent_cooldowntime]   = -1;
 	}
 	PrecacheModel("models/strado/coke.mdl");
@@ -303,11 +303,11 @@ public Action:Event_RoundEnd(Handle:event, const String:name[], bool:dontBroadca
 		{
 			SDKUnhook(entArray[index][ent_buttonid], SDKHook_Use, OnButtonUse);
 			tmpidx[index] = entArray[index][ent_weaponid];
-			entArray[index][ent_weaponid]       = -1;
-			entArray[index][ent_buttonid]       = -1;
-			entArray[index][ent_ownerid]        = -1;
+			entArray[index][ent_weaponid]	   = -1;
+			entArray[index][ent_buttonid]	   = -1;
+			entArray[index][ent_ownerid]		= -1;
 			entArray[index][ent_cooldowntime]   = -1;
-			entArray[index][ent_uses]           = 0;
+			entArray[index][ent_uses]		   = 0;
 			entArray[index][ent_glow] = -1;
 			
 		}
@@ -1465,13 +1465,13 @@ stock LoadConfig()
 
 stock void SetGlowColor(int entity, const char[] color)
 {
-    char colorbuffers[3][4];
-    ExplodeString(color, " ", colorbuffers, sizeof(colorbuffers), sizeof(colorbuffers[]));
-    int colors[4];
-    for (int i = 0; i < 3; i++)
-        colors[i] = StringToInt(colorbuffers[i]);
+	char colorbuffers[3][4];
+	ExplodeString(color, " ", colorbuffers, sizeof(colorbuffers), sizeof(colorbuffers[]));
+	int colors[4];
+	for (int i = 0; i < 3; i++)
+		colors[i] = StringToInt(colorbuffers[i]);
 	
-    colors[3] = 255; // Set alpha
-    SetVariantColor(colors);
-    AcceptEntityInput(entity, "SetGlowColor");
+	colors[3] = 255; // Set alpha
+	SetVariantColor(colors);
+	AcceptEntityInput(entity, "SetGlowColor");
 }  

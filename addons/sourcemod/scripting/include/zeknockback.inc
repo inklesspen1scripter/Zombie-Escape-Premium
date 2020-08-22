@@ -7,6 +7,6 @@
  * Check if is player infected or not
  *
  * @param client
- * @return        True if is player infected
+ * @return		True if is player infected
  */
 native bool ZR_HaveItem(int client);

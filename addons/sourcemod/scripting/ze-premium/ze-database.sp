@@ -88,7 +88,7 @@ public void SQL_QueryToplist(Database hDatabase, DBResultSet hResults, const cha
 	Menu ClenList = CreateMenu(ClenListHandler);
 	SetMenuTitle(ClenList, "[TOP] Player by top wins:");
    	while(hResults.FetchRow())
-    {
+	{
 		char szSteamId[32];
 		hResults.FetchString(1, szName, sizeof(szName));
 		hResults.FetchString(2, szSteamId, sizeof(szSteamId));

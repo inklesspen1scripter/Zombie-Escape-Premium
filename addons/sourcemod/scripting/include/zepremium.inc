@@ -7,7 +7,7 @@
  * Check if is infection started or not
  *
  * @param client
- * @return        True if infection not yet started 
+ * @return		True if infection not yet started 
  */
 native bool ZR_IsInfection();
 
@@ -15,7 +15,7 @@ native bool ZR_IsInfection();
  * Check if is special round (Nemesis or Zombie riot round)
  *
  * @param client
- * @return        True if is special round
+ * @return		True if is special round
  */
 native bool ZR_IsSpecialround();
 
@@ -23,7 +23,7 @@ native bool ZR_IsSpecialround();
  * Check if is player infected or not
  *
  * @param client
- * @return        True if is player infected
+ * @return		True if is player infected
  */
 native bool ZR_IsClientZombie(int client);
 
@@ -31,7 +31,7 @@ native bool ZR_IsClientZombie(int client);
  * Check if is player human
  *
  * @param client
- * @return        True if is player human
+ * @return		True if is player human
  */
 native bool ZR_IsClientHuman(int client);
 
@@ -39,7 +39,7 @@ native bool ZR_IsClientHuman(int client);
  * Check if is player nemesis or not
  *
  * @param client
- * @return        True if is player nemesis
+ * @return		True if is player nemesis
  */
 native bool ZR_IsNemesis(int client);
 
@@ -47,7 +47,7 @@ native bool ZR_IsNemesis(int client);
  * Check player ultimate power
  *
  * @param client
- * @return        Type of player ultimate
+ * @return		Type of player ultimate
  */
 native int ZR_Power(int client);
 

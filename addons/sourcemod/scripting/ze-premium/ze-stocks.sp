@@ -204,11 +204,10 @@ void DisableAll(int client)
 	g_bBeacon[client] = false;
 	g_bIsLeader[client] = false;
 	spended[client] = 0;
-	i_Power[client] = 0;
-	f_causeddamage[client] = 0.0;
-	g_bUltimate[client] = false;
 	i_respawn[client] = 0;
 	g_bNoRespawn[client] = false;
+
+	ResetPlayerUltimate(client, true);
 }
 
 void DisableTimers(int client)
@@ -521,9 +520,7 @@ void BeamFollowCreate(int entity, int color[4])
 void DisableSpells(int client)
 {
 	g_bBeacon[client] = false;
-	i_Power[client] = 0;
-	f_causeddamage[client] = 0.0;
-	g_bUltimate[client] = false;
+	ResetPlayerUltimate(client, true);
 	if(g_bIsLeader[client] == true)
 	{
 		g_bIsLeader[client] = false;
@@ -732,4 +729,66 @@ void UpdateClientWeaponCookie(int client)	{
 	sBuffer[len++] = ';';
 	strcopy(sBuffer[len], sizeof sBuffer - len, Secondary_Gun[client]);
 	g_hSavedWeapons.Set(client, sBuffer);
+}
+
+void ResetPlayerUltimate(int client, bool full = false)	{
+	if(gPlayerUltimateTimer[client])	{
+		KillTimer(gPlayerUltimateTimer[client]);
+		gPlayerUltimateTimer[client] = INVALID_HANDLE;
+	}
+	if(H_AmmoTimer[client])	{
+		KillTimer(H_AmmoTimer[client]);
+		H_AmmoTimer[client] = INVALID_HANDLE;
+	}
+	i_Power[client] = 0;
+	f_causeddamage[client] = 0.0;
+	gPlayerNextUltimate[client] = full ? 0.0 : (GetGameTime() + g_cZEUltimateCooldown.FloatValue);
+}
+
+void RequestPlayerUltimate(int client)	{
+	if(!IsPlayerAlive(client))	{
+		CPrintToChat(client, " \x04[ZE-Class]\x01 You are dead!");
+		return;
+	}
+
+	if(ZR_IsClientZombie(client))	{
+		CPrintToChat(client, " \x04[ZE-Class]\x01 You are zombie!");
+		return;
+	}
+
+	if(i_Power[client])	{
+		CPrintToChat(client, " \x04[ZE-Class]\x01 You are already using ultimate power!");
+		return;
+	}
+
+	if(IsPlayerUltimate(client, true))
+	{
+		if (gPlayerHumanClass[client].power)
+		{
+			i_Power[client] = gPlayerHumanClass[client].power;
+			if(1 < i_Power[client] && i_Power[client] <= 3)	{
+				H_AmmoTimer[client] = CreateTimer(1.0, PowerOfTimer, GetClientUserId(client), TIMER_REPEAT);
+			}
+			gPlayerUltimateTimer[client] = CreateTimer(g_cZEUltimateTime.FloatValue, EndPower, GetClientUserId(client));
+			PrintToChatAll(" \x04[ZE-Class]\x01 Player \x06%N\x01 activated his ultimate power!", client);
+			PrintHintText(client, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FFFFFF'>You activated:</font> <font color='#FF8C00'>%s", GetPowerName(i_Power[client]));
+			EmitSoundToAll("ze_premium/ze-powereffect.mp3", client);
+		}
+	}
+}
+
+bool IsPlayerUltimate(int client, bool show = false)	{
+	if(f_causeddamage[client] < g_cZEUltimateDamageNeed.FloatValue)	{
+		if(show)	{
+			CPrintToChat(client, " \x04[ZE-Class]\x01 Your ultimate power is \x07not\x01 ready !");
+		}
+		return false;
+	}
+	if(gPlayerNextUltimate[client] > GetGameTime())	{
+		if(show)	{
+			CPrintToChat(client, " \x04[ZE-Class]\x01 Your ultimate power will be ready in %0.1fsec!", gPlayerNextUltimate[client] - GetGameTime());
+		}
+		return false;
+	}
+	return true;
 }

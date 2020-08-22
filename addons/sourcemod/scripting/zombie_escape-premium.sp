@@ -204,4 +204,6 @@ public void OnMapStart()
 	Make gun menu like francisco
 	Ability to define with cvar Ultimate power button
 	!voteleader
+	Ultimate cooldown and damage cvars
+	Knockback cvars
 */

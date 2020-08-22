@@ -61,6 +61,10 @@ void LoadConVars()	{
 	
 	g_cZEMinConnectedPlayers = CreateConVar("sm_ze_minimum_players", "2", "Minimum of connected players on server for start the game", _, true, 2.0, true, 6.0);
 
+	g_cZEUltimateDamageNeed = CreateConVar("sm_ze_ultimate_damage", "2000", "Damage amount to ready ultimate (0 - no need damage)", _, true, 0.0);
+	g_cZEUltimateCooldown = CreateConVar("sm_ze_ultimate_cooldown", "20.0", "Ultimate cooldown (0 - no need cooldown)", _, true, 0.0);
+	g_cZEUltimateTime = CreateConVar("sm_ze_ultimate_time", "6.0", "Ultimate time", _, true, 1.0);
+
 	SetConVarAlwaysZero(FindConVar("mp_teamlimit"));
 	SetConVarAlwaysZero(FindConVar("mp_autoteambalance"));
 }

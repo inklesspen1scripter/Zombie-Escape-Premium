@@ -32,8 +32,11 @@ public void OnClientConnected(int client)
 	g_bAntiDisconnect[client] = false;
 	i_respawn[client] = 0;
 	i_Power[client] = 0;
-	g_bUltimate[client] = false;
 	gPlayerNextReloadSound[client] = 0.0;
+	gPlayerNextUltimate[client] = 0.0;
+	gPlayerUltimateTimer[client] = INVALID_HANDLE;
+	H_AmmoTimer[client] = INVALID_HANDLE;
+
 }
 
 public void OnClientPutInServer(int client)	{

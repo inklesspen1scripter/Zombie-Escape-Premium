@@ -68,6 +68,9 @@ ConVar g_cZEReloadingSound;
 ConVar g_cZEReloadingSoundType;
 ConVar g_cZEMinConnectedPlayers;
 ConVar g_cZEInfectionNadeEffect;
+ConVar g_cZEUltimateDamageNeed;
+ConVar g_cZEUltimateCooldown;
+ConVar g_cZEUltimateTime;
 
 ArrayList gWeaponList1;
 ArrayList gWeaponList2;
@@ -154,11 +157,12 @@ bool g_bAntiDisconnect[MAXPLAYERS + 1] = false;
 char Zombie_Arms[MAXPLAYERS + 1][PLATFORM_MAX_PATH + 1];
 
 //CLASSES
+Handle gPlayerUltimateTimer[MAXPLAYERS + 1];
 int i_Power[MAXPLAYERS + 1];
 int i_protection[MAXPLAYERS + 1];
 float f_causeddamage[MAXPLAYERS + 1];
+float gPlayerNextUltimate[MAXPLAYERS + 1];
 Handle H_Respawntimer[MAXPLAYERS + 1];
-bool g_bUltimate[MAXPLAYERS + 1] = false;
 bool g_bRoundEnd = false;
 
 //GAME

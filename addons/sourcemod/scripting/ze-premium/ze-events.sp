@@ -140,10 +140,14 @@ public void Event_RoundStart(Event event, const char[] name, bool bDontBroadcast
 	g_bRoundEnd = false;
 	i_Infection = g_cZEFirstInfection.IntValue;
 	H_FirstInfection = CreateTimer(1.0, FirstInfection, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+	int weapon;
+	char sBuffer[32];
+	strcopy(sBuffer, sizeof sBuffer, "weapon_");
 	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (IsValidClient(i))
 		{
+			ClientCommand(i, "r_screenoverlay \"\"");
 			if (IsPlayerAlive(i))
 			{	
 				SetEntPropFloat(i, Prop_Data, "m_flLaggedMovementValue", 1.0);
@@ -155,9 +159,6 @@ public void Event_RoundStart(Event event, const char[] name, bool bDontBroadcast
 				
 				if (g_bSamegun[i] == true)
 				{
-					int weapon;
-					char sBuffer[32];
-					strcopy(sBuffer, sizeof sBuffer, "weapon_");
 					if (Primary_Gun[i][0])
 					{
 						strcopy(sBuffer[7], sizeof sBuffer - 7, Primary_Gun[i]);
@@ -198,12 +199,10 @@ public void OnRoundEnd(Handle event, char[] name, bool dontBroadcast)
 	
 	if(winner_team == 2)
 	{
-		ShowOverlayAll(ZMWINSMAT, 4.0);
 		EmitSoundToAll("ze_premium/ze-zombiewin.mp3");
 	}
 	else if(winner_team == 3)
 	{
-		ShowOverlayAll(HUMANWINSMAT, 4.0);
 		int random = GetRandomInt(1, 2);
 		if(random == 1)
 		{
@@ -219,6 +218,7 @@ public void OnRoundEnd(Handle event, char[] name, bool dontBroadcast)
 	{
 		if (IsValidClient(i))
 		{
+			ClientCommand(i, "r_screenoverlay \"%s.vtf\"", (winner_team == 2) ? ZMWINSMAT : HUMANWINSMAT);
 			if(g_bWasFirstInfected[i] == true)
 			{
 				g_bWasFirstInfected[i] = false;

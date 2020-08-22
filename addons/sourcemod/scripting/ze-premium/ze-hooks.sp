@@ -1,6 +1,15 @@
 void LoadPlayerHooks(int client)	{
 	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamage);
 	SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
+	SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
+}
+
+public void OnWeaponEquipPost(int client, int weapon)	{
+	if(ZR_IsClientZombie(client))	{
+		char sBuffer[8];
+		GetEntityNetClass(weapon, sBuffer, sizeof sBuffer);
+		if(strncmp(sBuffer, "CKnife", 6))	ThrowError("123321123");
+	}
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
@@ -68,37 +77,35 @@ public void Grenade_SpawnPost(int entity)
 
 public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
 {	
-	if(IsValidClient(victim))
+	if(damagetype & DMG_FALL)
 	{
-		if(damagetype & DMG_FALL)
-		{
-			return Plugin_Handled;
-		}
+		return Plugin_Handled;
 	}
 	
 	if (GameRules_GetProp("m_bWarmupPeriod") != 1)
 	{
-		if(IsValidClient(attacker) && IsValidClient(victim))
+		if(IsValidClient(attacker))
 		{
-			if(attacker != victim && i_Infection == 0)
-			{	
-				if(g_bInfected[attacker] == false)
+			if(g_bInfected[attacker] != g_bInfected[victim])
+			{
+				if(!g_bInfected[attacker])
 				{
-					if(g_bUltimate[attacker] == false && gPlayerHumanClass[attacker].power)
+					if(gPlayerHumanClass[attacker].power && !i_Power[attacker])
 					{
 						f_causeddamage[attacker] += damage;
+						if(f_causeddamage[attacker] > g_cZEUltimateDamageNeed.FloatValue)
+							f_causeddamage[attacker] = g_cZEUltimateDamageNeed.FloatValue;
 					}
 					
-					if(f_causeddamage[attacker] >= 2000.0)
-					{
-						PrintHintText(attacker, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FFFFFF'>Your ultimate power is ready!");
-						PrintToChat(attacker, " \x04[ZE-Class]\x01 You have ready your \x0Bultimate power!");
-						f_causeddamage[attacker] = 0.0;
-						g_bUltimate[attacker] = true;
-					}
+					//if(f_causeddamage[attacker] >= 2000.0)
+					//{
+						//PrintHintText(attacker, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FFFFFF'>Your ultimate power is ready!");
+						//PrintToChat(attacker, " \x04[ZE-Class]\x01 You have ready your \x0Bultimate power!");
+						//f_causeddamage[attacker] = 0.0;
+						//g_bUltimate[attacker] = true;
+					//}
 				}
-				
-				if(g_bInfected[attacker] == true && g_bInfected[victim] == false)
+				else
 				{
 					if(i_protection[victim] > 0)
 					{
@@ -140,7 +147,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 	
 	if(damagetype & DMG_BLAST)
 	{
-		if(IsValidClient(victim) && attacker != victim)
+		if(attacker != victim)
 		{
 			if(ZR_IsClientHuman(victim))
 			{
