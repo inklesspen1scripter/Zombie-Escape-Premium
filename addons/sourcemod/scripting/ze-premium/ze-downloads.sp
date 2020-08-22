@@ -1,4 +1,4 @@
-void DownloadFiles()	{
+stock void DownloadFiles()	{
 	//	Use https://forums.alliedmods.net/showthread.php?t=303985
 	
 	//char file[96];
@@ -16,7 +16,7 @@ void DownloadFiles()	{
 	//}
 }
 
-public ReadFileFolder(char[] path)
+stock void ReadFileFolder(char[] path)
 {
 	//if(DirExists(path))
 	//{

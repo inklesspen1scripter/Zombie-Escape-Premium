@@ -82,7 +82,7 @@ stock bool IsClientVIP(int client)
 	return CheckCommandAccess(client, "", ADMFLAG_RESERVATION);
 }
 
-public int SpawnMarker(int client, char[] sprite)
+stock int SpawnMarker(int client, const char[] sprite)
 {
 	if (!IsPlayerAlive(client))
 	{
@@ -106,7 +106,7 @@ public int SpawnMarker(int client, char[] sprite)
 	return Ent;
 }
 
-public int AttachSprite(int client, char[] sprite) //https://forums.alliedmods.net/showpost.php?p=1880207&postcount=5
+stock int AttachSprite(int client, const char[] sprite) //https://forums.alliedmods.net/showpost.php?p=1880207&postcount=5
 {
 	if (!IsPlayerAlive(client))
 	{
@@ -386,7 +386,7 @@ void SmokeInfection(int client, float origin[3])
 	
 	int infectedplayers;
 	float targetOrigin[3];
-	for (new i = 1; i <= MaxClients; i++)
+	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (!IsClientInGame(i) || !IsPlayerAlive(i) || ZR_IsClientZombie(i))
 		{
@@ -467,7 +467,7 @@ void FlashFreeze(int client, float origin[3])
 	origin[2] += 10.0;
 	
 	float targetOrigin[3];
-	for (new i = 1; i <= MaxClients; i++)
+	for (int i = 1; i <= MaxClients; i++)
 	{
 		if (!IsClientInGame(i) || !IsPlayerAlive(i) || ZR_IsClientHuman(i))
 		{
@@ -554,7 +554,7 @@ stock void RemoveGuns(int client)
 stock int RemoveNades(int iClient)
 {
 	while (RemoveWeaponBySlot(iClient, 3)) {  }
-	for (new i = 0; i < 6; i++)
+	for (int i = 0; i < 6; i++)
 	SetEntProp(iClient, Prop_Send, "m_iAmmo", 0, _, g_iaGrenadeOffsets[i]);
 }
 
@@ -645,7 +645,7 @@ stock void StripPlayer(int client)	{
 	static int offset = -1;
 	static int size;
 
-	if(offset != -1)	{
+	if(offset == -1)	{
 		offset = FindDataMapInfo(client, "m_hMyWeapons");
 		size = GetEntPropArraySize(client, Prop_Data, "m_hMyWeapons");
 	}
@@ -664,7 +664,7 @@ stock void StripPlayerExceptKnives(int client)	{
 	static int offset = -1;
 	static int size;
 
-	if(offset != -1)	{
+	if(offset == -1)	{
 		offset = FindDataMapInfo(client, "m_hMyWeapons");
 		size = GetEntPropArraySize(client, Prop_Data, "m_hMyWeapons");
 	}

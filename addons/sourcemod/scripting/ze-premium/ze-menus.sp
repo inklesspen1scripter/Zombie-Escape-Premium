@@ -624,11 +624,12 @@ public int mRoundBanHandler(Menu menu, MenuAction action, int client, int index)
 					if(g_bInfected[user] == false)
 					{
 						CPrintToChatAll(" \x04[ZE-Admin]\x01 %t", "swaped_to_zombies", user, client);
-						CS_SwitchTeam(user, CS_TEAM_T);
-						g_bInfected[user] = true;
-						RemoveGuns(user);
-						DisableSpells(user);
-						SetPlayerAsZombie(user);
+						SetZombie(user, false);
+						//CS_SwitchTeam(user, CS_TEAM_T);
+						//g_bInfected[user] = true;
+						//RemoveGuns(user);
+						//DisableSpells(user);
+						//SetPlayerAsZombie(user);
 						Forward_OnClientInfected(user, client);
 					}
 					else
@@ -638,7 +639,6 @@ public int mRoundBanHandler(Menu menu, MenuAction action, int client, int index)
 						g_bInfected[user] = false;
 						DisableSpells(user);
 						SetPlayerAsHuman(user);
-						SetEntityGravity(user, 1.0);
 						Forward_OnClientHumanPost(user);
 					}
 					openSwapTeam(client);

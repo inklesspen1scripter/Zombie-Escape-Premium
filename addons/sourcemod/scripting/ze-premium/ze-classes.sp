@@ -88,15 +88,15 @@ void LoadClasses()	{
 	kv.Close();
 }
 
-GetHumanClass(int item, HumanClass hc)	{
+void GetHumanClass(int item, HumanClass hc)	{
 	gHumanClasses.GetArray(item, hc, sizeof hc);
 }
 
-GetZombieClass(int item, ZombieClass zc)	{
+void GetZombieClass(int item, ZombieClass zc)	{
 	gZombieClasses.GetArray(item, zc, sizeof zc);
 }
 
-FindZombieClassID(const char[] ident)	{
+int FindZombieClassID(const char[] ident)	{
 	ZombieClass zc;
 	for(int i = gZombieClasses.Length-1;i!=-1;i--)	{
 		gZombieClasses.GetArray(i, zc, sizeof zc);
@@ -105,7 +105,7 @@ FindZombieClassID(const char[] ident)	{
 	return -1;
 }
 
-FindHumanClassID(const char[] ident)	{
+int FindHumanClassID(const char[] ident)	{
 	HumanClass hc;
 	for(int i = gHumanClasses.Length-1;i!=-1;i--)	{
 		gHumanClasses.GetArray(i, hc, sizeof hc);

@@ -1,5 +1,3 @@
-#pragma semicolon 1
-
 #define DEBUG
 
 #define PLUGIN_AUTHOR "Sniper007 & inklesspen"
@@ -18,6 +16,9 @@
 native bool entWatch_IsSpecialItem(int entity);
 native bool EntWatch_IsSpecialItem(int entity);
 
+#pragma semicolon 1
+#pragma newdecls required
+
 #include "ze-premium/ze-globals.sp"
 #include "ze-premium/ze-classes.sp"
 #include "ze-premium/ze-hooks.sp"
@@ -32,8 +33,6 @@ native bool EntWatch_IsSpecialItem(int entity);
 #include "ze-premium/ze-menus.sp"
 #include "ze-premium/ze-api.sp"
 #include "ze-premium/ze-keyvalues.sp"
-
-#pragma newdecls required
 
 public Plugin myinfo = 
 {

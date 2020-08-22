@@ -207,15 +207,20 @@
 		"en"		"You got {green}1{default} frag for infecting {purple}{1}{default}!"
 	}
 	
-	"first_infected"
+	"infection_start_normal"
 	{
 		"en"		"Apocalypse has started!"
+	}
+	
+	"infection_start_nemesis"
+	{
+		"en"		"NEMESIS ! Run, run save your lives..."
 	}
 	
 	"first_infected_names"
 	{
 		"#format"	"{1:s}"
-		"en"		"First zombies: {1}"
+		"en"		"First Zombie/s: {1}"
 	}
 	
 	"riot_round"

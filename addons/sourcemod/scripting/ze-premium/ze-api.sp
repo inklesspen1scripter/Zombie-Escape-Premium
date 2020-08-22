@@ -75,20 +75,20 @@ void LoadForwards()	{
 	gF_ClientRespawned = CreateGlobalForward("ZR_OnClientRespawned", ET_Ignore, Param_Cell);
 }
 
-Forward_OnClientInfected(int victim, int attacker)	{
+void Forward_OnClientInfected(int victim, int attacker)	{
 	Call_StartForward(gF_ClientInfected);
 	Call_PushCell(victim);
 	Call_PushCell(attacker);
 	Call_Finish();
 }
 
-Forward_OnClientHumanPost(int client)	{
+void Forward_OnClientHumanPost(int client)	{
 	Call_StartForward(gF_ClientHumanPost);
 	Call_PushCell(client);
 	Call_Finish();
 }
 
-Forward_OnClientRespawned(int client)	{
+void Forward_OnClientRespawned(int client)	{
 	Call_StartForward(gF_ClientRespawned);
 	Call_PushCell(client);
 	Call_Finish();

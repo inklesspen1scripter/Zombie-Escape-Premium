@@ -110,8 +110,12 @@ public Action FirstInfection(Handle timer)
 		else if(GetRandomInt(1, 100) <= g_cZENemesis.IntValue)	{
 			gRoundType = ROUND_NEMESIS;
 			EmitSoundToAll("ze_premium/ze-nemesis.mp3");
+			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "infection_start_nemesis");
 		}
-		else	gRoundType = ROUND_NORMAL;
+		else	{
+			gRoundType = ROUND_NORMAL;
+			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "infection_start_normal");
+		}
 
 		int user;
 		char sNames[128] = "";
@@ -149,7 +153,6 @@ public Action FirstInfection(Handle timer)
 					}
 				}
 			}
-			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected");
 			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected_names", sNames);
 
 			CreateTimer(g_cZEInfectionTime.FloatValue, AntiDisconnect, GetClientUserId(user));
