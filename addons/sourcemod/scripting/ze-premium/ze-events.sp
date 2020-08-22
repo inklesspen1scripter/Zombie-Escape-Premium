@@ -3,10 +3,18 @@ void LoadEvents()	{
 	HookEvent("player_death", OnPlayerDeath);
 	HookEvent("round_end", OnRoundEnd);
 	HookEvent("player_spawn", Event_Spawn, EventHookMode_Post);
+	HookEvent("player_team", Event_Team, EventHookMode_Post);
 	HookEvent("player_hurt", Event_PlayerHurt, EventHookMode_Pre);
 	HookEvent("hegrenade_detonate", OnHeGrenadeDetonate);
 }
 
+public void Event_Team(Handle event, char[] name, bool dontBroadcast)
+{
+	int client = GetClientOfUserId(GetEventInt(event, "userid"));
+	if(client && IsClientSourceTV(client))	{
+		ThrowError("IT IS SOURCETV");
+	}	
+}
 public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(GetEventInt(event, "userid"));
@@ -81,10 +89,6 @@ public Action Event_Spawn(Event gEventHook, const char[] gEventName, bool iDontB
 {
 	int iClient = GetClientOfUserId(GetEventInt(gEventHook, "userid"));
 	if(!iClient || GetClientTeam(iClient) > 1)	return;
-	
-	if(IsClientSourceTV(iClient))	{
-		ThrowError("IT IS SOURCETV");
-	}
 
 	if(i_Infection > 0)
 	{

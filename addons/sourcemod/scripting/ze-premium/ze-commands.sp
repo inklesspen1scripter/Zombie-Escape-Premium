@@ -151,7 +151,7 @@ public Action CMD_WeaponAlias(int client, int args)
 
 public Action CMD_GetGun(int client, int args)
 {
-	if (g_bInfected[client] == false)
+	if (!g_bInfected[client])
 	{
 		if (Primary_Gun[client][0] || Secondary_Gun[client][0])
 		{

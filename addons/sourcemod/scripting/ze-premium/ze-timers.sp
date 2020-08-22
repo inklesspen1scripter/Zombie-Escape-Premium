@@ -122,7 +122,7 @@ public Action FirstInfection(Handle timer)
 			user = ctoz[l];
 			EraseArrayItem(l, ctoz, ctozc);
 			la = strlen(sNames);
-			if(la)	la += strcopy(sNames, sizeof sNames - la, ", ");
+			if(la)	la += strcopy(sNames[la], sizeof sNames - la, ", ");
 			GetClientName(user, sNames[la], lu);
 
 			SetZombie(user, g_cZETeleportFirstToSpawn.BoolValue, true);
@@ -307,10 +307,14 @@ public Action HUD(Handle timer)
 						}
 						else if(f_causeddamage[i] < g_cZEUltimateDamageNeed.FloatValue)
 						{
-							static char buf[4] = "☐";
-							int chars = RoundToFloor(5.0 * f_causeddamage[i] / g_cZEUltimateDamageNeed.FloatValue) * strlen(buf);
-							strcopy(progress, chars + 1, "☒☒☒☒☒");
-							strcopy(progress[chars], 6 - chars, "☐☐☐☐☐");
+							static int charsize = -1;
+							if(charsize == -1)	{
+								char buf[4] = "☐";
+								charsize = strlen(buf);
+							} 
+							int chars = RoundToFloor(5.0 * f_causeddamage[i] / g_cZEUltimateDamageNeed.FloatValue);
+							strcopy(progress, chars * charsize + 1, "☒☒☒☒☒");
+							strcopy(progress[chars], 1 + (5 - chars) * charsize, "☐☐☐☐☐");
 						}
 						else
 						{
