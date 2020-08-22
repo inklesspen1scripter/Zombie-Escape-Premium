@@ -80,7 +80,7 @@ public void OnClientCookiesCached(int client)	{
 		szClass[pos++] = 0;
 		strcopy(Primary_Gun[client], sizeof Primary_Gun[], szClass);
 		strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], szClass[pos]);
-		if(gWeaponList1.FindString(Primary_Gun[client]) == -1)	gWeaponList1.GetString(0, Primary_Gun[client] sizeof Primary_Gun[]);
-		if(gWeaponList2.FindString(Secondary_Gun[client]) == -1)	gWeaponList2.GetString(0, Secondary_Gun[client] sizeof Secondary_Gun[]);
+		if(gWeaponList1.FindString(Primary_Gun[client]) == -1)	gWeaponList1.GetString(0, Primary_Gun[client], sizeof Primary_Gun[]);
+		if(gWeaponList2.FindString(Secondary_Gun[client]) == -1)	gWeaponList2.GetString(0, Secondary_Gun[client], sizeof Secondary_Gun[]);
 	}
 }

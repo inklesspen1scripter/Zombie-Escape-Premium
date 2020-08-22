@@ -88,7 +88,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 public Action Event_Spawn(Event gEventHook, const char[] gEventName, bool iDontBroadcast)
 {
 	int iClient = GetClientOfUserId(GetEventInt(gEventHook, "userid"));
-	if(!iClient || GetClientTeam(iClient) > 1)	return;
+	if(!iClient || GetClientTeam(iClient) <= 1)	return;
 
 	if(i_Infection > 0)
 	{
