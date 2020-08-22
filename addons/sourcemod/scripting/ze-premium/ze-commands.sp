@@ -167,7 +167,7 @@ public Action CMD_GetGun(int client, int args)
 					strcopy(sBuffer[7], sizeof sBuffer - 7, Primary_Gun[client]);
 					GivePlayerItem2(client, sBuffer);
 				}
-				if (Secondary_Gun[client][0] == 'w')
+				if (Secondary_Gun[client][0])
 				{
 					strcopy(sBuffer[7], sizeof sBuffer - 7, Primary_Gun[client]);
 					int secweapon = GetPlayerWeaponSlot(client, CS_SLOT_SECONDARY);

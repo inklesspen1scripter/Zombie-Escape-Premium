@@ -75,10 +75,12 @@ public void OnClientCookiesCached(int client)	{
 	g_hSavedWeapons.Get(client, szClass, sizeof szClass);
 	if(szClass[0])	{
 		int pos = FindCharInString(szClass, ';');
+		if(pos == -1)	return;
+
 		szClass[pos++] = 0;
-		int s = 0;
-		if(!strncmp("weapon_", szClass, 7))	s = 7;
-		strcopy(Primary_Gun[client], sizeof Primary_Gun[], szClass[s]);
-		strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], szClass[pos + s]);
+		strcopy(Primary_Gun[client], sizeof Primary_Gun[], szClass);
+		strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], szClass[pos]);
+		if(gWeaponList1.FindString(Primary_Gun[client]) == -1)	gWeaponList1.GetString(0, Primary_Gun[client] sizeof Primary_Gun[]);
+		if(gWeaponList2.FindString(Secondary_Gun[client]) == -1)	gWeaponList2.GetString(0, Secondary_Gun[client] sizeof Secondary_Gun[]);
 	}
 }

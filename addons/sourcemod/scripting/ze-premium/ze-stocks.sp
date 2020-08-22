@@ -657,7 +657,7 @@ stock StripPlayer(int client)	{
 stock void EraseArrayItem(int item, any[] data, int &count)	{
 	count--;
 	for(int i = item;i!=count;)	{
-		data[i] = data[i++];
+		data[i] = data[++i];
 	}
 }
 

@@ -1010,10 +1010,11 @@ public int MenuHandler_WeaponsSelect(Menu menu, MenuAction action, int client, i
 }
 
 void ChoosePlayerGun(int client, const char[] alias, bool primary)	{
-	char sBuffer[32];
-	strcopy(sBuffer, sizeof sBuffer, alias);
 	if(primary)	strcopy(Primary_Gun[client], sizeof Primary_Gun[], alias);
 	else	strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], alias);
+	
+	char sBuffer[32];
+	strcopy(sBuffer, sizeof sBuffer, alias);
 	CS_GetTranslatedWeaponAlias(sBuffer, sBuffer, sizeof sBuffer);
 	CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "chosen_gun", sBuffer);
 }
