@@ -474,7 +474,7 @@ void FlashFreeze(int client, float origin[3])
 		
 		GetClientAbsOrigin(i, targetOrigin);
 		targetOrigin[2] += 2.0;
-		if (GetVectorDistance(origin, targetOrigin) <= g_cZEFreezenadedistance.FloatValue)
+		if (GetVectorDistance(origin, targetOrigin) <= g_cZEFreezeNadeDistance.FloatValue)
 		{
 			Handle trace = TR_TraceRayFilterEx(origin, targetOrigin, MASK_SOLID, RayType_EndPoint, FilterTarget, i);
 			
@@ -507,7 +507,7 @@ void FlashFreeze(int client, float origin[3])
 		}
 	}
 	
-	TE_SetupBeamRingPoint(origin, 10.0, g_cZEFreezenadedistance.FloatValue, g_iBeamSprite, g_iHaloSprite, 1, 1, 0.2, 100.0, 1.0, FlashColor, 0, 0);
+	TE_SetupBeamRingPoint(origin, 10.0, g_cZEFreezeNadeDistance.FloatValue, g_iBeamSprite, g_iHaloSprite, 1, 1, 0.2, 100.0, 1.0, FlashColor, 0, 0);
 	TE_SendToAll();
 	LightCreate(SMOKE, origin);
 }

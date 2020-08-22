@@ -63,7 +63,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 					FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-die%i.mp3", die);
 					EmitSoundToAll(soundPath, client);
 				}
-				CreateTimer(1.0, Respawn, client);
+				CreateTimer(1.0, Respawn, GetClientOfUserId(client));
 				if(GetZombieAliveCount() == 0)
 				{
 					CreateTimer(1.0, EndOfRound);
@@ -80,7 +80,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 public Action Event_Spawn(Event gEventHook, const char[] gEventName, bool iDontBroadcast)
 {
 	int iClient = GetClientOfUserId(GetEventInt(gEventHook, "userid"));
-	if(!iClient)	return;
+	if(!iClient || GetClientTeam(iClient) > 1)	return;
 	
 	if(i_Infection > 0)
 	{

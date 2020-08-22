@@ -31,11 +31,13 @@ public Action FirstInfection(Handle timer)
 	{	
 		CheckTimer(); // show timer
 		
+		SetHudTextParams(-1.0, 0.1, 1.02, 0, 255, 0, 255, 0, 0.0, 0.0, 0.0);
+		char text[4];
+		strcopy(text, (GetTime() % 3) + 2, "...");
 		for (int i = MaxClients; i ; i--)
 		{
 			if (IsValidClient(i) && !IsFakeClient(i))
 			{
-				SetHudTextParams(-1.0, 0.1, 1.02, 0, 255, 0, 255, 0, 0.0, 0.0, 0.0);
 				if(numberofplayers >= g_cZEMinConnectedPlayers.IntValue)
 				{
 					if(i_infectionban[i] > 0)
@@ -56,8 +58,6 @@ public Action FirstInfection(Handle timer)
 				}
 				else
 				{
-					char text[4];
-					strcopy(text, (GetTime() % 3) + 2, "...");
 					ShowHudText(i, -1, "Waiting for players%s\nPlayer on server: %i/%i", text, numberofplayers, g_cZEMinConnectedPlayers.IntValue);
 				}
 			}

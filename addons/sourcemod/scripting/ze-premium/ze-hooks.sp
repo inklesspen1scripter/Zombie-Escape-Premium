@@ -50,7 +50,7 @@ public void Grenade_SpawnPost(int entity)
 	}
 	else if (!strcmp(classname, "decoy_projectile"))
 	{
-		if (g_cZEFlashbangEffect.IntValue == 1)
+		if (g_cZEFreezeNadeEffect.IntValue == 1)
 		{
 			BeamFollowCreate(entity, FlashColor);
 			CreateTimer(1.3, CreateEvent_DecoyDetonate, EntIndexToEntRef(entity), TIMER_FLAG_NO_MAPCHANGE);

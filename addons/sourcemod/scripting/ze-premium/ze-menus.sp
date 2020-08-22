@@ -173,17 +173,17 @@ void openShop(int client)
 	
 	menu.SetTitle("[Shop] Main Menu:");
 	if(ZR_IsClientHuman(client))	{
-		FormatEx(text, sizeof(text), "Health-Shot [%i $] [HUMAN]", g_cZEHealthShot.IntValue);
+		FormatEx(text, sizeof(text), "Health-Shot [%i $]", g_cZEHealthShot.IntValue);
 		menu.AddItem("11", text);
-		FormatEx(text, sizeof(text), "Fire Grenade [%i $] [HUMAN]", g_cZEHeNade.IntValue);
+		FormatEx(text, sizeof(text), "Fire Grenade [%i $]", g_cZEHeNade.IntValue);
 		menu.AddItem("12", text);
-		FormatEx(text, sizeof(text), "[VIP] Freeze Grenade [%i $] [HUMAN]", g_cZEFlashNade.IntValue);
+		FormatEx(text, sizeof(text), "[VIP] Freeze Grenade [%i $]", g_cZEFreezeNadePrice.IntValue);
 		menu.AddItem("131", text, !IsClientVIP(client));
-		FormatEx(text, sizeof(text), "Molotov [%i $] [HUMAN]", g_cZEMolotov.IntValue);
+		FormatEx(text, sizeof(text), "Molotov [%i $]", g_cZEMolotov.IntValue);
 		menu.AddItem("14", text);
 	}
 	else	{
-		FormatEx(text, sizeof(text), "[VIP] Infection Grenade [%i $] [ZOMBIE]", g_cZEInfnade.IntValue);
+		FormatEx(text, sizeof(text), "[VIP] Infection Grenade [%i $]", g_cZEInfnade.IntValue);
 		menu.AddItem("21", text, !IsClientVIP(client));
 	}
 	
@@ -242,11 +242,11 @@ public int mZeShopHandler(Menu menu, MenuAction action, int client, int index)
 					}
 					else if (szItem[1] == '3')
 					{
-						if(money >= g_cZEFlashNade.IntValue)
+						if(money >= g_cZEFreezeNadePrice.IntValue)
 						{
 							GivePlayerItem2(client, "weapon_decoy");
-							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEFlashNade.IntValue);
-							spended[client] += g_cZEFlashNade.IntValue;
+							SetEntProp(client, Prop_Send, "m_iAccount", money - g_cZEFreezeNadePrice.IntValue);
+							spended[client] += g_cZEFreezeNadePrice.IntValue;
 							strcopy(szBoughtItem, sizeof(szBoughtItem), "Freeze Grenade");	
 							CPrintToChat(client, " \x04[ZE-Shop]\x01 %t", "bought_item", szBoughtItem);
 						}
