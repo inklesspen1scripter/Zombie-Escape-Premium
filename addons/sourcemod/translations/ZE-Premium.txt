@@ -209,8 +209,13 @@
 	
 	"first_infected"
 	{
-		"#format"	"{1:N}"
-		"en"		"Player {green}{1}{default} is first zombie! Apocalypse has started!"
+		"en"		"Apocalypse has started!"
+	}
+	
+	"first_infected_names"
+	{
+		"#format"	"{1:s}"
+		"en"		"First zombies: {1}"
 	}
 	
 	"riot_round"

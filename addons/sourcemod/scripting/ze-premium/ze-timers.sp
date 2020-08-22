@@ -114,10 +114,13 @@ public Action FirstInfection(Handle timer)
 		else	gRoundType = ROUND_NORMAL;
 
 		int user;
+		char sNames[128] = "";
+		int lu = (sizeof sNames - 1) / ctozc;
 		for(int z = 0;ctozc;z++)	{
 			l = GetRandomInt(0, ctozc-1);
 			user = ctoz[l];
 			EraseArrayItem(l, ctoz, ctozc);
+			GetClientName(user, sNames[strlen(sNames)], lu);
 
 			SetZombie(user, g_cZETeleportFirstToSpawn.BoolValue, true);
 			if(g_cZEMotherZombieHP.IntValue)	SetEntityHealth(user, g_cZEMotherZombieHP.IntValue);
@@ -129,7 +132,7 @@ public Action FirstInfection(Handle timer)
 				}
 				else if(gRoundType != ROUND_RIOT)	{
 					char soundPath[PLATFORM_MAX_PATH];
-					Format(soundPath, sizeof(soundPath), "ze_premium/ze-firstzm%i.mp3", GetRandomInt(1, 3));
+					FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-firstzm%i.mp3", GetRandomInt(1, 3));
 					EmitSoundToAll(soundPath);
 				}
 
@@ -139,11 +142,12 @@ public Action FirstInfection(Handle timer)
 					if (IsClientInGame(i))
 					{
 						ShowHudText(i, -1, (gRoundType == ROUND_NEMESIS) ? "Player %N is NEMESIS ! Run, run save your lives..." :
-							"Player %N was infected ! Apocalypse has started...", user);
+							"Players was infected ! Apocalypse has started...", user);
 					}
 				}
-				CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected", user);
 			}
+			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected");
+			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected_names", sNames);
 
 			CreateTimer(g_cZEInfectionTime.FloatValue, AntiDisconnect, GetClientUserId(user));
 			g_bAntiDisconnect[user] = true;
@@ -203,7 +207,7 @@ public Action AntiDisconnect(Handle timer, int client)
 public Action SwitchTeam(Handle timer, int client)
 {
 	client = GetClientOfUserId(client);
-	if(client)
+	if(client && !IsClientSourceTV(client) && !IsClientReplay(client))
 	{
 		if(g_bRoundStarted == true)
 		{
@@ -304,7 +308,7 @@ public Action HUD(Handle timer)
 							if(f_causeddamage[i] >= 2000)strcopy(progress, sizeof(progress), "☒☒☒☒☐");
 							else if(f_causeddamage[i] >= 1000)strcopy(progress, sizeof(progress), "☒☒☒☐☐");
 							else if(f_causeddamage[i] >= 500)strcopy(progress, sizeof(progress), "☒☒☐☐☐");
-							else if(f_causeddamage[i] < 500)strcopy(progress, sizeof(progress), "☒☐☐☐☐");
+							else strcopy(progress, sizeof(progress), "☒☐☐☐☐");
 						}
 						SetHudTextParams(-1.0, -0.05, 1.02, 65, 105, 225, 255, 0, 0.0, 0.0, 0.0);
 						ShowHudText(i, -1, "Type: Human | Class: %s | Won rounds: %i\nUltimate Power: %s", gPlayerHumanClass[i].name, i_hwins[i], progress);
