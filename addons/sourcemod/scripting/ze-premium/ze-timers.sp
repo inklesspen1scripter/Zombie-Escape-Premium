@@ -115,12 +115,15 @@ public Action FirstInfection(Handle timer)
 
 		int user;
 		char sNames[128] = "";
-		int lu = (sizeof sNames - 1) / ctozc;
+		int lu = (sizeof sNames - 1) / ctozc - 2;
+		int la;
 		for(int z = 0;ctozc;z++)	{
 			l = GetRandomInt(0, ctozc-1);
 			user = ctoz[l];
 			EraseArrayItem(l, ctoz, ctozc);
-			GetClientName(user, sNames[strlen(sNames)], lu);
+			la = strlen(sNames);
+			if(la)	la += strcopy(sNames, sizeof sNames - la, ", ");
+			GetClientName(user, sNames[la], lu);
 
 			SetZombie(user, g_cZETeleportFirstToSpawn.BoolValue, true);
 			if(g_cZEMotherZombieHP.IntValue)	SetEntityHealth(user, g_cZEMotherZombieHP.IntValue);
@@ -304,7 +307,8 @@ public Action HUD(Handle timer)
 						}
 						else if(f_causeddamage[i] < g_cZEUltimateDamageNeed.FloatValue)
 						{
-							int chars = RoundToFloor(5.0 * f_causeddamage[i] / g_cZEUltimateDamageNeed.FloatValue);
+							static char buf[4] = "☐";
+							int chars = RoundToFloor(5.0 * f_causeddamage[i] / g_cZEUltimateDamageNeed.FloatValue) * strlen(buf);
 							strcopy(progress, chars + 1, "☒☒☒☒☒");
 							strcopy(progress[chars], 6 - chars, "☐☐☐☐☐");
 						}

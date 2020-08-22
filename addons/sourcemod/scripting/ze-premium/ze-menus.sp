@@ -998,7 +998,7 @@ public int MenuHandler_WeaponsSelect(Menu menu, MenuAction action, int client, i
 		{
 			char info[32];
 			GetMenuItem(menu, item, info, sizeof(info));
-			ChoosePlayerGun(client, info[1], info[1] == '1');
+			ChoosePlayerGun(client, info[1], info[0] == '1');
 			CPrintToChat(client, " \x04[ZE-Weapons]\x01 %t", "get_the_gun");
 			openWeapons(client);
 		}

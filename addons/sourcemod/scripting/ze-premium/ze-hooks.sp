@@ -6,9 +6,12 @@ void LoadPlayerHooks(int client)	{
 
 public void OnWeaponEquipPost(int client, int weapon)	{
 	if(ZR_IsClientZombie(client))	{
-		char sBuffer[8];
+		char sBuffer[16];
 		GetEntityNetClass(weapon, sBuffer, sizeof sBuffer);
-		if(strncmp(sBuffer, "CKnife", 6))	ThrowError("123321123");
+		if(strncmp(sBuffer, "CKnife", 6) &&
+			strcmp(sBuffer, "CWeaponShield") &&
+			strcmp(sBuffer, "CSmokeGrenade"))
+			ThrowError("123321123");
 	}
 }
 
@@ -28,7 +31,7 @@ public void WeaponReloadPost(int weapon, bool success)	{
 	int client = GetEntPropEnt(weapon, Prop_Send, "m_hOwner");
 	if(client == -1 || ZR_IsClientZombie(client))	return;
 
-	if(g_cZEReloadingSound.BoolValue)	{
+	if(g_cZEReloadingSound.BoolValue && !(g_cZEReloadingMaxHuman.IntValue && g_cZEReloadingMaxHuman.IntValue < GetTeamClientCount(CS_TEAM_CT)))	{
 		if(GetGameTime() >= gPlayerNextReloadSound[client])	{
 			gPlayerNextReloadSound[client] = GetGameTime() + g_cZEReloadingSoundCooldown.FloatValue;
 			char soundPath[32];

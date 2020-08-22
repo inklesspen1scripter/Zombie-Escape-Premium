@@ -159,9 +159,7 @@ public void OnMapStart()
 				if(sBuffer[0] && CS_IsValidWeaponID(CS_AliasToWeaponID(sBuffer)))
 					gWeaponList1.PushString(sBuffer);
 				}	while(kv.GotoNextKey(false));
-			kv.GoBack();
 		}
-		kv.GoBack();
 	}
 
 	if(!gWeaponList1.Length){
@@ -169,6 +167,7 @@ public void OnMapStart()
 		gWeaponList1.PushString("m4a1");
 	}
 
+	kv.Rewind();
 	if(kv.JumpToKey("secondary", false))	{
 		if(kv.GotoFirstSubKey(false))	{
 			do	{
@@ -204,6 +203,5 @@ public void OnMapStart()
 	Make gun menu like francisco
 	Ability to define with cvar Ultimate power button
 	!voteleader
-	Ultimate cooldown and damage cvars
 	Knockback cvars
 */

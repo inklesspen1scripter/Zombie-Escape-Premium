@@ -18,7 +18,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 	{
 		if (IsValidClient(client))
 		{	
-			if(g_bInfected[client] == false)
+			if(!g_bInfected[client])
 			{
 				DisableTimers(client);
 				DisableSpells(client);
@@ -38,18 +38,18 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 				if(i_Infection > 0)
 				{
 					float nextrespawn = float(i_Infection);
-					H_Respawntimer[client] = CreateTimer(nextrespawn, Respawn, GetClientOfUserId(client));
+					H_Respawntimer[client] = CreateTimer(nextrespawn, Respawn, GetClientUserId(client));
 				}
 				else
 				{
-					CreateTimer(1.0, Respawn, GetClientOfUserId(client));
+					CreateTimer(1.0, Respawn, GetClientUserId(client));
 				}
 				if(GetHumanAliveCount() == 0)
 				{
 					CreateTimer(1.0, EndOfRound);
 				}
 			}
-			else if(g_bInfected[client] == true)
+			else
 			{
 				i_killedzm[attacker]++;
 				int die = GetRandomInt(1, 3);
@@ -63,7 +63,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 					FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-die%i.mp3", die);
 					EmitSoundToAll(soundPath, client);
 				}
-				CreateTimer(1.0, Respawn, GetClientOfUserId(client));
+				CreateTimer(1.0, Respawn, GetClientUserId(client));
 				if(GetZombieAliveCount() == 0)
 				{
 					CreateTimer(1.0, EndOfRound);
@@ -73,7 +73,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 	}
 	else
 	{
-		CreateTimer(1.0, Respawn, GetClientOfUserId(client));
+		CreateTimer(1.0, Respawn, GetClientUserId(client));
 	}
 }
 
@@ -82,6 +82,10 @@ public Action Event_Spawn(Event gEventHook, const char[] gEventName, bool iDontB
 	int iClient = GetClientOfUserId(GetEventInt(gEventHook, "userid"));
 	if(!iClient || GetClientTeam(iClient) > 1)	return;
 	
+	if(IsClientSourceTV(iClient))	{
+		ThrowError("IT IS SOURCETV");
+	}
+
 	if(i_Infection > 0)
 	{
 		SetPlayerAsHuman(iClient);

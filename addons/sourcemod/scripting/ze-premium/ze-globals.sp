@@ -64,6 +64,7 @@ ConVar g_cZEHUMANwinmodelVmt;
 ConVar g_cZEHUMANwinmodelVtf;
 ConVar g_cZEHUMANwinmodel;
 ConVar g_cZEZMwinmodel;
+ConVar g_cZEReloadingMaxHuman;
 ConVar g_cZEReloadingSound;
 ConVar g_cZEReloadingSoundType;
 ConVar g_cZEMinConnectedPlayers;
