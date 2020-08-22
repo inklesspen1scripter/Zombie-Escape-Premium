@@ -635,7 +635,7 @@ stock char[] GetPowerName(int power)	{
 	return sBuffer;
 }
 
-stock StripPlayer(int client)	{
+stock void StripPlayer(int client)	{
 	static int offset = -1;
 	static int size;
 
@@ -648,6 +648,28 @@ stock StripPlayer(int client)	{
 	for(int i = 0;i!=size;i++)	{
 		weapon = GetEntDataEnt2(client, offset + i * 4);
 		if(weapon != -1)	{
+			RemovePlayerItem(client, weapon);
+			RemoveEdict(weapon);
+		}
+	}
+}
+
+stock void StripPlayerExceptKnives(int client)	{
+	static int offset = -1;
+	static int size;
+
+	if(offset != -1)	{
+		offset = FindDataMapInfo(client, "m_hMyWeapons");
+		size = GetEntPropArraySize(client, Prop_Data, "m_hMyWeapons");
+	}
+
+	int weapon;
+	char sBuffer[8];
+	for(int i = 0;i!=size;i++)	{
+		weapon = GetEntDataEnt2(client, offset + i * 4);
+		if(weapon != -1)	{
+			GetEntityNetClass(weapon, sBuffer, sizeof sBuffer);
+			if(strncmp(sBuffer, "CKnife", 6))	continue;
 			RemovePlayerItem(client, weapon);
 			RemoveEdict(weapon);
 		}

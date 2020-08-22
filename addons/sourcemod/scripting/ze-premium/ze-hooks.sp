@@ -2,10 +2,20 @@ void LoadPlayerHooks(int client)	{
 	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamage);
 	SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
 	SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
+	SDKHook(client, SDKHook_WeaponEquip, OnWeaponEquip);
+}
+
+public Action OnWeaponEquip(int client, int weapon)	{
+	if(weapon == -1)	return Plugin_Continue;
+	char sBuffer[8];
+	GetEntityNetClass(weapon, sBuffer, sizeof sBuffer);
+	if(!strncmp(sBuffer, "CKnife", 6))	StripPlayerExceptKnives(client);
+	return Plugin_Continue;
 }
 
 public void OnWeaponEquipPost(int client, int weapon)	{
 	if(ZR_IsClientZombie(client))	{
+		if(weapon == -1)	return;
 		char sBuffer[16];
 		GetEntityNetClass(weapon, sBuffer, sizeof sBuffer);
 		if(strncmp(sBuffer, "CKnife", 6) &&

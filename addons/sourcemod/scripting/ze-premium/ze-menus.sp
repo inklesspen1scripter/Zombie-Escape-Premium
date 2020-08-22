@@ -872,7 +872,7 @@ void ShowPlayerZMClass(int client)	{
 			sBuffer[len++] = '\n';
 			strcopy(sBuffer[len], sizeof sBuffer - len, zc.desc);
 		}
-		zmmenu.AddItem(zc.ident, zc.name, i == gPlayerSelectedClass[i][1]);
+		zmmenu.AddItem(zc.ident, zc.name, i == gPlayerSelectedClass[client][1]);
 	}
 	zmmenu.Display(client, 0);
 	return;
@@ -930,7 +930,7 @@ void ShowPlayerHumanClass(int client)	{
 			sBuffer[len++] = '\n';
 			strcopy(sBuffer[len], sizeof sBuffer - len, hc.desc);
 		}
-		zmmenu.AddItem(hc.ident, sBuffer, i == gPlayerSelectedClass[i][0]);
+		zmmenu.AddItem(hc.ident, sBuffer, i == gPlayerSelectedClass[client][0]);
 	}
 	zmmenu.Display(client, 0);
 	return;
@@ -1012,7 +1012,7 @@ public int MenuHandler_WeaponsSelect(Menu menu, MenuAction action, int client, i
 void ChoosePlayerGun(int client, const char[] alias, bool primary)	{
 	if(primary)	strcopy(Primary_Gun[client], sizeof Primary_Gun[], alias);
 	else	strcopy(Secondary_Gun[client], sizeof Secondary_Gun[], alias);
-	
+
 	char sBuffer[32];
 	strcopy(sBuffer, sizeof sBuffer, alias);
 	CS_GetTranslatedWeaponAlias(sBuffer, sBuffer, sizeof sBuffer);
