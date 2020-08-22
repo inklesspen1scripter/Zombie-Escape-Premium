@@ -11,7 +11,6 @@
 #include <smlib>
 #include <sdkhooks>
 #include <zepremium>
-#include <emitsoundany>
 
 native bool entWatch_IsSpecialItem(int entity);
 native bool EntWatch_IsSpecialItem(int entity);
@@ -21,6 +20,7 @@ native bool EntWatch_IsSpecialItem(int entity);
 
 #include "ze-premium/ze-globals.sp"
 #include "ze-premium/ze-classes.sp"
+#include "ze-premium/ze-sounds.sp"
 #include "ze-premium/ze-hooks.sp"
 #include "ze-premium/ze-commands.sp"
 #include "ze-premium/ze-convars.sp"
@@ -45,19 +45,21 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	LoadTranslations("ZE-Premium");
+
+	gSoundList = new StringMap();
+	gWeaponList1 = new ArrayList(ByteCountToCells(32));
+	gWeaponList2 = new ArrayList(ByteCountToCells(32));
+	g_hZombieClass = RegClientCookie("zombie_class_chosen", "", CookieAccess_Private);
+	g_hHumanClass = RegClientCookie("human_class_chosen", "", CookieAccess_Private);
+	g_hSavedWeapons = new Cookie("ze_weapon_selected", "", CookieAccess_Private);
+	
 	LoadEvents();
 	LoadConVars();
 	LoadCommands();
 	LoadForwards();
 
 	PrepareClasses();
-	LoadTranslations("ZE-Premium");
-	
-	gWeaponList1 = new ArrayList(ByteCountToCells(32));
-	gWeaponList2 = new ArrayList(ByteCountToCells(32));
-	g_hZombieClass = RegClientCookie("zombie_class_chosen", "", CookieAccess_Private);
-	g_hHumanClass = RegClientCookie("human_class_chosen", "", CookieAccess_Private);
-	g_hSavedWeapons = new Cookie("ze_weapon_selected", "", CookieAccess_Private);
 	
 	CreateTimer(1.0, HUD, _, TIMER_REPEAT);
 	CreateTimer(5.0, PointsCheck, _, TIMER_REPEAT);
@@ -185,6 +187,7 @@ public void OnMapStart()
 	kv.Close();
 
 	LoadClasses();
+	LoadSounds();
 	
 	//AUTOMATIC DOWNLOAD
 	LoadStaticDownloads();
@@ -203,4 +206,6 @@ public void OnMapStart()
 	Ability to define with cvar Ultimate power button
 	!voteleader
 	Knockback cvars
+	Separate custom rounds
+	separate and improve (or rewrite) statistics (and change command) https://github.com/hallucinogenic/-ZR-Zombie-Rank
 */

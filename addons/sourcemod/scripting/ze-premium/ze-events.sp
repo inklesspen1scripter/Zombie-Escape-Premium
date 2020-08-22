@@ -30,17 +30,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 			{
 				DisableTimers(client);
 				DisableSpells(client);
-				int die = GetRandomInt(1, 3);
-				if(die == 1)
-				{
-					EmitSoundToAll("ze_premium/ze-ctdie.mp3", client);
-				}
-				else
-				{
-					char soundPath[PLATFORM_MAX_PATH];
-					FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-ctdie%i.mp3", die);
-					EmitSoundToAll(soundPath, client);
-				}
+				Sound_EmitToAll("human_die", client);
 				g_bInfected[client] = true;
 				CS_SwitchTeam(client, CS_TEAM_T);
 				if(i_Infection > 0)
@@ -61,17 +51,7 @@ public void OnPlayerDeath(Handle event, char[] name, bool dontBroadcast)
 			else
 			{
 				i_killedzm[attacker]++;
-				int die = GetRandomInt(1, 3);
-				if(die == 1)
-				{
-					EmitSoundToAll("ze_premium/ze-die.mp3", client);
-				}
-				else
-				{
-					char soundPath[PLATFORM_MAX_PATH];
-					FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-die%i.mp3", die);
-					EmitSoundToAll(soundPath, client);
-				}
+				Sound_EmitToAll("zombie_die", client);
 				CreateTimer(1.0, Respawn, GetClientUserId(client));
 				if(GetZombieAliveCount() == 0)
 				{
@@ -208,19 +188,11 @@ public void OnRoundEnd(Handle event, char[] name, bool dontBroadcast)
 	
 	if(winner_team == 2)
 	{
-		EmitSoundToAll("ze_premium/ze-zombiewin.mp3");
+		Sound_EmitToAll("zombie_win");
 	}
 	else if(winner_team == 3)
 	{
-		int random = GetRandomInt(1, 2);
-		if(random == 1)
-		{
-			EmitSoundToAll("ze_premium/ze-humanwin2.mp3");
-		}
-		else
-		{
-			EmitSoundToAll("ze_premium/ze-humanwin1.mp3");
-		}
+		Sound_EmitToAll("human_win");
 	}
 	
 	for (int i = 1; i <= MaxClients; i++)

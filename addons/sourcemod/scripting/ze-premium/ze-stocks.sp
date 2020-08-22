@@ -168,11 +168,9 @@ public void RemoveMarker(int client)
 
 void CheckTimer()
 {
-	if(0 < i_Infection && i_Infection <= 10)	{
-		char sBuffer[20];
-		FormatEx(sBuffer, sizeof sBuffer, "ze_premium/%i.mp3", i_Infection);
-		EmitSoundToAll(sBuffer);
-	}
+	char sBuffer[16];
+	FormatEx(sBuffer, sizeof sBuffer, "counting_%i", i_Infection);
+	Sound_EmitToAll(sBuffer);
 }
 
 void CheckTeam(int client)
@@ -234,17 +232,7 @@ void HumanPain(int victim)
 	if (i_pause[victim] >= 2)
 	{
 		i_pause[victim] = 0;
-		int hit = GetRandomInt(1, 4);
-		if (hit == 1)
-		{
-			EmitSoundToAll("ze_premium/ze-humanpain.mp3", victim);
-		}
-		else
-		{
-			char soundPath[PLATFORM_MAX_PATH];
-			Format(soundPath, sizeof(soundPath), "ze_premium/ze-humanpain%i.mp3", hit);
-			EmitSoundToAll(soundPath, victim);
-		}
+		Sound_EmitToAll("human_pain", victim);
 	}
 }
 
@@ -256,31 +244,11 @@ void ZombiePain(int victim)
 		i_pause[victim] = 0;
 		if (!strcmp(gPlayerZombieClass[victim].ident, gZombieNemesis.ident))
 		{
-			int hit = GetRandomInt(1, 3);
-			if (hit == 1)
-			{
-				EmitSoundToAll("ze_premium/ze-nemesispain.mp3", victim);
-			}
-			else
-			{
-				char soundPath[PLATFORM_MAX_PATH];
-				Format(soundPath, sizeof(soundPath), "ze_premium/ze-nemesispain%i.mp3", hit);
-				EmitSoundToAll(soundPath, victim);
-			}
+			Sound_EmitToAll("nemesis_pain", victim);
 		}
 		else
 		{
-			int hit = GetRandomInt(1, 6);
-			if (hit == 1)
-			{
-				EmitSoundToAll("ze_premium/ze-pain.mp3", victim);
-			}
-			else
-			{
-				char soundPath[PLATFORM_MAX_PATH];
-				Format(soundPath, sizeof(soundPath), "ze_premium/ze-pain%i.mp3", hit);
-				EmitSoundToAll(soundPath, victim);
-			}
+			Sound_EmitToAll("zombie_pain", victim);
 		}
 	}
 }
@@ -403,10 +371,7 @@ void SmokeInfection(int client, float origin[3])
 			{
 				if(infectedplayers < 3)
 				{
-					int randominf = GetRandomInt(1, 5);
-					char soundPath[PLATFORM_MAX_PATH];
-					Format(soundPath, sizeof(soundPath), "ze_premium/ze-infected%i.mp3", randominf);
-					EmitSoundToAll(soundPath, i);
+					Sound_EmitToAll("infection", i);
 					infectedplayers++;
 					if (g_cZEInfectionNadeEffect.IntValue > 0)
 					{
@@ -433,10 +398,7 @@ void SmokeInfection(int client, float origin[3])
 				{
 					if(infectedplayers < 3)
 					{
-						int randominf = GetRandomInt(1, 5);
-						char soundPath[PLATFORM_MAX_PATH];
-						Format(soundPath, sizeof(soundPath), "ze_premium/ze-infected%i.mp3", randominf);
-						EmitSoundToAll(soundPath, i);
+						Sound_EmitToAll("infection", i);
 						infectedplayers++;
 						if (g_cZEInfectionNadeEffect.IntValue > 0)
 						{
@@ -660,7 +622,7 @@ stock void StripPlayer(int client)	{
 	}
 }
 
-stock void StripPlayerExceptKnives(int client)	{
+stock void StripPlayerExceptKnives(int client, int filter)	{
 	static int offset = -1;
 	static int size;
 
@@ -673,7 +635,7 @@ stock void StripPlayerExceptKnives(int client)	{
 	char sBuffer[8];
 	for(int i = 0;i!=size;i++)	{
 		weapon = GetEntDataEnt2(client, offset + i * 4);
-		if(weapon != -1)	{
+		if(weapon != -1 && weapon != filter)	{
 			GetEntityNetClass(weapon, sBuffer, sizeof sBuffer);
 			if(strncmp(sBuffer, "CKnife", 6))	continue;
 			RemovePlayerItem(client, weapon);
@@ -800,7 +762,11 @@ void RequestPlayerUltimate(int client)	{
 			gPlayerUltimateTimer[client] = CreateTimer(g_cZEUltimateTime.FloatValue, EndPower, GetClientUserId(client));
 			PrintToChatAll(" \x04[ZE-Class]\x01 Player \x06%N\x01 activated his ultimate power!", client);
 			PrintHintText(client, "\n<font class='fontSize-l'><font color='#00FF00'>[ZE-Class]</font> <font color='#FFFFFF'>You activated:</font> <font color='#FF8C00'>%s", GetPowerName(i_Power[client]));
-			EmitSoundToAll("ze_premium/ze-powereffect.mp3", client);
+			switch(i_Power[client])	{
+				case 1:	Sound_EmitToAll("power_knockback", client);
+				case 2:	Sound_EmitToAll("power_healing", client);
+				case 3:	Sound_EmitToAll("power_unlimited", client);
+			}
 		}
 	}
 }

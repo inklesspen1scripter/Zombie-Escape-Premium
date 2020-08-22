@@ -44,7 +44,8 @@ void LoadClasses()	{
 		if(zc.model[0])	PrecacheModel(zc.model, true);
 
 		kv.GetString("flags", flags, sizeof flags, "");
-		zc.access = ReadFlagString(flags) | ADMFLAG_ROOT;
+		zc.access = ReadFlagString(flags);
+		if(zc.access)	zc.access |= ADMFLAG_ROOT;
 
 		gZombieClasses.PushArray(zc, sizeof zc);
 	}	while(kv.GotoNextKey(true));
@@ -81,7 +82,8 @@ void LoadClasses()	{
 		hc.power = GetPowerIDByName(power);
 
 		kv.GetString("flags", flags, sizeof flags, "");
-		hc.access = ReadFlagString(flags) | ADMFLAG_ROOT;
+		hc.access = ReadFlagString(flags);
+		if(hc.access)	hc.access |= ADMFLAG_ROOT;
 
 		gHumanClasses.PushArray(hc, sizeof hc);
 	}	while(kv.GotoNextKey(true));

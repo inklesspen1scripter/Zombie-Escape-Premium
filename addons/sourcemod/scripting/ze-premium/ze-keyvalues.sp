@@ -1,7 +1,7 @@
 void SetZombie(int client, bool respawn = false, bool first = false, bool nemesis = false)
 {
 	g_bInfected[client] = true;
-	EmitSoundToAll("ze_premium/ze-respawn.mp3", client);
+	Sound_EmitToAll("respawn", client);
 	if (respawn == true)
 	{
 		CS_SwitchTeam(client, CS_TEAM_T);

@@ -537,7 +537,7 @@ public int mZeLeaderSpritesHandler(Menu menu, MenuAction action, int client, int
 						RemoveSprite(client);
 						i_spriteEntities[client] = AttachSprite(client, DEFEND);
 						i_typeofsprite[client] = 1;
-						EmitSoundToAll("ze_premium/ze-defend.mp3", client);
+						Sound_EmitToAll("leader_defend", client);
 						openSpritesMarkers(client);
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "chosen_defend_sprite");
 					}
@@ -546,7 +546,7 @@ public int mZeLeaderSpritesHandler(Menu menu, MenuAction action, int client, int
 						RemoveSprite(client);
 						i_spriteEntities[client] = AttachSprite(client, FOLLOWME);
 						i_typeofsprite[client] = 2;
-						EmitSoundToAll("ze_premium/ze-folowme.mp3", client);
+						Sound_EmitToAll("leader_followme", client);
 						openSpritesMarkers(client);
 						CPrintToChat(client, " \x04[ZE-Leader]\x01 %t", "chosen_follow_sprite");
 					}

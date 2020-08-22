@@ -10,11 +10,7 @@ void LoadNatives()	{
 
 public int Native_StartingInfection(Handle plugin, int argc)
 {
-	if (i_Infection == 0)
-	{
-		return false;
-	}
-	return true;
+	return i_Infection != 0;
 }
 
 public int Native_SpecialRound(Handle plugin, int argc)
@@ -24,22 +20,12 @@ public int Native_SpecialRound(Handle plugin, int argc)
 
 public int Native_IsInfected(Handle plugin, int argc)
 {
-	int client = GetNativeCell(1);
-	if (!g_bInfected[client])
-	{
-		return false;
-	}
-	return true;
+	return g_bInfected[GetNativeCell(1)];
 }
 
 public int Native_IsHuman(Handle plugin, int argc)
 {
-	int client = GetNativeCell(1);
-	if (!g_bInfected[client])
-	{
-		return true;
-	}
-	return false;
+	return !g_bInfected[GetNativeCell(1)];
 }
 
 public int Native_IsNemesis(Handle plugin, int argc)

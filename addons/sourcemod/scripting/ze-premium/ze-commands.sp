@@ -98,7 +98,7 @@ public Action CMD_Respawn(int client, int args)
 		CS_SwitchTeam(client, CS_TEAM_T);
 		g_bInfected[client] = true;	
 		CS_RespawnPlayer(client);
-		EmitSoundToAll("ze_premium/ze-respawn.mp3", client);
+		Sound_EmitToAll("respawn", client);
 	}
 	else
 	{

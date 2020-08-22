@@ -9,7 +9,7 @@ public Action OnWeaponEquip(int client, int weapon)	{
 	if(weapon == -1)	return Plugin_Continue;
 	char sBuffer[8];
 	GetEntityNetClass(weapon, sBuffer, sizeof sBuffer);
-	if(!strncmp(sBuffer, "CKnife", 6))	StripPlayerExceptKnives(client);
+	if(!strncmp(sBuffer, "CKnife", 6))	StripPlayerExceptKnives(client, weapon);
 	return Plugin_Continue;
 }
 
@@ -47,8 +47,8 @@ public void WeaponReloadPost(int weapon, bool success)	{
 			char soundPath[32];
 			FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-reloading%i.mp3", GetRandomInt(1, 4));
 			if(g_cZEReloadingSoundType.BoolValue)
-				EmitSoundToAll(soundPath, client);
-			else	EmitSoundToClient(client, soundPath);
+				Sound_EmitToAll("weapon_reload", client);
+			else	Sound_EmitToClient(client, "weapon_reload");
 		}
 	}
 	SetReserveAmmo(client, weapon, 200);
@@ -123,13 +123,13 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 					if(i_protection[victim] > 0)
 					{
 						i_protection[victim]--;
-						EmitSoundToAll("ze_premium/ze-hit.mp3", victim);
+						Sound_EmitToAll("zombie_armor_hit", victim);
 						return Plugin_Handled;
 					}
 					else
 					{
 						SetZombie(victim, false);
-						EmitSoundToAll("ze_premium/ze-respawn.mp3", victim);
+						Sound_EmitToAll("respawn", victim);
 						i_infected[attacker]++;
 						CPrintToChat(victim, " \x04[Zombie-Escape]\x01 %t", "infected_by_player", attacker);
 						SetEntProp(attacker, Prop_Data, "m_iFrags", GetClientFrags(attacker) + 1);
@@ -168,7 +168,7 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			}
 			else if(ZR_IsClientZombie(victim))
 			{
-				EmitSoundToAll("ze_premium/ze-fire.mp3", victim);
+				Sound_EmitToAll("zombie_pain_fire", victim);
 				CreateTimer(3.0, Onfire, GetClientUserId(victim));
 				CreateTimer(5.0, Slowdown, GetClientUserId(victim));
 				IgniteEntity(victim, 5.0);

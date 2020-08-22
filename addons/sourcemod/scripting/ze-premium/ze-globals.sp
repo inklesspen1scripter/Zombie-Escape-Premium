@@ -188,3 +188,6 @@ int i_infected[MAXPLAYERS + 1];
 int i_killedzm[MAXPLAYERS + 1];
 int i_hwins[MAXPLAYERS + 1];
 int i_infectedh[MAXPLAYERS + 1];
+
+//SOUNDS
+StringMap gSoundList;

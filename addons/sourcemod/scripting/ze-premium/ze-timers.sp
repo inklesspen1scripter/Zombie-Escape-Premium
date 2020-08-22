@@ -68,7 +68,7 @@ public Action FirstInfection(Handle timer)
 	if(i_Infection <= 0)
 	{
 		g_bRoundStarted = true;
-
+		int allcount = 0;
 		int ctoz[64]; // Clients to zombie
 		int ctozc = 0; // Clients to zombie count
 		int jc[64]; // Just clients
@@ -79,6 +79,7 @@ public Action FirstInfection(Handle timer)
 		{
 			if (IsValidClient(i) && GetClientTeam(i) > 1)
 			{
+				allcount++;
 				if(i_infectionban[i] > 0)	ctoz[ctozc++] = i;
 				else if(!g_bWasFirstInfected[i])	jc[jcc++] = i;
 				CS_SwitchTeam(i, CS_TEAM_CT);
@@ -95,7 +96,7 @@ public Action FirstInfection(Handle timer)
 		}
 
 		// Check free human in case all players have infection ban
-		if(!jcc)	{
+		if(ctozc == allcount)	{
 			EraseArrayItem(GetRandomInt(0, ctozc-1), ctoz, ctozc);
 		}
 
@@ -105,21 +106,22 @@ public Action FirstInfection(Handle timer)
 			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "riot_round");
 			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "riot_round");
 			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "riot_round");
-			EmitSoundToAll("ze_premium/ze-riotround.mp3");
+			Sound_EmitToAll("round_riot");
 		}
 		else if(GetRandomInt(1, 100) <= g_cZENemesis.IntValue)	{
 			gRoundType = ROUND_NEMESIS;
-			EmitSoundToAll("ze_premium/ze-nemesis.mp3");
 			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "infection_start_nemesis");
+			Sound_EmitToAll("round_nemesis");
 		}
 		else	{
 			gRoundType = ROUND_NORMAL;
 			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "infection_start_normal");
+			Sound_EmitToAll("round_normal");
 		}
 
 		int user;
-		char sNames[128] = "";
-		int lu = (sizeof sNames - 1) / ctozc - 2;
+		char sNames[128];
+		int lu = ((sizeof sNames - 1) / ctozc) - 2;
 		int la;
 		for(int z = 0;ctozc;z++)	{
 			l = GetRandomInt(0, ctozc-1);
@@ -137,11 +139,6 @@ public Action FirstInfection(Handle timer)
 				if(gRoundType == ROUND_NEMESIS)	{
 					ApplyPlayerZombieClass(user, gZombieNemesis);
 				}
-				else if(gRoundType != ROUND_RIOT)	{
-					char soundPath[PLATFORM_MAX_PATH];
-					FormatEx(soundPath, sizeof(soundPath), "ze_premium/ze-firstzm%i.mp3", GetRandomInt(1, 3));
-					EmitSoundToAll(soundPath);
-				}
 
 				SetHudTextParams(-1.0, 0.1, 4.02, 255, 0, 0, 255, 0, 0.0, 0.0, 0.0);
 				for (int i = 1; i <= MaxClients; i++)
@@ -153,12 +150,12 @@ public Action FirstInfection(Handle timer)
 					}
 				}
 			}
-			CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected_names", sNames);
 
 			CreateTimer(g_cZEInfectionTime.FloatValue, AntiDisconnect, GetClientUserId(user));
 			g_bAntiDisconnect[user] = true;
 			Forward_OnClientInfected(user, user);
 		}
+		CPrintToChatAll(" \x04[Zombie-Escape]\x01 %t", "first_infected_names", sNames);
 		H_FirstInfection = null;
 		return Plugin_Stop;
 	}
@@ -261,7 +258,7 @@ public Action Onfire(Handle timer, int client)
 	{
 		if(GetClientTeam(client) == CS_TEAM_T && g_bOnFire[client] == true)
 		{
-			EmitSoundToAll("ze_premium/ze-fire2.mp3", client);
+			Sound_EmitToAll("zombie_pain_fire", client);
 		}
 	}
 }
@@ -355,7 +352,7 @@ public Action CreateEvent_SmokeDetonate(Handle timer, any entity)
 		float origin[3];
 		GetEntPropVector(entity, Prop_Send, "m_vecOrigin", origin);
 		int client = GetEntPropEnt(entity, Prop_Send, "m_hThrower");
-		EmitSoundToAll("ze_premium/ze-infectionnade.mp3", entity);
+		Sound_EmitToAll("nade_infection", client);
 		SmokeInfection(client, origin);
 		AcceptEntityInput(entity, "kill");
 	}
@@ -378,7 +375,7 @@ public Action CreateEvent_DecoyDetonate(Handle timer, any entity)
 		float origin[3];
 		GetEntPropVector(entity, Prop_Send, "m_vecOrigin", origin);
 		int client = GetEntPropEnt(entity, Prop_Send, "m_hThrower");
-		EmitSoundToAll("ze_premium/freeze.mp3", entity);
+		Sound_EmitToAll("nade_freeze", client);
 		FlashFreeze(client, origin);
 		AcceptEntityInput(entity, "kill");
 	}
