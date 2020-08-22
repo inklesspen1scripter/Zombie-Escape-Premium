@@ -316,7 +316,7 @@ public Action HUD(Handle timer)
 							} 
 							int chars = RoundToFloor(5.0 * f_causeddamage[i] / g_cZEUltimateDamageNeed.FloatValue);
 							strcopy(progress, chars * charsize + 1, "☒☒☒☒☒");
-							strcopy(progress[chars], 1 + (5 - chars) * charsize, "☐☐☐☐☐");
+							strcopy(progress[chars * charsize], 1 + (5 - chars) * charsize, "☐☐☐☐☐");
 						}
 						else
 						{
