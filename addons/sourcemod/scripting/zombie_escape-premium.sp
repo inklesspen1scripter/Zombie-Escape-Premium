@@ -24,6 +24,7 @@ native bool EntWatch_IsSpecialItem(int entity);
 #include "ze-premium/ze-hooks.sp"
 #include "ze-premium/ze-commands.sp"
 #include "ze-premium/ze-convars.sp"
+#include "ze-premium/ze-shop.sp"
 #include "ze-premium/ze-stocks.sp"
 #include "ze-premium/ze-client.sp"
 #include "ze-premium/ze-timers.sp"
@@ -46,14 +47,20 @@ public Plugin myinfo =
 public void OnPluginStart()
 {
 	LoadTranslations("ZE-Premium");
+	ShopItem item;
 
+	gShopItems = new ArrayList(sizeof item);
+	gWeaponDamage = new StringMap();
+	gWeaponKnockback = new StringMap();
 	gSoundList = new StringMap();
+	gShopMemory = new StringMap();
 	gWeaponList1 = new ArrayList(ByteCountToCells(32));
 	gWeaponList2 = new ArrayList(ByteCountToCells(32));
 	g_hZombieClass = RegClientCookie("zombie_class_chosen", "", CookieAccess_Private);
 	g_hHumanClass = RegClientCookie("human_class_chosen", "", CookieAccess_Private);
 	g_hSavedWeapons = new Cookie("ze_weapon_selected", "", CookieAccess_Private);
-	
+
+	LoadOffsets();	
 	LoadEvents();
 	LoadConVars();
 	LoadCommands();
@@ -186,8 +193,27 @@ public void OnMapStart()
 	}
 	kv.Close();
 
+	gWeaponKnockback.Clear();
+	gWeaponDamage.Clear();
+	kv = new KeyValues("weapons");
+	BuildPath(Path_SM, g_sZEConfig, sizeof(g_sZEConfig), "configs/ze_premium/weapondata.cfg");
+	kv.ImportFromFile(g_sZEConfig);
+	kv.Rewind();
+	if(kv.GotoFirstSubKey(true))	{
+		float val;
+		do	{
+			kv.GetSectionName(sBuffer, sizeof sBuffer);
+			val = kv.GetFloat("knockback", 1.0);
+			if(val != 1.0)	gWeaponKnockback.SetValue("knockback", val);
+			val = kv.GetFloat("damage", 1.0);
+			if(val != 1.0)	gWeaponKnockback.SetValue("damage", val);
+		}
+		while(kv.GotoNextKey(true));
+	}
+
 	LoadClasses();
 	LoadSounds();
+	LoadShop();
 	
 	//AUTOMATIC DOWNLOAD
 	LoadStaticDownloads();
@@ -205,7 +231,6 @@ public void OnMapStart()
 	Make gun menu like francisco
 	Ability to define with cvar Ultimate power button
 	!voteleader
-	Knockback cvars
 	Separate custom rounds
 	separate and improve (or rewrite) statistics (and change command) https://github.com/hallucinogenic/-ZR-Zombie-Rank
 */

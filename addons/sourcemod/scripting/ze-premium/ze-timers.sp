@@ -256,7 +256,7 @@ public Action Onfire(Handle timer, int client)
 	client = GetClientOfUserId(client);
 	if(client && IsPlayerAlive(client))
 	{
-		if(GetClientTeam(client) == CS_TEAM_T && g_bOnFire[client] == true)
+		if(GetClientTeam(client) == CS_TEAM_T)
 		{
 			Sound_EmitToAll("zombie_pain_fire", client);
 		}

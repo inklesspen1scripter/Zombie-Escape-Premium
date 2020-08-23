@@ -25,12 +25,12 @@ Handle H_AmmoTimer[MAXPLAYERS + 1];
 int g_iBeamSprite;
 int g_iHaloSprite;
 
+ConVar g_cZEKnockback;
+ConVar g_cZEKnockbackAir;
+ConVar g_cZEKnockbackPower;
+
 ConVar g_cZECanChoiceClass;
 ConVar g_cZEFirstInfection;
-ConVar g_cZEHealthShot;
-ConVar g_cZEHeNade;
-ConVar g_cZEFreezeNadePrice;
-ConVar g_cZEMolotov;
 ConVar g_cZEMaximumUsage;
 ConVar g_cZEMotherZombieHP;
 ConVar g_cZEDefendModelVmt;
@@ -48,8 +48,6 @@ ConVar g_cZEZombieShieldType;
 ConVar g_cZEHeGrenadeEffect;
 ConVar g_cZEFreezeNadeEffect;
 ConVar g_cZESmokeEffect;
-ConVar g_cZEInfnade;
-ConVar g_cZEInfnadeusages;
 ConVar g_cZEReloadingSoundCooldown;
 ConVar g_cZEInfnadedistance;
 ConVar g_cZEFreezeNadeDistance;
@@ -75,6 +73,24 @@ ConVar g_cZEUltimateTime;
 
 ArrayList gWeaponList1;
 ArrayList gWeaponList2;
+
+StringMap gWeaponDamage;
+StringMap gWeaponKnockback;
+
+int offs_DefinitionIndex;
+
+enum struct ShopItem	{
+	char ident[32];
+	char name[64];
+	int type;
+	int price;
+	int access;
+	int limit;
+	int id;
+}
+ArrayList gShopItems;
+int gShopHumanItems;
+StringMap gShopMemory;
 
 enum struct ZombieClass	{
 	char ident[32];
@@ -178,9 +194,7 @@ int g_iSoundEnts[2048];
 int g_iNumSounds;
 
 //SHOP
-bool g_bOnFire[MAXPLAYERS + 1] = false;
 int spended[MAXPLAYERS + 1];
-int i_binfnade;
 
 //DATABASE
 int i_wins[MAXPLAYERS + 1];

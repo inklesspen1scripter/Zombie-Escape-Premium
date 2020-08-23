@@ -24,23 +24,15 @@ void LoadConVars()	{
 	g_cZETeleportFirstToSpawn = CreateConVar("sm_ze_teleport_first_to_spawn", "1", "0 - first zombies will not be teleported to spawn\n1 - first zombies will be teleported to spawn");
 	g_cZECanChoiceClass = CreateConVar("sm_ze_can_player_choose_class", "3", "0 - Fully random\n1 - Humans can choose class\n2 - Zombies can choose class\n-1 - Everyone can choose class");
 	g_cZEFirstInfection = CreateConVar("sm_ze_infection", "30", "Time to first infection");
-	g_cZEHealthShot = CreateConVar("sm_ze_healthshot", "2000", "Price of healthshot");
 
 	// HE grenade
-	g_cZEHeNade = CreateConVar("sm_ze_henade", "1000", "Price of he nade");
 	g_cZEHeGrenadeEffect = CreateConVar("sm_ze_hegrenade_effect", "1", "1 = enable he fire grenade, 0 = disable");
 
-	// Molotov
-	g_cZEMolotov = CreateConVar("sm_ze_molotov", "1000", "Price of molotov");
-
 	// Freeze nade
-	g_cZEFreezeNadePrice = CreateConVar("sm_ze_flashnade", "1000", "Price of flash nade");
 	g_cZEFreezeNadeDistance = CreateConVar("sm_ze_freezenade_distance", "400", "Distance of freeze grenade");
 	g_cZEFreezeNadeEffect = CreateConVar("sm_ze_decoy_effect", "1", "1 = enable decoy freeze grenade, 0 = disable");
 
 	// Infection name
-	g_cZEInfnade = CreateConVar("sm_ze_infnade", "2000", "Price of infection nade");
-	g_cZEInfnadeusages = CreateConVar("sm_ze_infnade_usages", "1", "How many times can zombies buy this nade in 1 round (for whole team)");
 	g_cZEInfnadedistance = CreateConVar("sm_ze_infnade_distance", "400", "Distance of infection grenade");
 	g_cZESmokeEffect = CreateConVar("sm_ze_smoke_effect", "1", "1 = enable smoke infect grenade, 0 = disable");
 	g_cZEInfectionNadeEffect = CreateConVar("sm_ze_infection_nade_effect", "1", "1 = infect player in place of infection, 0 = infect player and respawn them");
@@ -62,9 +54,15 @@ void LoadConVars()	{
 	
 	g_cZEMinConnectedPlayers = CreateConVar("sm_ze_minimum_players", "2", "Minimum of connected players on server for start the game", _, true, 2.0, true, 6.0);
 
+	// Ultimate
 	g_cZEUltimateDamageNeed = CreateConVar("sm_ze_ultimate_damage", "2000", "Damage amount to ready ultimate (0 - no need damage)", _, true, 0.0);
 	g_cZEUltimateCooldown = CreateConVar("sm_ze_ultimate_cooldown", "20.0", "Ultimate cooldown (0 - no need cooldown)", _, true, 0.0);
 	g_cZEUltimateTime = CreateConVar("sm_ze_ultimate_time", "6.0", "Ultimate time", _, true, 1.0);
+
+	//Knockback
+	g_cZEKnockback = CreateConVar("sm_ze_knockback", "20.0", "Knockback multiplier", _, true, 0.0);
+	g_cZEKnockbackAir = CreateConVar("sm_ze_knockback_air", "0.5", "Knockback air additional multiplier", _, true, 0.0);
+	g_cZEKnockbackPower = CreateConVar("sm_ze_knockback_power", "2.0", "Knockback ultimate power additional multiplier", _, true, 0.0);
 
 	SetConVarAlwaysZero(FindConVar("mp_teamlimit"));
 	SetConVarAlwaysZero(FindConVar("mp_autoteambalance"));

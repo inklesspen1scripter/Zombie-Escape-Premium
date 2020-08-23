@@ -1,5 +1,6 @@
 void LoadPlayerHooks(int client)	{
-	SDKHook(client, SDKHook_OnTakeDamageAlive, OnTakeDamage);
+	SDKHook(client, SDKHook_OnTakeDamage, OnTakeDamage); // why alive?
+	SDKHook(client, SDKHook_OnTakeDamagePost, OnTakeDamagePost); // why alive?
 	SDKHook(client, SDKHook_WeaponCanUse, OnWeaponCanUse);
 	SDKHook(client, SDKHook_WeaponEquipPost, OnWeaponEquipPost);
 	SDKHook(client, SDKHook_WeaponEquip, OnWeaponEquip);
@@ -89,7 +90,7 @@ public void Grenade_SpawnPost(int entity)
 }
 
 public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3])
-{	
+{
 	if(damagetype & DMG_FALL)
 	{
 		return Plugin_Handled;
@@ -176,6 +177,16 @@ public Action OnTakeDamage(int victim, int &attacker, int &inflictor, float &dam
 			}
 		}
 	}
+
+	if(weapon != -1)	{
+		char sBuffer[32];
+		float val;
+		GetWeaponAlias2(weapon, sBuffer, sizeof sBuffer);
+		if(sBuffer[0] && gWeaponKnockback.GetValue(sBuffer, val))	{
+			damage *= val;
+			return Plugin_Changed;
+		}
+	}
 	return Plugin_Continue;
 }
 
@@ -190,4 +201,27 @@ public Action OnWeaponCanUse(int client, int weapon)
 	if(!strncmp(sWeapon, "CKnife", 6))
 		return Plugin_Continue;
 	return Plugin_Handled;
+}
+
+public void OnTakeDamagePost(int victim, int attacker, int inflictor, float damage, int damagetype, int weapon, const float damageForce[3], const float damagePosition[3], int damagecustom)	{
+	if(0 < attacker <= MaxClients)	{
+		if(!g_bInfected[attacker] && g_bInfected[victim])	{
+			float knockback = g_cZEKnockback.FloatValue * damage;
+			if(weapon != -1)	{
+				char sBuffer[32];
+				GetWeaponAlias2(weapon, sBuffer, sizeof sBuffer);
+				if(sBuffer[0] && gWeaponKnockback.GetValue(sBuffer, damage))	knockback *= damage;
+			}
+			if(!knockback)	return;
+			if(GetEntPropEnt(victim, Prop_Send, "m_hGroundEntity") == -1)	knockback * g_cZEKnockbackAir.FloatValue;
+			if(i_Power[attacker] == 1)	knockback * g_cZEKnockbackPower.FloatValue;
+			if(!knockback)	return;
+
+			float vecPos[3];
+			GetClientEyeAngles(attacker, vecPos);
+			GetAngleVectors(vecPos, vecPos, NULL_VECTOR, NULL_VECTOR);
+			ScaleVector(vecPos, knockback);
+			TeleportEntity(victim, NULL_VECTOR, NULL_VECTOR, vecPos);
+		}
+	}
 }

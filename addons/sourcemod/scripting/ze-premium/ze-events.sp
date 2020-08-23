@@ -122,13 +122,13 @@ public void OnHeGrenadeDetonate(Handle event, char[] name, bool dontBroadcast)
 
 public void Event_RoundStart(Event event, const char[] name, bool bDontBroadcast)
 {
-	if (H_FirstInfection != INVALID_HANDLE)
-	{
-		KillTimer(H_FirstInfection);
-	}
+	gShopMemory.Clear();
 	g_bRoundEnd = false;
 	i_Infection = g_cZEFirstInfection.IntValue;
+
+	if (H_FirstInfection != INVALID_HANDLE)	KillTimer(H_FirstInfection);
 	H_FirstInfection = CreateTimer(1.0, FirstInfection, _, TIMER_REPEAT|TIMER_FLAG_NO_MAPCHANGE);
+
 	int weapon;
 	char sBuffer[32];
 	strcopy(sBuffer, sizeof sBuffer, "weapon_");
@@ -183,7 +183,6 @@ public void OnRoundEnd(Handle event, char[] name, bool dontBroadcast)
 	g_bMarker = false;
 	g_bPause = false;
 	gRoundType = ROUND_NORMAL;
-	i_binfnade = 0;
 	int winner_team = GetEventInt(event, "winner");
 	
 	if(winner_team == 2)

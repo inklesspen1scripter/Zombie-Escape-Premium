@@ -75,7 +75,8 @@ public Action CMD_Class(int client, int args)
 
 public Action CMD_Shop(int client, int args)
 {
-	openShop(client);
+	//openShop(client);
+	ShopPlayerShop(client);
 	return Plugin_Handled;
 }
 

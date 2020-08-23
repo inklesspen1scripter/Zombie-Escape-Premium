@@ -1,3 +1,7 @@
+void LoadOffsets()	{
+	offs_DefinitionIndex = FindSendPropInfo("CBaseCombatWeapon", "m_iItemDefinitionIndex");
+}
+
 stock int GetTeamAliveCount(int iTeamNum)
 {
 	int iCount;
@@ -69,17 +73,17 @@ stock int SetClipAmmo(int client, int weapon, int ammo)
 
 stock bool IsClientAdmin(int client)
 {
-	return CheckCommandAccess(client, "", ADMFLAG_BAN);
+	return CheckCommandAccess(client, "", ADMFLAG_BAN); // d
 }
 
 stock bool IsClientLeader(int client)
 {
-	return CheckCommandAccess(client, "", ADMFLAG_CUSTOM1);
+	return CheckCommandAccess(client, "", ADMFLAG_CUSTOM1); // o
 }
 
 stock bool IsClientVIP(int client)
 {
-	return CheckCommandAccess(client, "", ADMFLAG_RESERVATION);
+	return CheckCommandAccess(client, "", ADMFLAG_RESERVATION); // a
 }
 
 stock int SpawnMarker(int client, const char[] sprite)
@@ -708,7 +712,8 @@ stock bool IsWeaponNade(const char[] weapon)	{
 				CSWeapon_FIREBOMB,
 				CSWeapon_DIVERSION,
 				CSWeapon_FRAGGRENADE,
-				CSWeapon_SNOWBALL:	return true;
+				CSWeapon_SNOWBALL,
+				CSWeapon_HEALTHSHOT:	return true;
 	}
 	return false;
 }
@@ -785,4 +790,22 @@ bool IsPlayerUltimate(int client, bool show = false)	{
 		return false;
 	}
 	return true;
+}
+
+stock void GetWeaponAlias2(int weapon, char[] buffer, int max)	{
+	if(offs_DefinitionIndex != -1)	{
+		GetEntityNetClass(weapon, buffer, max);
+		if(!strncmp(buffer, "CKnife", 6))	{
+			strcopy(buffer, max, "knife");
+			return;
+		}
+		CSWeaponID id = CS_ItemDefIndexToID(GetEntData(weapon, offs_DefinitionIndex));
+		if(id != CSWeapon_NONE)	CS_WeaponIDToAlias(id, buffer, max);
+		else	buffer[0] = 0;
+	}
+	else	{
+		GetEntityClassname(weapon, buffer, max);
+		if(!strncmp(buffer, "weapon_", 7))	strcopy(buffer, max, buffer[7]);
+		else	buffer[0] = 0;
+	}
 }
