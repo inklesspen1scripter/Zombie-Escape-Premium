@@ -86,6 +86,7 @@ void ShopPlayerShop(int client)	{
 		FormatEx(sBuffer, sizeof sBuffer, "%X", start);
 		menu.AddItem(sBuffer, sBuffer2, hide);
 	}
+	menu.Display(client, 0);
 }
 
 public int ShopMenuHandler(Menu thismenu, MenuAction action, int client, int param)	{
