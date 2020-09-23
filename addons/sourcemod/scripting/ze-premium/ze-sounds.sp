@@ -28,7 +28,7 @@ void LoadSounds()	{
 			if(!sBuffer[6])	continue;
 			if(list.FindString(sBuffer) == -1)	{
 				list.PushString(sBuffer[6]);
-				PrecacheSound(sBuffer[6])
+				PrecacheSound(sBuffer[6]);
 				AddToStringTable(tableindex, sBuffer[6]);
 				AddFileToDownloadsTable(sBuffer);
 			}
